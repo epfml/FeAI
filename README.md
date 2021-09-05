@@ -1,2 +1,2 @@
-# FL
+# FeAI
 Federated Learning with TensorFlow.js
