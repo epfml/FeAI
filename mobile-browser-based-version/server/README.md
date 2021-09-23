@@ -1,15 +1,16 @@
-## DeAI Helper Server
+## FeAI Helper Server
 
-Centralized helper server for DeAI clients, running as an ExpressJS app. The server requires [Node](https://nodejs.org/en/), [Express](https://expressjs.com/), [PeerServer](https://github.com/peers/peerjs-server) and [Tensorflow](https://www.tensorflow.org/js). All library requirements are included in the `package.json` file.
+Centralized helper server for FeAI clients, running as an ExpressJS app. The server requires [Node](https://nodejs.org/en/), [Express](https://expressjs.com/), [PeerServer](https://github.com/peers/peerjs-server) and [Tensorflow](https://www.tensorflow.org/js). All library requirements are included in the `package.json` file.
 
 ### Components
 
-#### PeerJS server
+#### Server
 
-The PeerServer stores the entire list of connected peers, which the peers need to correctly communicate between one another. It centralizes the peer id generation, which is assigned to peers on connection. The server uses an API key, simply set to "api" for convenience (can be easily changed later on). The list of peers is publicly accessible through:
+The server keeps track of connected peers and weights from each peer and epoch. It provides the following endpoints:
 
-- `/peerjs`: PeerServer home page
-- `/peerjs/api/peers`: list of connected peers (id)
+- `/connect/:task/:id` - connect peer with id `id` to task `task`.
+- `/send_weights/:task/:epoch` - send individual weights for epoch `epoch` and task `task`. The request body should be a json with two fields: `id` and `weights`.
+- `/get_weights/:task/:epoch` - get averaged weights for epoch `epoch` and task `task`. The weights are averaged only if all individual peer weights were received for the epoch.
 
 #### Tasks
 
@@ -33,16 +34,4 @@ From this folder, you can run the server on localhost:8080 with the following co
 
 ```
 npm start
-```
-
-### Running in Google App Engine
-
-Google App Engine (GAE) creates an HTTPS certificate automatically, making this the easiest way to deploy the helper server in the Google Cloud Platform.
-
-To change the GAE app configuration, you can modify the file `app.yaml`. Do not modify the flex enviroment because it is required for WebSocket support, which is required for PeerJS.
-
-To deploy the app on GAE, you can run the following command, replacing PROJECT-ID with the your project ID:
-
-```
-gcloud app deploy --project=PROJECT-ID --promote --quiet app.yaml
 ```
