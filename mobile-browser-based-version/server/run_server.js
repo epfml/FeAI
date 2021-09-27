@@ -1,70 +1,54 @@
 const express               = require('express');
 const fs                    = require('fs');
-const { ExpressPeerServer } = require('peer');
-const topologies            = require('./topologies.js');
-const { makeId }            = require('./helpers.js');
 const { models }            = require('./models.js');
 const cors                  = require('cors');
 const path = require('path');
+
+// fraction of peers required to complete communication round
+const PEERS_THRESHOLD = 0.8
 
 const app = express();
 app.enable('trust proxy');
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({extended: false}));
-
-const topology = new topologies.BinaryTree()
-
-// GAE requires the app to listen to 8080
 const server = app.listen(8080);
-const peerServer = ExpressPeerServer(server, {
-    path: '/',
-    allow_discovery: true,
-    generateClientId: makeId(12)
-});
+const average = arr => arr.reduce((a,b) => a + b, 0) / arr.length;
 
-let peers = [];
-function eventsHandler(request, response, next) {
-    const headers = {
-      'Content-Type': 'text/event-stream',
-      'Connection': 'keep-alive',
-      'Cache-Control': 'no-cache'
-    };
-    response.writeHead(200, headers);
+const weights_dict = {}
+const peers = []
 
-    let peerId = request.params['id']
-    console.log(peerId)
-    const data = `data: ${JSON.stringify(topology.getNeighbours(peerId))}\n\n`;
-
-    response.write(data);
-  
-    const newPeer = {
-      id: peerId,
-      response
-    };
-  
-    peers.push(newPeer);
-  
-    request.on('close', () => {
-      console.log(`${peerId} Connection closed`);
-      peers = peers.filter(peer => peer.id !== peerId);
-    });
+function sendWeights(request, response) {
+  const body = request.body
+  const id = body.id
+  const weights = body.weights
+  const timestamp = body.timestamp
+  const round = request.params['round']
+  const task = request.params['task']
+  if(!(task in weights_dict)){
+    weights_dict[task] = {}
   }
-
-  function sendNewNeighbours(affectedPeers) {
-    let peersToNotify = peers.filter(peer => affectedPeers.has(peer.id) )
-    peersToNotify.forEach(peer => peer.response.write(`data: ${JSON.stringify(topology.getNeighbours(peer.id))}\n\n`))
+  if(!(round in weights_dict[task])){
+    weights_dict[task][round] = {}
   }
+  weights_dict[task][round][id] = weights
+  console.log(weights_dict)
+  response.send('weights received')
+}
 
-peerServer.on('connection', (client) => { 
-    let affectedPeers = topology.addPeer(client.getId())
-    sendNewNeighbours(affectedPeers)
-});
-
-peerServer.on('disconnect', (client) => { 
-    let affectedPeers = topology.removePeer(client.getId())
-    sendNewNeighbours(affectedPeers)
-});
+function getWeights(request, response) {
+  const task = request.params['task']
+  const round = request.params['round']
+  if(!(task in weights_dict) || !(round in weights_dict[task])){
+    return {}
+  }
+  const receivedWeights = weights_dict[task][round]
+  if(Object.keys(receivedWeights).length < peers.length*PEERS_THRESHOLD){
+    return {}
+  }
+  // TODO: use proper average of model weights (can be copied from the frontend)
+  response.send({'weights': average(Object.values(receivedWeights))})
+}
 
 Promise.all(models.map((createModel) => createModel()))
 
@@ -76,8 +60,14 @@ tasksRouter.get('/:id/:file', (req, res) => {
   res.sendFile(path.join(__dirname, req.params['id'], req.params['file']))
 });
 
-app.get('/', (req, res) => res.send('DeAI Server'));
-app.use('/deai', peerServer);
-app.get('/neighbours/:id', eventsHandler);
+app.get('/connect/:task/:id', (req, res) => {
+  peers.push(req.params['id'])
+  console.log(peers)
+  res.send('Successfully connected')
+})
+app.post('/send_weights/:task/:round', sendWeights);
+app.get('/get_weights/:task/:round', getWeights)
+
+app.get('/', (req, res) => res.send('FeAI Server'));
 app.use('/tasks', tasksRouter);
 module.exports = app;
