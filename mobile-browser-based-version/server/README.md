@@ -6,11 +6,11 @@ Centralized helper server for FeAI clients, running as an ExpressJS app. The ser
 
 #### Server
 
-The server keeps track of connected peers and weights from each peer and epoch. It provides the following endpoints:
+The server keeps track of connected peers and weights from each peer and communication round. It provides the following endpoints:
 
 - `/connect/:task/:id` - connect peer with id `id` to task `task`.
-- `/send_weights/:task/:epoch` - send individual weights for epoch `epoch` and task `task`. The request body should be a json with two fields: `id` and `weights`.
-- `/get_weights/:task/:epoch` - get averaged weights for epoch `epoch` and task `task`. The weights are averaged only if all individual peer weights were received for the epoch.
+- `/send_weights/:task/:round` - send individual weights for communication round `round` and task `task`. The request body should be a json with two fields: `id` and `weights`.
+- `/get_weights/:task/:round` - get averaged weights for communication round `round` and task `task`.
 
 #### Tasks
 
