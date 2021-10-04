@@ -49,7 +49,6 @@ export class TrainingManager {
         this.trainingInformation.learningRate
       );
     } else {
-      await this.communicationManager.updateReceivers();
       await trainingDistributed(
         this.trainingInformation.modelId,
         Xtrain,
@@ -87,11 +86,10 @@ export class TrainingManager {
    * @param {Number} accuracy The accuracy achieved by the model in the given epoch
    * @param {Number} validationAccuracy The validation accuracy achieved by the model in the given epoch
    */
-  async onEpochEnd(model, epoch, accuracy, validationAccuracy) {
+  async onEpochEnd(model, epoch, accuracy, validationAccuracy, modelId) {
     this.trainingInformant.updateCharts(epoch, validationAccuracy, accuracy);
     // At the moment, don't allow for new participants to come in.
     // Wait for a synchronization scheme (on epoch number).
-    await this.communicationManager.updateReceivers();
     await onEpochEndCommon(
       model,
       epoch,
@@ -100,7 +98,8 @@ export class TrainingManager {
       this.communicationManager.peerjsId,
       this.trainingInformation.receivedMessagesThreshold,
       this.communicationManager.peerjs,
-      this.trainingInformant
+      this.trainingInformant,
+      modelId
     );
   }
 

@@ -123,7 +123,8 @@ export async function trainingDistributed(
             model,
             epoch + 1,
             (logs.acc * 100).toFixed(2),
-            (logs.val_acc * 100).toFixed(2)
+            (logs.val_acc * 100).toFixed(2),
+            modelId
           );
           console.log(`EPOCH (${epoch + 1}): Train Accuracy: ${(
             logs.acc * 100

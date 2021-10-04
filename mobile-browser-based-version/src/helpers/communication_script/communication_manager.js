@@ -1,7 +1,7 @@
 import { makeid } from './helpers';
 import Peer from 'peerjs';
 import { PeerJS, handleData } from './peer';
-
+import {store} from '../../store/store'
 /**
  * Class that deals with communication with the PeerJS server.
  * Collects the list of receivers currently connected to the PeerJS server.
@@ -46,46 +46,18 @@ export class CommunicationManager {
 
     // create an ID used to connect to the server
     this.peerjsId = await makeid(10);
-
-    // connect to the PeerJS server
-    /*
-        this.peer = new Peer(this.peerjsId, {
-            host: "localhost",
-            port: 9000,
-            path: "/deai",
-        });*/
-
-    this.peer = new Peer(this.peerjsId, {
-      host: 'deai-313515.ew.r.appspot.com',
-      path: '/deai',
-      secure: true,
-      config: {
-        iceServers: [
-          { url: 'stun:stun.l.google.com:19302' },
-          {
-            url: 'turn:34.77.172.69:3478',
-            credential: 'deai',
-            username: 'deai',
-          },
-        ],
-      },
+    const serverUrl = 'http://127.0.0.1:8080/'
+    const url = serverUrl.concat('connect/').concat(environment.Task.trainingInformation.modelId).concat('/').concat(this.peerjsId)
+    const response = await fetch(url, {
+      method: 'GET', 
     });
 
-    this.peer.on('error', err => {
-      console.log('Error in connecting');
-      this.isConnected = false;
+    let responseText = await response.text();
 
-      environment.$toast.error(
-        'Failed to connect to server. Fallback to training alone.'
-      );
-      setTimeout(environment.$toast.clear, 30000);
-    });
-
-    this.peer.on('open', async id => {
+    if (responseText == 'Successfully connected'){
       this.isConnected = true;
-
       this.peerjs = await new PeerJS(
-        this.peer,
+        this.peerjsId,
         this.password,
         handleData,
         this.recvBuffer
@@ -95,28 +67,15 @@ export class CommunicationManager {
         'Succesfully connected to server. Distributed training available.'
       );
       setTimeout(environment.$toast.clear, 30000);
-    });
-  }
+    }
+    else {
+      console.log('Error in connecting');
+      this.isConnected = false;
 
-  /**
-   * Updates the receivers' list.
-   */
-  async updateReceivers() {
-    /*
-        let queryIds = await fetch(
-            "http://localhost:".concat(String(this.portNbr)).concat("/deai/peerjs/peers"
-            )).then((response) => response.text());
-        */
-
-    let queryIds = await fetch(
-      'https://deai-313515.ew.r.appspot.com'.concat('/deai/peerjs/peers')
-    ).then(response => response.text());
-
-    console.log(queryIds);
-    let allIds = JSON.parse(queryIds);
-    let id = this.peerjsId;
-    this.receivers = allIds.filter(function(value) {
-      return value != id;
-    });
+      environment.$toast.error(
+        'Failed to connect to server. Fallback to training alone.'
+      );
+      setTimeout(environment.$toast.clear, 30000);
+    }
   }
 }

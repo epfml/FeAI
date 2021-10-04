@@ -2,7 +2,10 @@ const express               = require('express');
 const fs                    = require('fs');
 const { models }            = require('./models.js');
 const cors                  = require('cors');
-const path = require('path');
+const path                  = require('path');
+const { averageWeights }    = require('./tfjs_helpers.js');
+const { type } = require('os');
+const msgpack = require("msgpack-lite");
 
 // fraction of peers required to complete communication round
 const PEERS_THRESHOLD = 0.8
@@ -10,10 +13,9 @@ const PEERS_THRESHOLD = 0.8
 const app = express();
 app.enable('trust proxy');
 app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({extended: false}));
+app.use(express.json({limit: '50mb'}));
+app.use(express.urlencoded({limit: '50mb', extended: false}));
 const server = app.listen(8080);
-const average = arr => arr.reduce((a,b) => a + b, 0) / arr.length;
 
 const weights_dict = {}
 const peers = []
@@ -21,7 +23,7 @@ const peers = []
 function sendWeights(request, response) {
   const body = request.body
   const id = body.id
-  const weights = body.weights
+  const weights = msgpack.decode(Uint8Array.from(body.weights.data))
   const timestamp = body.timestamp
   const round = request.params['round']
   const task = request.params['task']
@@ -32,22 +34,28 @@ function sendWeights(request, response) {
     weights_dict[task][round] = {}
   }
   weights_dict[task][round][id] = weights
-  console.log(weights_dict)
   response.send('weights received')
 }
 
-function getWeights(request, response) {
+async function getWeights(request, response) {
   const task = request.params['task']
   const round = request.params['round']
   if(!(task in weights_dict) || !(round in weights_dict[task])){
-    return {}
+    response.send({})
+    return
   }
   const receivedWeights = weights_dict[task][round]
   if(Object.keys(receivedWeights).length < peers.length*PEERS_THRESHOLD){
-    return {}
+    response.send({})
+    return
   }
   // TODO: use proper average of model weights (can be copied from the frontend)
-  response.send({'weights': average(Object.values(receivedWeights))})
+  let serializedWeights = await averageWeights(Object.values(receivedWeights))
+  console.log(serializedWeights)
+  console.log(typeof serializedWeights)
+  let weights = msgpack.encode(Array.from(serializedWeights))
+  response.send({'weights': weights})
+  return
 }
 
 Promise.all(models.map((createModel) => createModel()))
@@ -62,7 +70,7 @@ tasksRouter.get('/:id/:file', (req, res) => {
 
 app.get('/connect/:task/:id', (req, res) => {
   peers.push(req.params['id'])
-  console.log(peers)
+  console.log('Peer connected: '.concat(req.params['id']))
   res.send('Successfully connected')
 })
 app.post('/send_weights/:task/:round', sendWeights);

@@ -358,10 +358,6 @@ export default {
       },
     });
 
-    window.setInterval(async () => {
-      await this.communicationManager.updateReceivers();
-      this.num_peers = this.communicationManager.receivers.length;
-    }, 2000);
     // This method is called when the component is created
     this.$nextTick(async function() {
       // initialize information variables
