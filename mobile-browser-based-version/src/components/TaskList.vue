@@ -54,7 +54,7 @@
         <div>
           Join us on
           <a
-            href="https://github.com/epfml/DeAI"
+            href="https://github.com/epfml/FeAI"
             target="_blank"
             class="text-blue-500 hover:underline"
             >Github</a
@@ -86,7 +86,7 @@ export default {
       taskSelected: '',
       mnist: '/mnist-model/description',
       tasks: [],
-      tasksUrl: 'https://deai-313515.ew.r.appspot.com/tasks',
+      tasksUrl: 'https://feai-328012.ew.r.appspot.com/tasks',
     };
   },
   methods: {

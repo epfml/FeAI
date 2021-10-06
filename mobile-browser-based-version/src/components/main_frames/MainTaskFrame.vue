@@ -236,7 +236,7 @@
         <div>
           Join us on
           <a
-            href="https://github.com/epfml/DeAI"
+            href="https://github.com/epfml/FeAI"
             target="_blank"
             class="text-blue-500 hover:underline"
             >Github</a

@@ -35,7 +35,7 @@
               v-on:click="goToHome()"
               class="p-1 inline-block text-xl font-bold tracking-wider text-primary-dark dark:text-light"
             >
-              DeAI
+              FeAI
             </a>
           </div>
 

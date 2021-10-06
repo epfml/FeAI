@@ -10,7 +10,7 @@ export class Task {
 
   async createModel() {
     let newModel = await tf.loadLayersModel(
-      'https://deai-313515.ew.r.appspot.com/tasks/' +
+      'https://feai-328012.ew.r.appspot.com/tasks/' +
         this.taskId +
         '/model.json'
     );

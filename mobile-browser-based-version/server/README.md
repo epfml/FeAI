@@ -14,9 +14,9 @@ The server keeps track of connected peers and weights from each peer and communi
 
 #### Tasks
 
-The training tasks given to DeAI clients are centralized on this server. Their descriptions as well as their deep learning model architectures must be made available to all peers, which is achieved via the following routing paths:
+The training tasks given to FeAI clients are centralized on this server. Their descriptions as well as their deep learning model architectures must be made available to all peers, which is achieved via the following routing paths:
 
-- `/tasks`: JSON file containing meta-data (including task id) on all available DeAI training tasks
+- `/tasks`: JSON file containing meta-data (including task id) on all available FeAI training tasks
 - `/tasks/task_id/{model.json, weights.bin}`: Tensorflow neural network model files for the given task id (model architecture & initialization weights)
 
 Tasks are stored in `tasks.json`. The models are declared in `models.js`.
@@ -34,4 +34,14 @@ From this folder, you can run the server on localhost:8080 with the following co
 
 ```
 npm start
+```
+
+Google App Engine (GAE) creates an HTTPS certificate automatically, making this the easiest way to deploy the helper server in the Google Cloud Platform.
+
+To change the GAE app configuration, you can modify the file `app.yaml`.
+
+To deploy the app on GAE, you can run the following command, replacing PROJECT-ID with the your project ID:
+
+```
+gcloud app deploy --project=PROJECT-ID --promote --quiet app.yaml
 ```
