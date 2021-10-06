@@ -10,7 +10,7 @@ import {
   getSerializedModel,
   storeSerializedModel,
 } from '../my_memory_script/indexedDB_script';
-
+import {store} from '../../store/store'
 /**
  * This object contains codes to identify what the incoming data
  * should be used for, e.g. to build the model, average the weights etc...
@@ -39,45 +39,16 @@ Object.freeze(CMD_CODES); // make object immutable*/
 export class PeerJS {
   /**
    *
-   * @param {Peer} localPeer Peer object (from PeerJS) instantiated for local machine
    * @param {function} handleData function to be called on incoming data. It should take the
    * incoming data as first argument.
    * @param  {...any} handleDataArgs args to handleData
    */
-  constructor(localPeer, password, handleData, ...handleDataArgs) {
-    this.localPeer = localPeer;
+  constructor(id, password, handleData, ...handleDataArgs) {
+    this.id = id
     this.data = null;
     this.handleData = handleData;
     this.handleDataArgs = handleDataArgs;
     this.password = password;
-
-    console.log('peer', localPeer);
-
-    // specify what to do on connection from another peer
-    this.localPeer.on('connection', conn => {
-      console.log('new connection from', conn.peer);
-      conn.on('data', async data => {
-        this.data = data;
-        await this.handleData(
-          data,
-          conn.peer,
-          password,
-          ...this.handleDataArgs
-        );
-      });
-    });
-  }
-
-  /**
-   * Send data to remote peer
-   * @param {Peer} receiver PeerJS remote peer (Peer object).
-   * @param {object} data object to send
-   */
-  async send(receiver, data) {
-    const conn = this.localPeer.connect(receiver);
-    conn.on('open', () => {
-      conn.send(data);
-    });
   }
 
   /**
@@ -90,44 +61,22 @@ export class PeerJS {
 }
 
 /**
- * Send a serialized TFJS model to a remote peer
- * @param {TFJS model} model the model to send
- * @param {PeerJS} peerjs instance of PeerJS object
- * @param {String} receiver receiver name (must be registered in PeerJS server)
- * @param {String} name name to save the model with, can be anything
- */
-export async function sendModel(model, peerjs, receiver, name) {
-  await storeModel(model, name);
-  var serialized = await getSerializedModel(name);
-  console.log(serialized);
-  const sendData = {
-    cmdCode: CMD_CODES.MODEL_INFO,
-    payload: msgpack.encode(serialized),
-  };
-  peerjs.send(receiver, sendData);
-}
-
-/**
  * Send data to a remote peer
  * @param {object} data data to send
  * @param {int} code code in CMD_CODES to identify what the data is for
  * @param {PeerJS} peerjs PeerJS object
  * @param {String} receiver name of receiver peer (must be registered in PeerJS server)
  */
-export async function sendData(data, code, peerjs, receiver) {
-  const sendData = {
-    cmdCode: code,
-    payload: msgpack.encode(data),
-  };
-  if (peerjs.password) {
-    var SHA256 = new Hashes.SHA256();
-    console.log('Current peer: ' + peerjs.localPeer.id);
-    sendData.password_hash = SHA256.hex(
-      peerjs.localPeer.id + ' ' + peerjs.password
-    );
-  }
-
-  peerjs.send(receiver, sendData);
+export async function sendData(data, epoch, modelId) {
+  const serverUrl = 'http://127.0.0.1:8080/'
+  const url = serverUrl.concat('send_weights/').concat(modelId).concat('/').concat(epoch)
+  const response = await fetch(url, {
+    method: 'POST', 
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(data) // body data type must match "Content-Type" header
+  });
 }
 
 /**

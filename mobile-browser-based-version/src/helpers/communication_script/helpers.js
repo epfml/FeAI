@@ -1,6 +1,8 @@
 import * as tf from '@tensorflow/tfjs';
+import * as msgpack from 'msgpack-lite';
 
 import { sendData, handleDataEnd, handleData, CMD_CODES } from './peer';
+import {store} from '../../store/store'
 
 const TIME_PER_TRIES = 100; // in miliseconds
 const MAX_TRIES = 100; // corresponds to waiting 10 seconds (since each try is performed every 100ms)
@@ -97,11 +99,21 @@ export function dataReceived(recvBuffer, key) {
  * @param {Object} recvBuffer
  * @param {*} key
  */
-export function dataReceivedBreak(recvBuffer, key) {
+export function dataReceivedBreak(modelId, epoch) {
   return new Promise(resolve => {
-    (function waitData(n) {
-      if (recvBuffer[key] || n >= MAX_TRIES - 1) {
-        return resolve();
+    (async function waitData(n) {
+      const serverUrl = 'http://127.0.0.1:8080/'
+      const url = serverUrl.concat('get_weights/').concat(modelId).concat('/').concat(epoch)
+      const response = await fetch(url, {
+        method: 'GET', 
+      });
+      let responseText = await response.text();
+      let data = JSON.parse(responseText)
+      if ('weights' in data){
+        return resolve(msgpack.decode(Uint8Array.from(data.weights.data)))
+      }
+      if (n >= MAX_TRIES - 1) {
+        return resolve(Uint8Array.from([]))
       }
       setTimeout(() => waitData(n + 1), TIME_PER_TRIES);
     })(0);
@@ -198,94 +210,30 @@ export async function onEpochEndCommon(
   username,
   threshold,
   peerjs,
-  trainingInformant
+  trainingInformant,
+  modelId,
 ) {
   const serializedWeights = await serializeWeights(model);
-  var epochWeights = { epoch: epoch, weights: serializedWeights };
+  console.log(serializedWeights)
+  const timestamp = +new Date();
+  var data = { round: epoch, weights: msgpack.encode(Array.from(serializedWeights)), timestamp: timestamp, id: peerjs.id };
+  console.log(data.weights)
+  trainingInformant.addMessage('Sending weights to server');
+  await sendData(data, epoch, modelId);
 
-  if (threshold == undefined) {
-    threshold = 1;
-  }
+  console.log('Waiting to receive weights...');
+  trainingInformant.addMessage('Waiting to receive weights...');
+  var startTime = new Date();
+  await dataReceivedBreak(modelId, epoch).then(weights => {
+    var endTime = new Date();
+    var timeDiff = endTime - startTime; //in ms
+    timeDiff /= 1000;
+    trainingInformant.updateWaitingTime(Math.round(timeDiff));
+    trainingInformant.updateNbrUpdatesWithOthers(1);
+    trainingInformant.addMessage('Averaging weights');
 
-  console.log('Receivers are: ' + receivers);
-  // request weights and send to all who requested
-  for (var i in receivers) {
-    // Sending  weight request
-    await sendData(
-      { name: username },
-      CMD_CODES.WEIGHT_REQUEST,
-      peerjs,
-      receivers[i]
-    );
-    trainingInformant.addMessage('Sending weight request to: ' + receivers[i]);
+    let newWeights = weights.length == 0 ? serializeWeights : weights
 
-    if (
-      recvBuffer.weightRequests !== undefined &&
-      recvBuffer.weightRequests.has(receivers[i])
-    ) {
-      console.log('Sending weights to: ', receivers[i]);
-      trainingInformant.addMessage('Sending weights to: ' + receivers[i]);
-      trainingInformant.updateWhoReceivedMyModel(receivers[i]);
-      await sendData(epochWeights, CMD_CODES.AVG_WEIGHTS, peerjs, receivers[i]);
-    }
-  }
-  if (recvBuffer.weightRequests !== undefined) {
-    trainingInformant.updateNbrWeightsRequests(recvBuffer.weightRequests.size);
-    recvBuffer.weightRequests.clear();
-  }
-
-  // wait to receive weights only if other peers are connected (i.e I have receivers for now, might need to be updates)
-  // For now, no distinction between receivers and being connected to the server
-  if (receivers.length !== 0) {
-    // wait to receive weights
-    if (recvBuffer.avgWeights === undefined) {
-      var startTime = new Date();
-
-      console.log('Waiting to receive weights...');
-      trainingInformant.addMessage('Waiting to receive weights...');
-      await dataReceivedBreak(recvBuffer, 'avgWeights', 100).then(value => {
-        var endTime = new Date();
-        var timeDiff = endTime - startTime; //in ms
-        timeDiff /= 1000;
-        trainingInformant.updateWaitingTime(Math.round(timeDiff));
-      }); // timeout to avoid deadlock (10s)
-
-      // update the waiting time
-    }
-
-    if (recvBuffer.avgWeights !== undefined) {
-      // check if any weights were received
-      console.log('Waiting to receive enough weights...');
-      await checkArrayLen(recvBuffer, threshold, true, epoch).then(() => {
-        console.log('Averaging weights');
-        trainingInformant.updateNbrUpdatesWithOthers(1);
-        trainingInformant.addMessage('Averaging weights');
-
-        averageWeightsIntoModel(
-          Object.values(recvBuffer.avgWeights).flat(1),
-          model
-        );
-
-        delete recvBuffer.avgWeights; // NOTE: this might delete useful weights...
-      });
-    }
-  } else {
-    trainingInformant.addMessage(
-      'No one is connected. Move to next epoch without waiting.'
-    );
-  }
-
-  // change data handler for future requests if this is the last epoch
-  if (epoch == recvBuffer.trainInfo.epochs) {
-    // Modify the end buffer (same buffer, but with one additional components: lastWeights)
-    recvBuffer.peerjs = peerjs;
-    recvBuffer.lastUpdate = epochWeights;
-    peerjs.setDataHandler(handleDataEnd, recvBuffer);
-  }
-  /*
-    if (epoch == recvBuffer.trainInfo.epochs) { // Modify the end buffer (same buffer, but with one additional components: lastWeights)
-        var endBuffer = epochWeights
-        endBuffer.peerjs = peerjs
-        peerjs.setDataHandler(handleDataEnd, endBuffer)
-    }*/
+    assignWeightsToModel(newWeights, model)
+  });
 }
