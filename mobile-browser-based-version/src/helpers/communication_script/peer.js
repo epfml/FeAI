@@ -68,7 +68,7 @@ export class PeerJS {
  * @param {String} receiver name of receiver peer (must be registered in PeerJS server)
  */
 export async function sendData(data, epoch, modelId) {
-  const serverUrl = 'https://feai-328012.ew.r.appspot.com/'
+  const serverUrl = process.env.VUE_APP_SERVER_URI
   const url = serverUrl.concat('send_weights/').concat(modelId).concat('/').concat(epoch)
   const response = await fetch(url, {
     method: 'POST', 
