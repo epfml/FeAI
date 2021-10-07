@@ -25,11 +25,14 @@ export class CommunicationManager {
   /**
    * Disconnection process when user quits the task.
    */
-  disconect() {
-    if (this.peer != null) {
-      this.peer.disconnect();
-      this.peer.destroy();
-    }
+
+  disconnect(environment) {
+    const serverUrl = process.env.VUE_APP_SERVER_URI
+    const url = serverUrl.concat('disconnect/').concat(environment.Task.trainingInformation.modelId).concat('/').concat(this.peerjsId)
+    fetch(url, {
+      method: 'GET', 
+      keepalive: true,
+    });
   }
 
   /**
