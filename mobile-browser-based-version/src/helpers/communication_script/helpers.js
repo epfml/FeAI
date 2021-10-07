@@ -102,7 +102,7 @@ export function dataReceived(recvBuffer, key) {
 export function dataReceivedBreak(modelId, epoch) {
   return new Promise(resolve => {
     (async function waitData(n) {
-      const serverUrl = 'https://feai-328012.ew.r.appspot.com/'
+      const serverUrl = process.env.VUE_APP_SERVER_URI
       const url = serverUrl.concat('get_weights/').concat(modelId).concat('/').concat(epoch)
       const response = await fetch(url, {
         method: 'GET', 

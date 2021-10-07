@@ -46,7 +46,7 @@ export class CommunicationManager {
 
     // create an ID used to connect to the server
     this.peerjsId = await makeid(10);
-    const serverUrl = 'https://feai-328012.ew.r.appspot.com/'
+    const serverUrl = process.env.VUE_APP_SERVER_URI
     const url = serverUrl.concat('connect/').concat(environment.Task.trainingInformation.modelId).concat('/').concat(this.peerjsId)
     const response = await fetch(url, {
       method: 'GET', 
