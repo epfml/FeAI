@@ -372,6 +372,10 @@ export default {
       // initialize training informant
       this.trainingInformant.initializeCharts();
 
+      window.addEventListener('beforeunload', (event) => {
+        this.communicationManager.disconnect(this)
+      });
+
       // initialize communication manager
       this.communicationManager.initializeConnection(
         this.Task.trainingInformation.epoch,

@@ -381,6 +381,10 @@ export default {
         this
       );
 
+      window.addEventListener('beforeunload', (event) => {
+        this.communicationManager.disconnect(this)
+      });
+
       // initialize training manager
       this.trainingManager.initialization(
         this.communicationManager,

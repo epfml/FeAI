@@ -18,7 +18,7 @@ app.use(express.urlencoded({limit: '50mb', extended: false}));
 const server = app.listen(8080);
 
 const weights_dict = {}
-const peers = []
+let peers = []
 
 function sendWeights(request, response) {
   const body = request.body
@@ -72,6 +72,11 @@ app.get('/connect/:task/:id', (req, res) => {
   peers.push(req.params['id'])
   console.log('Peer connected: '.concat(req.params['id']))
   res.send('Successfully connected')
+})
+app.get('/disconnect/:task/:id', (req, res) => {
+  peers = peers.filter(val => (val != req.params['id']));
+  console.log('Peer disconnected: '.concat(req.params['id']))
+  res.send('Successfully disconnected')
 })
 app.post('/send_weights/:task/:round', sendWeights);
 app.get('/get_weights/:task/:round', getWeights)
