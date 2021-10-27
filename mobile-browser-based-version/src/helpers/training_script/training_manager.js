@@ -1,4 +1,4 @@
-import { training, trainingDistributed } from './training-script';
+import { training, trainingDistributed, trainingDistributedInteroperability } from './training-script';
 import { storeModel } from '../my_memory_script/indexedDB_script';
 import * as tf from '@tensorflow/tfjs';
 import { onEpochEndCommon } from '../communication_script/helpers';
@@ -27,8 +27,9 @@ export class TrainingManager {
    * Train the task's model either alone or in a distributed fashion depending on the user's choice.
    * @param {Boolean} distributed     boolean to states if training alone or training in a distributed fashion.
    * @param {Object} processedData   data that has been processed by the custom function define in the script of the task. Has the form {accepted: _, Xtrain: _, yTrain:_}.
+   * @param {Boolean} trainInteroperability default is false, in case we train in a distributed manner, we might want to add layers to normalize using ineroperability 
    */
-  async trainModel(distributed, processedData) {
+  async trainModel(distributed, processedData, trainInteroperability = false) {
     var Xtrain = processedData.Xtrain;
     var ytrain = processedData.ytrain;
     // notify the user that training has started
@@ -49,19 +50,39 @@ export class TrainingManager {
         this.trainingInformation.learningRate
       );
     } else {
-      await trainingDistributed(
-        this.trainingInformation.modelId,
-        Xtrain,
-        ytrain,
-        this.trainingInformation.epoch,
-        this.trainingInformation.batchSize,
-        this.trainingInformation.validationSplit,
-        this.trainingInformation.modelCompileData,
-        this,
-        this.communicationManager.peerjs,
-        this.communicationManager.recvBuffer,
-        this.trainingInformation.learningRate
-      );
+      if(!trainInteroperability){
+        await trainingDistributed(
+          this.trainingInformation.modelId,
+          Xtrain,
+          ytrain,
+          this.trainingInformation.epoch,
+          this.trainingInformation.batchSize,
+          this.trainingInformation.validationSplit,
+          this.trainingInformation.modelCompileData,
+          this,
+          this.communicationManager.peerjs,
+          this.communicationManager.recvBuffer,
+          this.trainingInformation.learningRate
+        );
+      }else{
+        this.environment.$toast.success(
+          `Distributed using Interop`
+        );
+        await trainingDistributedInteroperability(
+          this.trainingInformation.modelId,
+          Xtrain,
+          ytrain,
+          this.trainingInformation.epoch,
+          this.trainingInformation.batchSize,
+          this.trainingInformation.validationSplit,
+          this.trainingInformation.modelCompileData,
+          this,
+          this.communicationManager.peerjs,
+          this.communicationManager.recvBuffer,
+          this.trainingInformation.learningRate
+        );
+      }
+      
     }
     // notify the user that training has ended
     this.environment.$toast.success(

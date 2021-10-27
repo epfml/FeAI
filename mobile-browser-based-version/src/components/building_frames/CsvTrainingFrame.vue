@@ -203,11 +203,27 @@
         Train Alone
       </button>
       <button
-        v-on:click="joinTraining(true)"
+        v-on:click="distributedOptions=!distributedOptions"
         type="button"
         class="text-lg border-2 border-transparent bg-green-500 ml-3 py-2 px-4 font-bold uppercase text-white rounded transform transition motion-reduce:transform-none hover:scale-110 duration-500 focus:outline-none"
       >
         Train Distributed
+      </button>
+    </div>
+    <div v-if="distributedOptions" class="grid items-center justify-center p-4 border-2 rounded mx-auto">
+      <label  class="text-lg inline-flex items-center m-auto pb-sm">
+        <input type="checkbox" 
+        id="personalization" 
+        v-model="useInteroperability"
+        class="h-6 w-6 text-green-500 bg-green-500 rounded-sm">
+        <span for="personalization"> Use Interoperability</span>
+      </label>
+      <button
+        v-on:click="joinTraining(true, useInteroperability)"
+        type="button"
+        class="text-lg border-2 border-transparent bg-green-500 ml-3 py-2 px-4 font-bold uppercase text-white rounded transform transition motion-reduce:transform-none hover:scale-110 duration-500 focus:outline-none"
+      >
+        Start Distributed Training
       </button>
     </div>
 
@@ -290,6 +306,9 @@ export default {
   },
   data() {
     return {
+      // controls distributed options display
+      distributedOptions: false,
+      useInteroperability: false,
       // variables for general informations
       modelName: null,
       dataFormatInfoText: '',
@@ -322,9 +341,11 @@ export default {
     saveModel() {
       this.trainingManager.saveModel();
     },
-    async joinTraining(distributed) {
+    async joinTraining(distributed, trainInteroperability = false) {
       const nbrFiles = this.fileUploadManager.numberOfFiles();
 
+      // Ok here we do have a problem with the filecheck ... 
+      
       // Check that the user indeed gave a file
       if (nbrFiles == 0) {
         alert('Training aborted. No uploaded file given as input.');
@@ -340,7 +361,7 @@ export default {
             e,
             this.headers
           );
-          await this.trainingManager.trainModel(distributed, processedData);
+          await this.trainingManager.trainModel(distributed, processedData, trainInteroperability);
         };
         reader.readAsText(file);
       }

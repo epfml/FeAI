@@ -290,7 +290,7 @@ export default {
       this.trainingManager.saveModel();
     },
 
-    async joinTraining(distributed) {
+    async joinTraining(distributed, trainInteroperability = false) {
       const filesElement = this.fileUploadManager.getFilesList();
 
       // Check that the user indeed gave a file
@@ -315,7 +315,7 @@ export default {
           );
           setTimeout(this.$toast.clear, 30000);
 
-          await this.trainingManager.trainModel(distributed, processedData);
+          await this.trainingManager.trainModel(distributed, processedData, trainInteroperability);
         } else {
           console.log('Invalid image input.');
           console.log(
@@ -324,6 +324,10 @@ export default {
               ' out of ' +
               filesElement.length
           );
+          this.$toast.error(
+            `Image preprocessing has failed due to invalid image input`
+          );
+          setTimeout(this.$toast.clear, 30000);
         }
       }
     },
