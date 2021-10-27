@@ -210,13 +210,13 @@
         Train Distributed
       </button>
     </div>
-    <div v-if="distributedOptions" class="grid items-center justify-center p-4 border-2 rounded mx-auto">
+    <div v-if="distributedOptions" class="grid items-center justify-center p-4 border-2 rounded-lg mx-auto">
       <label  class="text-lg inline-flex items-center m-auto pb-sm">
         <input type="checkbox" 
         id="personalization" 
         v-model="useInteroperability"
         class="h-6 w-6 text-green-500 bg-green-500 rounded-sm">
-        <span for="personalization"> Use Interoperability</span>
+        <span for="personalization"> Adjust for interoperability</span>
       </label>
       <button
         v-on:click="joinTraining(true, useInteroperability)"
