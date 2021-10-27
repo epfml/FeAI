@@ -113,6 +113,7 @@ export function dataReceivedBreak(modelId, epoch) {
         return resolve(msgpack.decode(Uint8Array.from(data.weights.data)))
       }
       if (n >= MAX_TRIES - 1) {
+        console.log('No weights received from server. Continuing with local weights...')
         return resolve(Uint8Array.from([]))
       }
       setTimeout(() => waitData(n + 1), TIME_PER_TRIES);
@@ -232,7 +233,7 @@ export async function onEpochEndCommon(
     trainingInformant.updateNbrUpdatesWithOthers(1);
     trainingInformant.addMessage('Averaging weights');
 
-    let newWeights = weights.length == 0 ? serializeWeights : weights
+    let newWeights = weights.length == 0 ? serializedWeights : weights
 
     assignWeightsToModel(newWeights, model)
   });
