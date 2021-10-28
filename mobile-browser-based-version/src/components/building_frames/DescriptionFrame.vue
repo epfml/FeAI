@@ -173,7 +173,7 @@
 
 <script>
 import * as tf from '@tensorflow/tfjs';
-import { getModelInfo } from '../../helpers/my_memory_script/indexedDB_script';
+import { getModelInfo } from '../../helpers/my_memory/indexedDB_script';
 
 // Variables used in the script
 export default {
@@ -205,9 +205,7 @@ export default {
         this.readyToTrain = true;
 
         this.$toast.success(
-          'A new '
-            .concat(this.Task.trainingInformation.modelId)
-            .concat(` has been created. You can start training!`)
+          `A new ${this.Task.displayInformation.taskTitle} model has been created. You can start training!`
         );
         setTimeout(this.$toast.clear, 30000);
       }
@@ -231,9 +229,7 @@ export default {
         this.readyToTrain = true;
 
         this.$toast.success(
-          'The '
-            .concat(this.Task.trainingInformation.modelId)
-            .concat(` has been loaded. You can start training!`)
+          `The ${this.Task.displayInformation.taskTitle} model has been loaded. You can start training!`
         );
         setTimeout(this.$toast.clear, 30000);
       }

@@ -8,16 +8,25 @@ Centralized helper server for FeAI clients, running as an ExpressJS app. The ser
 
 The server keeps track of connected peers and weights from each peer and communication round. It provides the following endpoints:
 
-- `/connect/:task/:id` - connect peer with id `id` to task `task`.
-- `/send_weights/:task/:round` - send individual weights for communication round `round` and task `task`. The request body should be a json with two fields: `id` and `weights`.
-- `/get_weights/:task/:round` - get averaged weights for communication round `round` and task `task`.
+Simple GET requests.
+- `/connect/<task>/<id>` - connects peer with ID `id` to task `task`.
+- `/disconnect/<task>/<id>` - disconnects peer with ID `id` from task `task`.
+- `/logs/<id>/<task>/<round>` - logs containing all training communication history made with the server (see POST requests below)
+
+POST requests with required body `{ id, timestamp, [data]}`. Client ID and request timestamp are required for logging.
+- `/send_weights/<task>/<round>` - peer sends individual weights `weights` from peer with ID `id` for communication round `round` and task `task`.
+- `/receive_weights/<task>/<round>` - peer receives averaged weights for communication round `round` and task `task`.
+- `/send_data_info/<task>/<round>` - peer sends individual number of samples `samples` for communication round `round` and task `task`.
+- `/receive_data_info/<task>/<round>` - peer receives data shares percentages per client ID `id` for communication round `round` and task `task`.
+
+
 
 #### Tasks
 
 The training tasks given to FeAI clients are centralized on this server. Their descriptions as well as their deep learning model architectures must be made available to all peers, which is achieved via the following routing paths:
 
 - `/tasks`: JSON file containing meta-data (including task id) on all available FeAI training tasks
-- `/tasks/task_id/{model.json, weights.bin}`: Tensorflow neural network model files for the given task id (model architecture & initialization weights)
+- `/tasks/<task_id>/{model.json, weights.bin}`: Tensorflow neural network model files for the given task id (model architecture & initialization weights)
 
 Tasks are stored in `tasks.json`. The models are declared in `models.js`.
 

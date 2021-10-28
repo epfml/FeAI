@@ -9,10 +9,9 @@ export class Task {
   }
 
   async createModel() {
+    let serverUrl = process.env.VUE_APP_SERVER_URI;
     let newModel = await tf.loadLayersModel(
-      'https://feai-328012.ew.r.appspot.com/tasks/' +
-        this.taskId +
-        '/model.json'
+      serverUrl.concat('tasks/', this.taskId, '/model.json')
     );
     const savePathDb = 'indexeddb://working_'.concat(
       this.trainingInformation.modelId
@@ -23,15 +22,12 @@ export class Task {
   }
 
   async getModelFromStorage() {
-    let savePath = 'indexeddb://'
-      .concat(this.modelPrefix)
-      .concat('_')
-      .concat(this.trainingInformation.modelId);
+    let savePath = `indexeddb://${this.modelPrefix}_${this.trainingInformation.modelId}`;
     let model = await tf.loadLayersModel(savePath);
     return model;
   }
 
   setModelPrefix(prefix) {
-    this.modelPrefix = prefix
+    this.modelPrefix = prefix;
   }
 }

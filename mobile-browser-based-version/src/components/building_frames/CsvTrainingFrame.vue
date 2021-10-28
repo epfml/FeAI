@@ -274,10 +274,10 @@
 
 <script>
 import { mapState } from 'vuex';
-import { TrainingInformant } from '../../helpers/training_script/training_informant';
-import { CommunicationManager } from '../../helpers/communication_script/communication_manager';
-import { TrainingManager } from '../../helpers/training_script/training_manager';
-import { FileUploadManager } from '../../helpers/data_validation_script/file_upload_manager';
+import { TrainingInformant } from '../../helpers/training/training_informant';
+import { CommunicationManager } from '../../helpers/communication/communication_manager';
+import { TrainingManager } from '../../helpers/training/training_manager';
+import { FileUploadManager } from '../../helpers/data_validation/file_upload_manager';
 import UploadingFrame from './UploadingFrame';
 import TrainingInformationFrame from './TrainingInformationFrame';
 import * as tf from '@tensorflow/tfjs';
@@ -357,7 +357,7 @@ export default {
       // initialize information variables
       this.modelName = this.Task.trainingInformation.modelId;
 
-      console.log('Mounting' + this.modelName);
+      console.log(`Mounting ${this.modelName}`);
 
       this.dataFormatInfoText = this.Task.displayInformation.dataFormatInformation;
       this.dataExampleText = this.Task.displayInformation.dataExampleText;
@@ -367,20 +367,20 @@ export default {
       this.dataExample = this.Task.displayInformation.dataExample;
 
       // initialize the training manager
-      this.trainingManager = new TrainingManager(this.Task.trainingInformation);
+      this.trainingManager = new TrainingManager(
+        this.Task.taskId,
+        this.Task.trainingInformation
+      );
 
       // initialize training informant
       this.trainingInformant.initializeCharts();
 
-      window.addEventListener('beforeunload', (event) => {
-        this.communicationManager.disconnect(this)
+      window.addEventListener('beforeunload', event => {
+        this.communicationManager.disconnect(this);
       });
 
       // initialize communication manager
-      this.communicationManager.initializeConnection(
-        this.Task.trainingInformation.epoch,
-        this
-      );
+      this.communicationManager.connect(this);
 
       // initialize training manager
       await this.trainingManager.initialization(
@@ -392,7 +392,7 @@ export default {
   },
   async unmounted() {
     // close the connection with the server
-    this.communicationManager.disconect();
+    this.communicationManager.disconnect();
   },
 };
 </script>

@@ -1,5 +1,5 @@
 import { createStore } from 'vuex';
-import { TrainingManager } from '../helpers/training_script/training_manager'; //"../../helpers/training_script/training_manager";
+import { TrainingManager } from '../helpers/training/training_manager'; //"../../helpers/training_script/training_manager";
 
 export const store = createStore({
   state: {

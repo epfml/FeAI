@@ -1,7 +1,6 @@
 import * as tf from '@tensorflow/tfjs';
 import { model } from '@tensorflow/tfjs';
-import { handleData } from '../communication_script/peer';
-import { storeModel } from '../my_memory_script/indexedDB_script';
+import { storeModel } from '../my_memory/indexedDB_script';
 
 /**
  * Trains the model given as argument
@@ -65,7 +64,7 @@ export async function training(
 }
 
 /**
- * 
+ *
  * @param {TFJS} model the TFJS model used for training
  * @param {Tensor} trainData the training data
  * @param {Tensor} labels the labels of the data
@@ -87,8 +86,6 @@ export async function trainingDistributed(
   validationSplit,
   modelCompileData,
   trainingManager,
-  peerjs,
-  recvBuffer,
   learningRate = null
 ) {
   // shuffle to avoid having the same thing on all peers
@@ -99,8 +96,6 @@ export async function trainingDistributed(
 
   const savedModelPath = 'indexeddb://working_'.concat(modelId);
   var model = await tf.loadLayersModel(savedModelPath);
-
-  peerjs.setDataHandler(handleData, recvBuffer);
 
   // compile the model
   model.compile(modelCompileData);

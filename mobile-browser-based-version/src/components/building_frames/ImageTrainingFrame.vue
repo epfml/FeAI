@@ -236,12 +236,12 @@
 
 <script>
 import tippy from 'tippy.js';
-import { TrainingInformant } from '../../helpers/training_script/training_informant';
-import { CommunicationManager } from '../../helpers/communication_script/communication_manager';
-import { TrainingManager } from '../../helpers/training_script/training_manager';
+import { TrainingInformant } from '../../helpers/training/training_informant';
+import { CommunicationManager } from '../../helpers/communication/communication_manager';
+import { TrainingManager } from '../../helpers/training/training_manager';
 import TrainingInformationFrame from './TrainingInformationFrame';
-import { checkData } from '../../helpers/data_validation_script/helpers-image-tasks';
-import { FileUploadManager } from '../../helpers/data_validation_script/file_upload_manager';
+import { checkData } from '../../helpers/data_validation/helpers_image_tasks';
+import { FileUploadManager } from '../../helpers/data_validation/file_upload_manager';
 import UploadingFrame from './UploadingFrame';
 import 'tippy.js/themes/light.css';
 
@@ -298,7 +298,7 @@ export default {
         alert('Training aborted. No uploaded file given as input.');
       } else {
         this.$toast.success(
-          `Thank you for your contribution. Image preprocessing has started`
+          'Thank you for your contribution. Image preprocessing has started'
         );
         setTimeout(this.$toast.clear, 30000);
 
@@ -311,18 +311,15 @@ export default {
           let processedData = await this.Task.dataPreprocessing(filesElement);
 
           this.$toast.success(
-            `Image preprocessing has finished and training has started`
+            'Image preprocessing has finished and training has started'
           );
           setTimeout(this.$toast.clear, 30000);
 
           await this.trainingManager.trainModel(distributed, processedData);
         } else {
-          console.log('Invalid image input.');
+          console.log('Invalid image input');
           console.log(
-            'Number of images with valid format: ' +
-              status_validation.nr_accepted +
-              ' out of ' +
-              filesElement.length
+            `Number of images with valid format: ${status_validation.nr_accepted} out of ${filesElement.length}`
           );
         }
       }
@@ -367,7 +364,7 @@ export default {
       this.DataExample = this.Task.displayInformation.dataExample;
       this.taskLabels = this.Task.trainingInformation.LABEL_LIST;
       this.DataExampleImage = this.Task.displayInformation.dataExampleImage;
-      console.log('Mounting' + this.modelName);
+      console.log(`Mounting ${this.modelName}`);
 
       // initialize the training manager
       this.trainingManager = new TrainingManager(this.Task.trainingInformation);
@@ -381,8 +378,8 @@ export default {
         this
       );
 
-      window.addEventListener('beforeunload', (event) => {
-        this.communicationManager.disconnect(this)
+      window.addEventListener('beforeunload', event => {
+        this.communicationManager.disconnect(this);
       });
 
       // initialize training manager

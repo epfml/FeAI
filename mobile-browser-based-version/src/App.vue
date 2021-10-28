@@ -543,7 +543,10 @@
                     <div
                       class="flex items-center grid-cols-3 justify-between px-4 py-2 space-x-4 transition-colors border rounded-md hover:text-gray-900 hover:border-gray-900 dark:border-primary dark:hover:text-primary-100 dark:hover:border-primary-light focus:outline-none focus:ring focus:ring-primary-lighter focus:ring-offset-2 dark:focus:ring-offset-dark dark:focus:ring-primary-dark"
                     >
-                      <div class="cursor-pointer w-2/3" v-on:click="openTesting(item[1].name)">
+                      <div
+                        class="cursor-pointer w-2/3"
+                        v-on:click="openTesting(item[1].name)"
+                      >
                         <span>
                           {{ item[1].name.substr(12) }} <br />
                           <span class="text-xs">
@@ -552,7 +555,7 @@
                           </span>
                         </span>
                       </div>
-                      <div class='w-1/6'>
+                      <div class="w-1/6">
                         <button
                           v-on:click="deleteModel(item[1].name)"
                           class="flex items-center justify-center px-4 py-2 space-x-4 transition-colors border rounded-md hover:text-gray-900 hover:border-gray-900 dark:border-primary dark:hover:text-primary-100 dark:hover:border-primary-light focus:outline-none focus:ring focus:ring-primary-lighter focus:ring-offset-2 dark:focus:ring-offset-dark dark:focus:ring-primary-dark"
@@ -576,7 +579,7 @@
                           </span>
                         </button>
                       </div>
-                      <div class='w-1/6'>
+                      <div class="w-1/6">
                         <button
                           v-on:click="downloadModel(item[1].name)"
                           class="flex items-center justify-center px-4 py-2 space-x-4 transition-colors border rounded-md hover:text-gray-900 hover:border-gray-900 dark:border-primary dark:hover:text-primary-100 dark:hover:border-primary-light focus:outline-none focus:ring focus:ring-primary-lighter focus:ring-offset-2 dark:focus:ring-offset-dark dark:focus:ring-primary-dark"
@@ -765,12 +768,15 @@ export default {
 
     async openTesting(modelName) {
       if (modelName.includes('_')) {
-        const splits = modelName.split('_')
+        const splits = modelName.split('_');
         const modelId = splits.pop();
-        const task = this.$store.getters.tasks(modelId)
-        const prefix = splits.pop().split('://').pop()
-        task.setModelPrefix(prefix)
-        this.$router.push({name: modelId.concat('.testing')})
+        const task = this.$store.getters.tasks(modelId);
+        const prefix = splits
+          .pop()
+          .split('://')
+          .pop();
+        task.setModelPrefix(prefix);
+        this.$router.push({ name: modelId.concat('.testing') });
       }
     },
 

@@ -277,8 +277,8 @@ export default {
   methods: {
     goToTraining() {
       this.$router.push({
-        name: this.Task.trainingInformation.modelId + '.training',
-        params: { Id: this.Task.trainingInformation.modelId },
+        name: this.Task.taskId + '.training',
+        params: { Id: this.Task.taskId },
       });
     },
     goToModelDescription() {

@@ -1,7 +1,7 @@
-import { training, trainingDistributed } from './training-script';
-import { storeModel } from '../my_memory_script/indexedDB_script';
+import { training, trainingDistributed } from './training_script';
+import { storeModel } from '../my_memory/indexedDB_script';
 import * as tf from '@tensorflow/tfjs';
-import { onEpochEndCommon } from '../communication_script/helpers';
+import { onEpochEndCommunication } from '../communication/helpers';
 
 /**
  * Class that deals with the model of a task.
@@ -12,14 +12,15 @@ export class TrainingManager {
    *
    * @param {Object} trainingInformation the training information that can be found in script of the task.
    */
-  constructor(trainingInformation) {
+  constructor(taskId, trainingInformation) {
+    this.taskId = taskId;
     this.trainingInformation = trainingInformation;
     this.modelCompileData = trainingInformation.modelCompileData;
     this.communicationManager = null;
     this.trainingInformant = null;
     this.environment = null;
 
-    // current epoch of the model
+    // Current epoch of the model
     this.myEpoch = 0;
   }
 
@@ -33,7 +34,7 @@ export class TrainingManager {
     var ytrain = processedData.ytrain;
     // notify the user that training has started
     this.environment.$toast.success(
-      `Thank you for your contribution. Training has started`
+      'Thank you for your contribution! Training has started.'
     );
     setTimeout(this.environment.$toast.clear, 30000);
     if (!distributed) {
@@ -58,14 +59,12 @@ export class TrainingManager {
         this.trainingInformation.validationSplit,
         this.trainingInformation.modelCompileData,
         this,
-        this.communicationManager.peerjs,
-        this.communicationManager.recvBuffer,
         this.trainingInformation.learningRate
       );
     }
     // notify the user that training has ended
     this.environment.$toast.success(
-      this.trainingInformation.modelId.concat(` has finished training!`)
+      `${this.trainingInformation.modelId} has finished training!`
     );
     setTimeout(this.environment.$toast.clear, 30000);
   }
@@ -90,16 +89,11 @@ export class TrainingManager {
     this.trainingInformant.updateCharts(epoch, validationAccuracy, accuracy);
     // At the moment, don't allow for new participants to come in.
     // Wait for a synchronization scheme (on epoch number).
-    await onEpochEndCommon(
+    await this.communicationManager.onEpochEndCommunication(
       model,
+      this.taskId,
       epoch,
-      this.communicationManager.receivers,
-      this.communicationManager.recvBuffer,
-      this.communicationManager.peerjsId,
-      this.trainingInformation.receivedMessagesThreshold,
-      this.communicationManager.peerjs,
-      this.trainingInformant,
-      modelId
+      this.trainingInformant
     );
   }
 
@@ -114,7 +108,7 @@ export class TrainingManager {
 
     storeModel(model, 'saved_'.concat(this.trainingInformation.modelId));
     this.environment.$toast.success(
-      'The '.concat(this.trainingInformation.modelId).concat(' has been saved.')
+      `The ${this.trainingInformation.modelId} has been saved.`
     );
     setTimeout(this.environment.$toast.clear, 30000);
   }
