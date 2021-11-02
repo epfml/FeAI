@@ -2,7 +2,7 @@ import * as tf from '@tensorflow/tfjs';
 import { model } from '@tensorflow/tfjs';
 import { handleData } from '../communication_script/peer';
 import { storeModel } from '../my_memory_script/indexedDB_script';
-import {InteroperabilityLayer} from './custom_layers';
+import { InteroperabilityLayer } from './custom_layers';
 
 /**
  * Trains the model given as argument
@@ -102,7 +102,7 @@ export async function trainingDistributed(
   var model = await tf.loadLayersModel(savedModelPath);
 
   peerjs.setDataHandler(handleData, recvBuffer);
-  model.summary()
+  model.summary();
   // compile the model
   model.compile(modelCompileData);
 
@@ -156,7 +156,7 @@ export async function trainingDistributed(
  * @param {PeerJS} peerjs peerJS object
 
  */
- export async function trainingDistributedInteroperability(
+export async function trainingDistributedInteroperability(
   modelId,
   trainData,
   labels,
@@ -178,7 +178,7 @@ export async function trainingDistributed(
   const savedModelPath = 'indexeddb://working_'.concat(modelId);
   var model = await tf.loadLayersModel(savedModelPath);
   peerjs.setDataHandler(handleData, recvBuffer);
-  console.log("Training Distributed with Interoperability");
+  console.log('Training Distributed with Interoperability');
 
   // Let's try to see what's displayed
 
@@ -187,22 +187,26 @@ export async function trainingDistributed(
   // We create our local model as a wrapper of the input model
   let localModel;
 
-  try{
-    console.log("Loading Local Model from storage");
-    localModel = await tf.loadLayersModel(savedModelPath.concat("_local"));
-  }catch(e){
+  try {
+    console.log('Loading Local Model from storage');
+    localModel = await tf.loadLayersModel(savedModelPath.concat('_local'));
+    model = localModel.layers[1];
+  } catch (e) {
     // For now the only personalization is iFedAvg. More personalization options coming soon.
-    console.log("The local model is not defined, creating a new one "+e);
+    console.log('The local model is not defined, creating a new one ' + e);
     localModel = tf.sequential();
 
-    localModel.add(new InteroperabilityLayer({units: modelInputSize ,inputShape: [modelInputSize]}));
+    localModel.add(
+      new InteroperabilityLayer({
+        units: modelInputSize,
+        inputShape: [modelInputSize],
+      })
+    );
     localModel.add(model);
-    localModel.add(new InteroperabilityLayer({units: modelOutputSize}));
+    localModel.add(new InteroperabilityLayer({ units: modelOutputSize }));
   }
 
   localModel.summary();
-  console.log(localModel.layers[0].name + " weight",localModel.layers[0].weights[0].read().dataSync());
-  console.log(localModel.layers[0].name + " bias",localModel.layers[0].weights[1].read().dataSync());
 
   // compile the model
   localModel.compile(modelCompileData);
@@ -211,7 +215,7 @@ export async function trainingDistributed(
     localModel.optimizer.learningRate = learningRate;
   }
   // start training
-  // We train the wrappedModel, but we communicate the inner model 
+  // We train the wrappedModel, but we communicate the inner model
   console.log('Training started');
   await localModel
     .fit(trainData, labels, {
@@ -239,12 +243,18 @@ export async function trainingDistributed(
     })
     .then(async info => {
       await model.save(savedModelPath);
-      await localModel.save(savedModelPath.concat("_local"));
+      await localModel.save(savedModelPath.concat('_local'));
       console.log('Training finished', info.history);
     });
 
-    // Now we wanna display the weights here 
-    console.log(localModel.layers[0].name + " weight",localModel.layers[0].weights[0].read().dataSync());
-  console.log(localModel.layers[0].name + " bias",localModel.layers[0].weights[1].read().dataSync());
+  // Now we wanna display the weights here
+  console.log('Cusom');
+  console.log(
+    localModel.layers[0].name + ' weight',
+    localModel.layers[0].weights[0].read().dataSync()
+  );
+  console.log(
+    localModel.layers[0].name + ' bias',
+    localModel.layers[0].weights[1].read().dataSync()
+  );
 }
-

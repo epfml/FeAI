@@ -1,4 +1,8 @@
-import { training, trainingDistributed, trainingDistributedInteroperability } from './training-script';
+import {
+  training,
+  trainingDistributed,
+  trainingDistributedInteroperability,
+} from './training-script';
 import { storeModel } from '../my_memory_script/indexedDB_script';
 import * as tf from '@tensorflow/tfjs';
 import { onEpochEndCommon } from '../communication_script/helpers';
@@ -27,7 +31,7 @@ export class TrainingManager {
    * Train the task's model either alone or in a distributed fashion depending on the user's choice.
    * @param {Boolean} distributed     boolean to states if training alone or training in a distributed fashion.
    * @param {Object} processedData   data that has been processed by the custom function define in the script of the task. Has the form {accepted: _, Xtrain: _, yTrain:_}.
-   * @param {Boolean} trainInteroperability default is false, in case we train in a distributed manner, we might want to add layers to normalize using ineroperability 
+   * @param {Boolean} trainInteroperability default is false, in case we train in a distributed manner, we might want to add layers to normalize using ineroperability
    */
   async trainModel(distributed, processedData, trainInteroperability = false) {
     var Xtrain = processedData.Xtrain;
@@ -38,6 +42,7 @@ export class TrainingManager {
     );
     setTimeout(this.environment.$toast.clear, 30000);
     if (!distributed) {
+      this.environment.$toast.success(`Training Locally`);
       await training(
         this.trainingInformation.modelId,
         Xtrain,
@@ -50,7 +55,8 @@ export class TrainingManager {
         this.trainingInformation.learningRate
       );
     } else {
-      if(!trainInteroperability){
+      if (!trainInteroperability) {
+        this.environment.$toast.success(`Training Distributed`);
         await trainingDistributed(
           this.trainingInformation.modelId,
           Xtrain,
@@ -64,9 +70,9 @@ export class TrainingManager {
           this.communicationManager.recvBuffer,
           this.trainingInformation.learningRate
         );
-      }else{
+      } else {
         this.environment.$toast.success(
-          `Distributed using Interop`
+          `Training Distributed and adjusting for Interoperability`
         );
         await trainingDistributedInteroperability(
           this.trainingInformation.modelId,
@@ -82,7 +88,6 @@ export class TrainingManager {
           this.trainingInformation.learningRate
         );
       }
-      
     }
     // notify the user that training has ended
     this.environment.$toast.success(
@@ -126,14 +131,26 @@ export class TrainingManager {
 
   /**
    * Save the working model for later use.
+   * @param {Boolean} saveLocalModel Also saves the local (personalized) version of the model, this requires a local model.
    */
-  async saveModel() {
+  async saveModel(saveLocalModel = false) {
     const savedModelPath = 'indexeddb://working_'.concat(
       this.trainingInformation.modelId
     );
     let model = await tf.loadLayersModel(savedModelPath);
 
     storeModel(model, 'saved_'.concat(this.trainingInformation.modelId));
+
+    if (saveLocalModel) {
+      let localModel = await tf.loadLayersModel(
+        savedModelPath.concat('_local')
+      );
+
+      storeModel(
+        localModel,
+        'saved_'.concat(this.trainingInformation.modelId).concat('_local')
+      );
+    }
     this.environment.$toast.success(
       'The '.concat(this.trainingInformation.modelId).concat(' has been saved.')
     );

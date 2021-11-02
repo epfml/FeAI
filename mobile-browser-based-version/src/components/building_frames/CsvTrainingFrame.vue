@@ -203,21 +203,36 @@
         Train Alone
       </button>
       <button
-        v-on:click="distributedOptions=!distributedOptions"
+        v-on:click="distributedOptions = !distributedOptions"
         type="button"
         class="text-lg border-2 border-transparent bg-green-500 ml-3 py-2 px-4 font-bold uppercase text-white rounded transform transition motion-reduce:transform-none hover:scale-110 duration-500 focus:outline-none"
       >
         Train Distributed
       </button>
     </div>
-    <div v-if="distributedOptions" class="grid items-center justify-center p-4 border-2 rounded-lg mx-auto">
-      <label  class="text-lg inline-flex items-center m-auto pb-sm">
-        <input type="checkbox" 
-        id="personalization" 
-        v-model="useInteroperability"
-        class="h-6 w-6 text-green-500 bg-green-500 rounded-sm">
+    <div
+      v-if="distributedOptions"
+      class="grid items-center justify-center p-4 border-2 rounded-lg mx-auto"
+    >
+      <label class="text-lg inline-flex items-center m-auto pb-md">
+        <button
+          class="relative focus:outline-none pr-md"
+          v-on:click="useInteroperability = !useInteroperability"
+        >
+          <div
+            class="w-12 h-6 transition rounded-full outline-none bg-primary-100 dark:bg-primary-darker"
+          ></div>
+          <div
+            class="absolute top-0 left-0 inline-flex items-center justify-center w-6 h-6 transition-all duration-200 ease-in-out transform scale-110 rounded-full shadow-sm"
+            :class="{
+              'translate-x-0  bg-white dark:bg-primary-100': !useInteroperability,
+              'translate-x-6 bg-primary-light dark:bg-primary': useInteroperability,
+            }"
+          ></div>
+        </button>
         <span for="personalization"> Adjust for interoperability</span>
       </label>
+
       <button
         v-on:click="joinTraining(true, useInteroperability)"
         type="button"
@@ -277,7 +292,7 @@
         <div class="flex items-center justify-center p-4">
           <button
             id="train-model-button"
-            v-on:click="saveModel()"
+            v-on:click="saveModel(useInteroperability)"
             class="text-lg border-2 border-transparent bg-primary ml-3 py-2 px-4 font-bold uppercase text-white rounded transform transition motion-reduce:transform-none hover:scale-110 duration-500 focus:outline-none"
           >
             Save My model
@@ -338,14 +353,14 @@ export default {
   },
 
   methods: {
-    saveModel() {
-      this.trainingManager.saveModel();
+    saveModel(saveLocalModel = false) {
+      this.trainingManager.saveModel(saveLocalModel);
     },
     async joinTraining(distributed, trainInteroperability = false) {
       const nbrFiles = this.fileUploadManager.numberOfFiles();
 
-      // Ok here we do have a problem with the filecheck ... 
-      
+      // Ok here we do have a problem with the filecheck ...
+
       // Check that the user indeed gave a file
       if (nbrFiles == 0) {
         alert('Training aborted. No uploaded file given as input.');
@@ -361,7 +376,11 @@ export default {
             e,
             this.headers
           );
-          await this.trainingManager.trainModel(distributed, processedData, trainInteroperability);
+          await this.trainingManager.trainModel(
+            distributed,
+            processedData,
+            trainInteroperability
+          );
         };
         reader.readAsText(file);
       }

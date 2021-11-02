@@ -222,6 +222,15 @@ export default {
       await tf.io.removeModel(
         'indexeddb://saved_'.concat(this.Task.trainingInformation.modelId)
       );
+      try {
+        await tf.io.removeModel(
+          'indexeddb://saved_'
+            .concat(this.Task.trainingInformation.modelId)
+            .concat('_local')
+        );
+      } catch (error) {
+        console.log('No local model was previously saved');
+      }
     },
 
     async optionPrevModel() {
@@ -248,7 +257,19 @@ export default {
       const savePathDb = 'indexeddb://working_'.concat(
         this.Task.trainingInformation.modelId
       );
+
       await savedModel.save(savePathDb);
+      try {
+        var savedLocalModel = await tf.loadLayersModel(
+          savedModelPath.concat('_local')
+        );
+
+        await savedLocalModel.save(savePathDb.concat('_local'));
+      } catch (error) {
+        console.log(
+          'No local model was previously saved' 
+        );
+      }
     },
 
     async createNewModel() {
