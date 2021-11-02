@@ -9,26 +9,33 @@ const tf = require('@tensorflow/tfjs')
 require('@tensorflow/tfjs-node')
 
 
+/**
+ * Naively tests all the API requests made available by the FeAI centralized
+ * server from a single client's point of view.
+ */
 async function testServerRequests() {
   let server = 'http://localhost:8081'
-
+  // Declare parameters for the requests below
   let id = '09az'
   let round = 1
   let task = 'titanic'
   let model = await tf.loadLayersModel(`${server}/tasks/${task}/model.json`)
   let weights = msgpack.encode(await serializeWeights(model.weights))
-  let samples = 5000
-
+  let nbsamples = 5000
   let headers = {
     'Content-Type': 'application/json'
   }
 
-  // Connect to server
+  /**
+   * Connect to server.
+   */
   let response = await fetch(`${server}/connect/${task}/${id}`)
   console.log(response)
   console.log(await response.text())
 
-  // Send local weights
+  /**
+   * Send local weights for round #1.
+   */
   response = await fetch(`${server}/send_weights/${task}/${round}`, {
     method: 'POST',
     headers: headers,
@@ -41,7 +48,9 @@ async function testServerRequests() {
   console.log(response)
   console.log(await response.text())
 
-  // Get averaged weights
+  /**
+   * Receive averaged weights for round #1.
+   */
   response = await fetch(`${server}/receive_weights/${task}/${round}`, {
     method: 'POST',
     headers: headers,
@@ -53,9 +62,11 @@ async function testServerRequests() {
   console.log(response)
   console.log(await response.json())
 
-  // Post number of samples
+  /**
+   * Send number of samples for rounds #{1, 2, 3}.
+   */
   for (let i = 0; i < 3; i++) {
-    response = await fetch(`${server}/send_data_info/${task}/${round + i}`, {
+    response = await fetch(`${server}/send_nbsamples/${task}/${round + i}`, {
       method: 'POST',
       headers: headers,
       body: JSON.stringify({
@@ -68,8 +79,11 @@ async function testServerRequests() {
     console.log(await response.text())
   }
 
-  // Get number of samples per client
-  response = await fetch(`${server}/receive_data_info/${task}/${round + 3}`, {
+  /**
+   * Receive number of samples per client for round #4. Expects metadata from the
+   * latest round with information, i.e. round #3.
+   */
+  response = await fetch(`${server}/receive_nbsamples/${task}/${round + 3}`, {
     method: 'POST',
     headers: headers,
     body: JSON.stringify({
@@ -80,7 +94,10 @@ async function testServerRequests() {
   console.log(response)
   console.log(await response.json())
 
-  // Get logs for own activity
+  /**
+   * Get server logs for own activity. Expects the list of all previous POST
+   * requests.
+   */
   response = await fetch(`${server}/logs/${id}`)
   console.log(response)
   console.log(await response.json())
@@ -93,7 +110,9 @@ async function testServerRequests() {
   console.log(response)
   console.log(await response.json())
 
-  // Disconnect from server
+  /**
+   * Disconnect from server
+   */
   response = await fetch(`${server}/disconnect/${task}/${id}`)
   console.log(response)
   console.log(await response.text())
