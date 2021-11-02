@@ -37,8 +37,8 @@ const weightsDict = {};
  */
 const dataSamplesDict = {};
 /**
- * Contains all successful requests made to the server. Stored by client, task
- * and round. An entry consists of:
+ * Contains all successful requests made to the server. Stored by client ID,
+ * task ID and round. An entry consists of:
  * - a timestamp corresponding to the time at which the request was made
  * - the request type (sending/receiving weights/metadata)
  */
@@ -69,7 +69,7 @@ function isValidRequest(request) {
 /**
  * Appends the given POST request's timestamp and type to the logs.
  * @param {request} request received from client
- * @param {type} type of the request
+ * @param {type} type of the request (send/receive weights/metadata)
  */
 function logsAppend(request, type) {
   const id = request.body.id;
@@ -90,12 +90,14 @@ function logsAppend(request, type) {
 }
 
 /**
- * Request handler called when a client sends a POST request asking for the
- * activity history of the server. The client is allowed to be more specific
- * by giving a client ID, a task ID or round number. Each parameter is optional,
- * but the client ID must precede the task ID, and the the task ID must precede
- * the round number. A typical example of a client request would consist in
- * asking for the activity history of other clients on the same task.
+ * Request handler called when a client sends a GET request asking for the
+ * activity history of the server (i.e. the logs). The client is allowed to be
+ * more specific by providing a client ID, task ID or round number. Each
+ * parameter is optional, but the client ID must precede the task ID, and the
+ * task ID must precede the round number. A typical example of a client request
+ * would consist in asking for the activity history of other clients on the
+ * same task. It requires no prior connection to the server and is thus
+ * publicly available data.
  * @param {request} request received from client
  * @param {response} response sent to client
  */
@@ -126,7 +128,8 @@ function queryLogs(request, response) {
 
 /**
  * Entry point to the server's API. Any client must go through this connection
- * process to use any other POST requests related to training or metadata.
+ * process before making any subsequent POST requests to the server related to
+ * the training of a task or metadata.
  * @param {request} request received from client
  * @param {response} response sent to client
  *
@@ -319,14 +322,13 @@ function sendDataSamplesNumber(request, response) {
  * Request handler called when a client sends a POST request asking the server
  * for the number of data samples held per client for a given task and round.
  * If there is no entry for the given round, sends the most recent entry for
- * each client involved in the task.
- * The request's body must contain:
+ * each client involved in the task. The request's body must contain:
  * - the client's ID
  * - a timestamp corresponding to the time at which the request was made
  * @param {request} request received from client
  * @param {response} response sent to client
  */
-function receiveDataSamplesNumber(request, response) {
+function receiveDataSamplesNumbersPerClient(request, response) {
   const requestType = 'RECEIVE_nbsamples';
 
   if (!isValidRequest(request)) {
@@ -356,18 +358,6 @@ function receiveDataSamplesNumber(request, response) {
     }
   }
 
-  /* Code for computing the share of data samples per client, left to Vue frontend
-  const totalSamples = Object.values(latestDataSamplesDict).reduce((a, b) => {
-    a + b
-  });
-
-  // Map values
-  const dataShares = {};
-  for (let [id, samples] of Object.entries(latestDataSamplesDict)) {
-    dataShares[id] = samples / totalSamples;
-  }
-  */
-
   response.status(200).send(latestDataSamplesDict);
 
   logsAppend(request, requestType);
@@ -377,7 +367,8 @@ function receiveDataSamplesNumber(request, response) {
 /**
  * Request handler called when a client sends a GET request asking for all the
  * tasks metadata stored in the server's tasks.json file. This is used for
- * generating the client's list of tasks.
+ * generating the client's list of tasks. It requires no prior connection to the
+ * server and is thus publicly available data.
  * @param {request} request received from client
  * @param {response} response sent to client
  */
@@ -395,6 +386,8 @@ function getAllTasksData(request, response) {
  * Request handler called when a client sends a GET request asking for the
  * TFJS model files of a given task. The files consist of the model's
  * architecture file model.json and its initial layer weights file weights.bin.
+ * It requires no prior connection to the server and is thus publicly available
+ * data.
  * @param {request} request received from client
  * @param {response} response sent to client
  */
@@ -431,7 +424,7 @@ app.post('/send_weights/:task/:round', sendIndividualWeights);
 app.post('/receive_weights/:task/:round', receiveAveragedWeights);
 
 app.post('/send_nbsamples/:task/:round', sendDataSamplesNumber);
-app.post('/receive_nbsamples/:task/:round', receiveDataSamplesNumber);
+app.post('/receive_nbsamples/:task/:round', receiveDataSamplesNumbersPerClient);
 
 app.get('/logs/:id?/:task?/:round?', queryLogs);
 
