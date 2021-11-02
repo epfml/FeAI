@@ -7,12 +7,17 @@ const path                  = require('path');
 const { type }              = require('os');
 const msgpack               = require('msgpack-lite');
 
-// Fraction of peers required to complete communication round
-const PEERS_THRESHOLD = 0.8;
-// Save the weights for a task every X rounds
+
+// JSON file containing all the tasks metadata
+const TASKS_FILE = 'tasks.json'
+// Fraction of client reponses required to complete communication round
+const CLIENTS_THRESHOLD = 0.8;
+// Save the averaged weights of each task to local storage every X rounds
 const MODEL_SAVE_TIMESTEP = 5;
-const INVALID_REQUEST_FORMAT_MESSAGE = "Please pecify a client ID, round number and task ID.";
-const INVALID_REQUEST_KEYS_MESSAGE = "No entry matches the given keys.";
+// Common error messages
+const INVALID_REQUEST_FORMAT_MESSAGE = 'Please pecify a client ID, round number and task ID.';
+const INVALID_REQUEST_KEYS_MESSAGE = 'No entry matches the given keys.';
+
 
 const app = express();
 app.enable('trust proxy');
@@ -21,20 +26,51 @@ app.use(express.json({limit: '50mb'}));
 app.use(express.urlencoded({limit: '50mb', extended: false}));
 const server = app.listen(8081); // Different port from Vue client
 
-// Server-side data structures
+/**
+ * Contains the model weights received from clients for a given task and round.
+ * Stored by task ID, round number and client ID.
+ */
 const weightsDict = {};
-const dataDict = {};
+/**
+ * Contains the number of data samples used for training by clients for a given
+ * task and round. Stored by task ID, round number and client ID.
+ */
+const dataSamplesDict = {};
+/**
+ * Contains all successful requests made to the server. Stored by client, task
+ * and round. An entry consists of:
+ * - a timestamp corresponding to the time at which the request was made
+ * - the request type (sending/receiving weights/metadata)
+ */
 const logs = {};
-let peers = [];
+/**
+ * List of clients (client IDs) currently connected to the the server.
+ */
+let clients = [];
 
 
+/**
+ * Verifies that the given POST request is correctly formatted. Its body must
+ * contain:
+ * - the client's ID
+ * - a timestamp corresponding to the time at which the request was made
+ * The client must already be connected to the specified task before making any
+ * subsequent POST requests related to training.
+ * @param {request} request received from client
+ */
 function isValidRequest(request) {
   const body = request.body;
   return body !== undefined &&
-         body.id !== undefined && typeof body.id === 'string' && peers.includes(body.id) &&
+         body.id !== undefined && typeof body.id === 'string' &&
+         clients.includes(body.id) &&
          body.timestamp !== undefined && typeof body.timestamp === 'string';
 }
 
+/**
+ * Appends the given POST request's timestamp and type to the logs.
+ * @param {request} request received from client
+ * @param {type} type of the request
+ */
 function logsAppend(request, type) {
   const id = request.body.id;
   const timestamp = request.body.timestamp;
@@ -53,6 +89,16 @@ function logsAppend(request, type) {
   logs[id][task][round].push({timestamp: timestamp, request: type});
 }
 
+/**
+ * Request handler called when a client sends a POST request asking for the
+ * activity history of the server. The client is allowed to be more specific
+ * by giving a client ID, a task ID or round number. Each parameter is optional,
+ * but the client ID must precede the task ID, and the the task ID must precede
+ * the round number. A typical example of a client request would consist in
+ * asking for the activity history of other clients on the same task.
+ * @param {request} request received from client
+ * @param {response} response sent to client
+ */
 function queryLogs(request, response) {
   const id = request.params.id;
   const task = request.params.task;
@@ -78,7 +124,63 @@ function queryLogs(request, response) {
   response.status(404).send(INVALID_REQUEST_KEYS_MESSAGE);
 }
 
-function sendWeights(request, response) {
+/**
+ * Entry point to the server's API. Any client must go through this connection
+ * process to use any other POST requests related to training or metadata.
+ * @param {request} request received from client
+ * @param {response} response sent to client
+ *
+ * Further improvement: Clients connect to the server for a given task. This
+ * would allow the server to perform checks early on (e.g. within this function)
+ * and avoid weird error cases, such as a client connecting to a task not in
+ * tasks.json nor/or without any TFJS model. Currently, such a client would be
+ * allowed to send/receive weights/metadata although not linked to any official
+ * task. This is linked to the getAllTasksData() and getInitialTaskModel()
+ * functions.
+ */
+function connectToServer(request, response) {
+    const id = request.params.id;
+    if (clients.includes(id)) {
+      response.status(400).send('Already connected to the server.');
+    }
+    clients.push(id);
+    console.log(`Client with ID ${id} connected to the server`);
+    response.status(200).send('Successfully connected to the server.');
+}
+
+/**
+ * Request handler called when a client sends a GET request notifying the server
+ * it is disconnecting from a given task.
+ * @param {request} request received from client
+ * @param {response} response sent to client
+ *
+ * Further improvement: Automatically disconnect idle clients, i.e. clients
+ * with very poor and/or sparse contribution to training in terms of performance
+ * and/or weights posting frequency.
+ */
+function disconnectFromServer(request, response) {
+  const id = request.params.id;
+  if (!clients.includes(id)) {
+    response.status(400).send(
+      'Not connected to the server. You must first connect in order to disconnect.'
+    );
+  }
+  clients = clients.filter(clientId => (clientId != id));
+  console.log(`Client with ID ${id} disconnected from the server`);
+  response.status(200).send('Successfully disconnected from the server.');
+}
+
+/**
+ * Request handler called when a client sends a POST request containing their
+ * individual model weights to the server while training a task. The request is
+ * made for a given task and round. The request's body must contain:
+ * - the client's ID
+ * - a timestamp corresponding to the time at which the request was made
+ * - the client's weights
+ * @param {request} request received from client
+ * @param {response} response sent to client
+ */
+function sendIndividualWeights(request, response) {
   const requestType = 'SEND_weights';
 
   if (!isValidRequest(request)) {
@@ -102,13 +204,26 @@ function sendWeights(request, response) {
 
   const weights = msgpack.decode(Uint8Array.from(request.body.weights.data));
   weightsDict[task][round][id] = weights;
-  response.status(200).send("Weights successfully received.");
+  response.status(200).send('Weights successfully received.');
 
   logsAppend(request, requestType);
   return;
 }
 
-async function receiveWeights(request, response) {
+/**
+ * Request handler called when a client sends a POST request asking for
+ * the averaged model weights stored on server while training a task. The
+ * request is made for a given task and round. The request succeeds once
+ * CLIENTS_THRESHOLD % of clients sent their individual weights to the server
+ * for the given task and round. Every MODEL_SAVE_TIMESTEP rounds into the task,
+ * the requested averaged weights are saved under a JSON file at milestones/.
+ * The request's body must contain:
+ * - the client's ID
+ * - a timestamp corresponding to the time at which the request was made
+ * @param {request} request received from client
+ * @param {response} response sent to client
+ */
+async function receiveAveragedWeights(request, response) {
   const requestType = 'RECEIVE_weights';
 
   if (!isValidRequest(request)) {
@@ -131,7 +246,7 @@ async function receiveWeights(request, response) {
   logsAppend(request, requestType);
 
   const receivedWeights = weightsDict[task][round]
-  if (Object.keys(receivedWeights).length < Math.ceil(peers.length * PEERS_THRESHOLD)) {
+  if (Object.keys(receivedWeights).length < Math.ceil(clients.length * CLIENTS_THRESHOLD)) {
     response.status(200).send({});
     return;
   }
@@ -161,8 +276,19 @@ async function receiveWeights(request, response) {
   return;
 }
 
-function sendDataInfo(request, response) {
-  const requestType = 'SEND_data_info';
+/**
+ * Request handler called when a client sends a POST request containing their
+ * number of data samples to the server while training a task's model. The
+ * request is made for a given task and round. The request's body must contain:
+ * - the client's ID
+ * - a timestamp corresponding to the time at which the request was made
+ * - the client's number of data samples
+ * @param {request} request received from client
+ * @param {response} response sent to client
+ *
+ */
+function sendDataSamplesNumber(request, response) {
+  const requestType = 'SEND_nbsamples';
 
   if (!isValidRequest(request)) {
     response.status(400).send(INVALID_REQUEST_FORMAT_MESSAGE);
@@ -176,21 +302,32 @@ function sendDataInfo(request, response) {
   const task = request.params.task;
   const round = request.params.round;
 
-  if (!(task in dataDict)) {
-    dataDict[task] = {};
+  if (!(task in dataSamplesDict)) {
+    dataSamplesDict[task] = {};
   }
-  if (!(round in dataDict)) {
-    dataDict[task][round] = {};
+  if (!(round in dataSamplesDict)) {
+    dataSamplesDict[task][round] = {};
   }
-  dataDict[task][round][id] = samples;
-  response.status(200).send("Number of samples successfully received.");
+  dataSamplesDict[task][round][id] = samples;
+  response.status(200).send('Number of samples successfully received.');
 
   logsAppend(request, requestType);
   return;
 }
 
-function receiveDataInfo(request, response) {
-  const requestType = 'RECEIVE_data_info';
+/**
+ * Request handler called when a client sends a POST request asking the server
+ * for the number of data samples held per client for a given task and round.
+ * If there is no entry for the given round, sends the most recent entry for
+ * each client involved in the task.
+ * The request's body must contain:
+ * - the client's ID
+ * - a timestamp corresponding to the time at which the request was made
+ * @param {request} request received from client
+ * @param {response} response sent to client
+ */
+function receiveDataSamplesNumber(request, response) {
+  const requestType = 'RECEIVE_nbsamples';
 
   if (!isValidRequest(request)) {
     response.status(400).send(INVALID_REQUEST_FORMAT_MESSAGE);
@@ -204,90 +341,100 @@ function receiveDataInfo(request, response) {
   const task = request.params.task;
   const round = request.params.round;
 
-  if (!(task in dataDict && round >= 0)) {
+  if (!(task in dataSamplesDict && round >= 0)) {
     response.status(404).send(INVALID_REQUEST_KEYS_MESSAGE);
     console.log(`${requestType} failed`);
     return;
   }
 
-  const latestDataDict = {};
+  const latestDataSamplesDict = {};
   // For each round...
-  for (let data of Object.values(dataDict[task])) {
+  for (let data of Object.values(dataSamplesDict[task])) {
     // ... fetch the latest entry
     for (let [id, samples] of Object.entries(data)) {
-      latestDataDict[id] = samples;
+      latestDataSamplesDict[id] = samples;
     }
   }
 
-  /* Code for computing data percentages, left to client
-  const totalSamples = Object.values(latestDataDict).reduce((a, b) => {
+  /* Code for computing the share of data samples per client, left to Vue frontend
+  const totalSamples = Object.values(latestDataSamplesDict).reduce((a, b) => {
     a + b
   });
 
   // Map values
   const dataShares = {};
-  for (let [id, samples] of Object.entries(latestDataDict)) {
+  for (let [id, samples] of Object.entries(latestDataSamplesDict)) {
     dataShares[id] = samples / totalSamples;
   }
   */
 
-  response.status(200).send(latestDataDict);
+  response.status(200).send(latestDataSamplesDict);
 
   logsAppend(request, requestType);
   return;
 }
 
-function getTasks(req, res) {
-  const tasksPath = path.join(__dirname, 'tasks.json');
-  if (fs.existsSync(tasksPath)) {
-    console.log(`Serving ${tasksPath}`);
-    res.status(200).sendFile(tasksPath);
+/**
+ * Request handler called when a client sends a GET request asking for all the
+ * tasks metadata stored in the server's tasks.json file. This is used for
+ * generating the client's list of tasks.
+ * @param {request} request received from client
+ * @param {response} response sent to client
+ */
+function getAllTasksData(request, response) {
+  const tasksFilePath = path.join(__dirname, TASKS_FILE);
+  if (fs.existsSync(tasksFilePath)) {
+    console.log(`Serving ${tasksFilePath}`);
+    response.status(200).sendFile(tasksFilePath);
   } else {
-    res.status(400).send({});
+    response.status(400).send({});
   }
 }
 
-function getTaskModel(req, res) {
+/**
+ * Request handler called when a client sends a GET request asking for the
+ * TFJS model files of a given task. The files consist of the model's
+ * architecture file model.json and its initial layer weights file weights.bin.
+ * @param {request} request received from client
+ * @param {response} response sent to client
+ */
+function getInitialTaskModel(request, response) {
+  const id = request.params.id;
+  const file = request.params.file;
   const modelFiles = ['model.json', 'weights.bin'];
-  const modelPath = path.join(__dirname, req.params.id, req.params.file);
-  console.log(`File path: ${modelPath}`)
-  if (modelFiles.includes(req.params.file) && fs.existsSync(modelPath)) {
-    console.log(`${req.params.file} download for task ${req.params.id} succeeded`)
-    res.status(200).sendFile(modelPath);
+  const modelFilePath = path.join(__dirname, id, file);
+  console.log(`File path: ${modelFilePath}`)
+  if (modelFiles.includes(file) && fs.existsSync(modelFilePath)) {
+    console.log(`${file} download for task ${id} succeeded`)
+    response.status(200).sendFile(modelFilePath);
   } else {
-    res.status(400).send({});
+    response.status(400).send({});
   }
 }
 
-// Create and save Tensorflow models
+
+// Asynchronously create and save Tensorflow models to local storage
 Promise.all(models.map((createModel) => createModel()));
 
 // Configure server routing
 const tasksRouter = express.Router();
-tasksRouter.get('/', getTasks);
-tasksRouter.get('/:id/:file', getTaskModel);
 
-app.get('/connect/:task/:id', (req, res) => {
-  peers.push(req.params.id);
-  console.log(`Peer connected: ${req.params.id}`);
-  res.send("Successfully connected.");
-});
-app.get('/disconnect/:task/:id', (req, res) => {
-  peers = peers.filter(val => (val != req.params.id));
-  console.log(`Peer disconnected: ${req.params.id}`);
-  res.send("Successfully disconnected.");
-});
+tasksRouter.get('/', getAllTasksData);
+tasksRouter.get('/:id/:file', getInitialTaskModel);
 
-app.post('/send_weights/:task/:round', sendWeights);
-app.post('/receive_weights/:task/:round', receiveWeights);
+app.use('/tasks', tasksRouter);
 
-app.post('/send_data_info/:task/:round', sendDataInfo);
-app.post('/receive_data_info/:task/:round', receiveDataInfo);
+app.get('/connect/:task/:id', connectToServer);
+app.get('/disconnect/:task/:id', disconnectFromServer);
+
+app.post('/send_weights/:task/:round', sendIndividualWeights);
+app.post('/receive_weights/:task/:round', receiveAveragedWeights);
+
+app.post('/send_nbsamples/:task/:round', sendDataSamplesNumber);
+app.post('/receive_nbsamples/:task/:round', receiveDataSamplesNumber);
 
 app.get('/logs/:id?/:task?/:round?', queryLogs);
 
-app.get('/', (req, res) => res.send("FeAI Server"));
-
-app.use('/tasks', tasksRouter);
+app.get('/', (req, res) => res.send('FeAI Server'));
 
 module.exports = app;
