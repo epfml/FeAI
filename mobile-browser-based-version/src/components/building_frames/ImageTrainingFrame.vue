@@ -292,10 +292,11 @@ export default {
 
     async joinTraining(distributed) {
       const filesElement = this.fileUploadManager.getFilesList();
-
+      
       // Check that the user indeed gave a file
-      if (filesElement.length == 0) {
-        alert('Training aborted. No uploaded file given as input.');
+      if (this.fileUploadManager.numberOfFiles() == 0) {
+        this.$toast.error( "Error : No files were uploaded" ); 
+        setTimeout(this.$toast.clear, 30000);
       } else {
         this.$toast.success(
           `Thank you for your contribution. Image preprocessing has started`
