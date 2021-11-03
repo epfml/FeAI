@@ -131,9 +131,9 @@ export class TrainingManager {
 
   /**
    * Save the working model for later use.
-   * @param {Boolean} saveLocalModel Also saves the local (personalized) version of the model, this requires a local model.
+   * @param {Boolean} savePersonalModel Also saves the personal version of the model, this requires a personal model.
    */
-  async saveModel(saveLocalModel = false) {
+  async saveModel(savePersonalModel = false) {
     const savedModelPath = 'indexeddb://working_'.concat(
       this.trainingInformation.modelId
     );
@@ -141,14 +141,14 @@ export class TrainingManager {
 
     storeModel(model, 'saved_'.concat(this.trainingInformation.modelId));
 
-    if (saveLocalModel) {
-      let localModel = await tf.loadLayersModel(
-        savedModelPath.concat('_local')
+    if (savePersonalModel) {
+      let personalModel = await tf.loadLayersModel(
+        savedModelPath.concat('_personal')
       );
 
       storeModel(
-        localModel,
-        'saved_'.concat(this.trainingInformation.modelId).concat('_local')
+        personalModel,
+        'saved_'.concat(this.trainingInformation.modelId).concat('_personal')
       );
     }
     this.environment.$toast.success(

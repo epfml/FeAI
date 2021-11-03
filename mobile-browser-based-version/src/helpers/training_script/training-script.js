@@ -142,7 +142,9 @@ export async function trainingDistributed(
 }
 
 /**
- * This function is called when we decided to train using personalized. It creates a local and a global model.
+ * This function is called when we decided to train using Interoperability personalization. 
+ * 
+ * It creates both a personalized and a global model.
  * 
  * @param {TFJS} model the TFJS model used for training
  * @param {Tensor} trainData the training data
@@ -176,48 +178,46 @@ export async function trainingDistributedInteroperability(
   //const yTrain1d = labels.gather(indices)
 
   const savedModelPath = 'indexeddb://working_'.concat(modelId);
-  var model = await tf.loadLayersModel(savedModelPath);
+  var sharedModel = await tf.loadLayersModel(savedModelPath);
   peerjs.setDataHandler(handleData, recvBuffer);
   console.log('Training Distributed with Interoperability');
 
-  // Let's try to see what's displayed
-
-  let modelInputSize = model.layers[0].input.shape[1];
-  let modelOutputSize = model.layers[model.layers.length - 1].outputShape[1];
-  // We create our local model as a wrapper of the input model
-  let localModel;
+  let modelInputSize = sharedModel.layers[0].input.shape[1];
+  let modelOutputSize = sharedModel.layers[sharedModel.layers.length - 1].outputShape[1];
+  // We create our personal model as a wrapper of the input model
+  let personalModel;
 
   try {
-    console.log('Loading Local Model from storage');
-    localModel = await tf.loadLayersModel(savedModelPath.concat('_local'));
-    model = localModel.layers[1];
+    console.log('Loading Personal Model from storage');
+    personalModel = await tf.loadLayersModel(savedModelPath.concat('_personal'));
+    sharedModel = personalModel.layers[1];
   } catch (e) {
     // For now the only personalization is iFedAvg. More personalization options coming soon.
-    console.log('The local model is not defined, creating a new one ' + e);
-    localModel = tf.sequential();
+    console.log('The Personal model is not defined, creating a new one ' + e);
+    personalModel = tf.sequential();
 
-    localModel.add(
+    personalModel.add(
       new InteroperabilityLayer({
         units: modelInputSize,
         inputShape: [modelInputSize],
       })
     );
-    localModel.add(model);
-    localModel.add(new InteroperabilityLayer({ units: modelOutputSize }));
+    personalModel.add(sharedModel);
+    personalModel.add(new InteroperabilityLayer({ units: modelOutputSize }));
   }
 
-  localModel.summary();
+  personalModel.summary();
 
   // compile the model
-  localModel.compile(modelCompileData);
+  personalModel.compile(modelCompileData);
 
   if (learningRate != null) {
-    localModel.optimizer.learningRate = learningRate;
+    personalModel.optimizer.learningRate = learningRate;
   }
   // start training
-  // We train the wrappedModel, but we communicate the inner model
+  // We train the personalModel, but we communicate only the sharedModel
   console.log('Training started');
-  await localModel
+  await personalModel
     .fit(trainData, labels, {
       epochs: epochs,
       batchSize: batchSize,
@@ -227,7 +227,7 @@ export async function trainingDistributedInteroperability(
         onEpochBegin: trainingManager.onEpochBegin(),
         onEpochEnd: async (epoch, logs) => {
           await trainingManager.onEpochEnd(
-            model,
+            sharedModel,
             epoch + 1,
             (logs.acc * 100).toFixed(2),
             (logs.val_acc * 100).toFixed(2),
@@ -242,19 +242,19 @@ export async function trainingDistributedInteroperability(
       },
     })
     .then(async info => {
-      await model.save(savedModelPath);
-      await localModel.save(savedModelPath.concat('_local'));
+      await sharedModel.save(savedModelPath);
+      await personalModel.save(savedModelPath.concat('_personal'));
       console.log('Training finished', info.history);
     });
 
-  // Now we wanna display the weights here
-  console.log('Cusom');
+  // Now we wanna display the weights here for debugging
+  console.log('Custom layers weights and biases');
   console.log(
-    localModel.layers[0].name + ' weight',
-    localModel.layers[0].weights[0].read().dataSync()
+    personalModel.layers[0].name + ' weight',
+    personalModel.layers[0].weights[0].read().dataSync()
   );
   console.log(
-    localModel.layers[0].name + ' bias',
-    localModel.layers[0].weights[1].read().dataSync()
+    personalModel.layers[0].name + ' bias',
+    personalModel.layers[0].weights[1].read().dataSync()
   );
 }

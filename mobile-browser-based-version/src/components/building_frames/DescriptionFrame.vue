@@ -226,10 +226,10 @@ export default {
         await tf.io.removeModel(
           'indexeddb://saved_'
             .concat(this.Task.trainingInformation.modelId)
-            .concat('_local')
+            .concat('_personal')
         );
       } catch (error) {
-        console.log('No local model was previously saved');
+        console.log('No personal model was previously saved');
       }
     },
 
@@ -260,14 +260,14 @@ export default {
 
       await savedModel.save(savePathDb);
       try {
-        var savedLocalModel = await tf.loadLayersModel(
-          savedModelPath.concat('_local')
+        var savedPersonalModel = await tf.loadLayersModel(
+          savedModelPath.concat('_personal')
         );
 
-        await savedLocalModel.save(savePathDb.concat('_local'));
+        await savedPersonalModel.save(savePathDb.concat('_personal'));
       } catch (error) {
         console.log(
-          'No local model was previously saved' 
+          'No Personal model was previously saved' 
         );
       }
     },

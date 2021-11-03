@@ -353,8 +353,8 @@ export default {
   },
 
   methods: {
-    saveModel(saveLocalModel = false) {
-      this.trainingManager.saveModel(saveLocalModel);
+    saveModel(savePersonalModel = false) {
+      this.trainingManager.saveModel(savePersonalModel);
     },
     async joinTraining(distributed, trainInteroperability = false) {
       const nbrFiles = this.fileUploadManager.numberOfFiles();
