@@ -67,7 +67,7 @@
 </template>
 
 <script>
-import { initializeIndexedDB } from '../helpers/my_memory_script/indexedDB_script';
+import { initializeIndexedDB } from '../helpers/my_memory/indexedDB_script';
 
 export default {
   name: 'taskList',

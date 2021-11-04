@@ -1,6 +1,6 @@
 import * as tf from '@tensorflow/tfjs';
 import { Task } from './task.js';
-import { getTopKClasses } from '../helpers/testing_script/testing_script';
+import { getTopKClasses } from '../helpers/testing/testing_script';
 import Papa from 'papaparse';
 
 export class ImageTask extends Task {
@@ -69,14 +69,14 @@ export class ImageTask extends Task {
     let imageUri = [];
     let imageNames = [];
 
-    Object.keys(trainingData).forEach((key) => {
+    Object.keys(trainingData).forEach(key => {
       labels.push(trainingData[key]['label']);
       imageNames.push(trainingData[key]['name']);
       imageUri.push(key);
     });
 
     console.log('User Files Validated. Start parsing.');
-    if ('LABEL_ASSIGNMENT' in this.trainingInformation){
+    if ('LABEL_ASSIGNMENT' in this.trainingInformation) {
       var label_file = imageUri.pop();
       labels.pop();
       labels = await this.createLabels(labels, label_file);
@@ -129,9 +129,7 @@ export class ImageTask extends Task {
   labelsPreprocessing(labels) {
     const nbLabels = labels.length;
     const labelsOneHotEncoded = [];
-    labels.forEach((label) =>
-      labelsOneHotEncoded.push(this.oneHotEncode(label))
-    );
+    labels.forEach(label => labelsOneHotEncoded.push(this.oneHotEncode(label)));
     return tf.tensor2d(labelsOneHotEncoded, [
       nbLabels,
       this.trainingInformation.LABEL_LIST.length,
@@ -192,8 +190,8 @@ export class ImageTask extends Task {
     }
 
     // const xs = tf.concat(xsArray, 0);
-    console.log('IDS')
-    console.log(ids)
+    console.log('IDS');
+    console.log(ids);
 
     return { xTest: xsArray, ids: ids };
   }
@@ -219,7 +217,7 @@ export class ImageTask extends Task {
       const imageUri = [];
       const imageNames = [];
 
-      Object.keys(testingData).forEach((key) => {
+      Object.keys(testingData).forEach(key => {
         imageNames.push(testingData[key].name);
         imageUri.push(key);
       });
