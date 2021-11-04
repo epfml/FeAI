@@ -324,10 +324,11 @@ export default {
     },
     async joinTraining(distributed) {
       const nbrFiles = this.fileUploadManager.numberOfFiles();
-
+      
       // Check that the user indeed gave a file
       if (nbrFiles == 0) {
-        alert('Training aborted. No uploaded file given as input.');
+        this.$toast.error( "Error : No files were uploaded" ); 
+        setTimeout(this.$toast.clear, 30000);
       } else {
         // Assume we only read the first file
         let file = this.fileUploadManager.getFirstFile();
