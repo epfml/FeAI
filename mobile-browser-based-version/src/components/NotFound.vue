@@ -27,22 +27,29 @@
                 class="ml-10  text-xl text-gray-500 dark:text-light ont-semibold"
               >
                 <span class="text-primary-dark dark:text-primary-light">
-                  Build AI with collaborators but
-                  <span class="underline">without sharing any data</span>
+                  Page Not Found
                 </span>
                 <p class="text-base">
-                  - Exchange <span class="italic">models</span> not data
+                  The page you asked for does not currently exist.
                 </p>
-                <p class="text-base">- Keep data at its source</p>
               </div>
             </div>
-            <button
-              v-on:click="goToTaskList()"
-              type="button"
-              class="w-1/6 text-lg border-2 border-transparent bg-green-500 ml-9 py-2 px-4 font-bold uppercase text-white rounded transform transition motion-reduce:transform-none duration-500 focus:outline-none"
-            >
-              Start building
-            </button>
+            <div class="flex items-center justify-center p-4">
+              <button
+                v-on:click="goToPreviousPage()"
+                type="button"
+                class="w-1/6 text-lg border-2 border-transparent bg-green-500 ml-3 py-2 px-4 font-bold uppercase text-white rounded transform transition motion-reduce:transform-none hover:scale-105 duration-500 focus:outline-none"
+              >
+                Go Back
+              </button>
+              <button
+                v-on:click="goToHomePage()"
+                type="button"
+                class="w-1/6 text-lg border-2 border-transparent bg-green-500 ml-3 py-2 px-4 font-bold uppercase text-white rounded transform transition motion-reduce:transform-none hover:scale-105 duration-500 focus:outline-none"
+              >
+                Home Page
+              </button>
+            </div>
           </div>
         </section>
       </div>
@@ -67,20 +74,17 @@
 </template>
 
 <script>
-import { initializeIndexedDB } from '../helpers/my_memory/indexedDB_script';
 
 export default {
-  name: 'taskList',
+  name: 'notFound',
   methods: {
-    goToTaskList() {
-      this.$emit('gototasks');
-      this.$router.push({
-        path: '/tasks',
-      });
+    goToPreviousPage() {
+      this.$router.go(-1);
     },
-  },
-  mounted() {
-    initializeIndexedDB();
-  },
-};
+    goToHomePage() {
+      this.$router.push({ name: 'home' });
+    }
+  }
+}
+
 </script>

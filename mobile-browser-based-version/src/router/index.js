@@ -6,6 +6,7 @@ import Home from '../components/Home';
 import TaskList from '../components/TaskList';
 import Information from '../components/Information';
 import Trophee from '../components/Trophee';
+import NotFound from '../components/NotFound';
 
 var routes = [
   {
@@ -28,6 +29,11 @@ var routes = [
     name: 'trophee',
     component: Trophee,
   },
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'not-found',
+    component: NotFound
+  }
 ];
 
 const router = createRouter({
