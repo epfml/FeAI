@@ -1,0 +1,6 @@
+group:
+  repos: |
+    epfml/DeAI@test_sync
+  files:
+    - source: mobile-browser-based-version/src/helpers/data_validation
+      dest: mobile-browser-based-version/src/helpers/data_validation_script
