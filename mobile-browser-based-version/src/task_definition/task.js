@@ -1,11 +1,11 @@
 import * as tf from '@tensorflow/tfjs';
 
 export class Task {
+
   constructor(taskId, displayInformation, trainingInformation) {
     this.taskId = taskId;
     this.displayInformation = displayInformation;
     this.trainingInformation = trainingInformation;
-    this.modelPrefix = 'working';
   }
 
   async createModel() {
@@ -13,21 +13,13 @@ export class Task {
     let newModel = await tf.loadLayersModel(
       serverUrl.concat('tasks/', this.taskId, '/model.json')
     );
-    const savePathDb = 'indexeddb://working_'.concat(
-      this.trainingInformation.modelId
-    );
-
-    // only keep this here
-    await newModel.save(savePathDb);
+    return newModel;
   }
 
+  // should not be here
   async getModelFromStorage() {
-    let savePath = `indexeddb://${this.modelPrefix}_${this.trainingInformation.modelId}`;
+    let savePath = `indexeddb://saved_${this.trainingInformation.modelId}`;
     let model = await tf.loadLayersModel(savePath);
     return model;
-  }
-
-  setModelPrefix(prefix) {
-    this.modelPrefix = prefix;
   }
 }

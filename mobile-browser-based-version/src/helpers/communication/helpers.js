@@ -1,10 +1,6 @@
 import * as tf from '@tensorflow/tfjs';
-import * as msgpack from 'msgpack-lite';
 import { Hashes } from 'jshashes';
 
-import { sendData } from './communication_manager';
-import { store } from '../../store/store';
-import { storeSerializedModel } from '../my_memory/indexedDB_script';
 
 async function serializeTensor(tensor) {
   return {
@@ -30,11 +26,11 @@ export async function serializeVariable(variable) {
   };
 }
 
-export async function serializeWeights(model) {
-  return await Promise.all(model.weights.map(serializeVariable));
+export async function serializeWeights(weights) {
+  return await Promise.all(weights.map(serializeVariable));
 }
 
-export function assignWeightsToModel(serializedWeights, model) {
+export function assignWeightsToModel(model, serializedWeights) {
   // This assumes the weights are in the right order
   model.weights.forEach((weight, idx) => {
     const serializedWeight = serializedWeights[idx]['$variable'];
@@ -76,7 +72,7 @@ export async function makeid(length) {
   return result;
 }
 
-function authenticate(data, senderId, password) {
+export function authenticate(data, senderId, password) {
   if (password) {
     if (!('password_hash' in data)) {
       console.log('Rejected message due to missing password hash');
@@ -89,18 +85,4 @@ function authenticate(data, senderId, password) {
     }
   }
   return true;
-}
-
-/**
- * Deserialize a received model
- * @param {object} modelData serialized model
- */
-export async function loadModel(modelData) {
-  console.log(`Model data: ${modelData}`);
-  await storeSerializedModel(modelData.modelInfo, modelData.modelData);
-  // Fresh TF model object
-  const model = await tf.loadLayersModel(
-    'indexeddb://'.concat(modelData.modelInfo.modelPath)
-  );
-  return model;
 }

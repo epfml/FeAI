@@ -78,7 +78,7 @@
   <!-- Card to load a model-->
   <a id="load-model">
     <div
-      v-if="savedModelExists"
+      v-if="useIndexedDB && savedModelExists"
       class="grid grid-cols-1 p-4 space-y-8 lg:gap-8"
     >
       <div class="col-span-1 bg-white rounded-lg dark:bg-darker">
@@ -113,7 +113,9 @@
           </div>
         </div>
         <!-- Descrition -->
-        <div class="flex items-center justify-between p-4">
+        <div
+          class="flex items-center justify-between p-4"
+        >
           <div class>
             <span class="text-sm text-gray-500 dark:text-light"
               >Use a model you've already worked on. <br />
@@ -141,7 +143,7 @@
           </div>
           <button
             class="relative focus:outline-none"
-            v-on:click="optionPrevModel()"
+            v-on:click="toggleUseSavedModel()"
           >
             <div
               class="w-12 h-6 transition rounded-full outline-none bg-primary-100 dark:bg-primary-darker"
@@ -149,8 +151,8 @@
             <div
               class="absolute top-0 left-0 inline-flex items-center justify-center w-6 h-6 transition-all duration-200 ease-in-out transform scale-110 rounded-full shadow-sm"
               :class="{
-                'translate-x-0  bg-white dark:bg-primary-100': !choicePreModel,
-                'translate-x-6 bg-primary-light dark:bg-primary': choicePreModel,
+                'translate-x-0  bg-white dark:bg-primary-100': !useSavedModel,
+                'translate-x-6 bg-primary-light dark:bg-primary': useSavedModel,
               }"
             ></div>
           </button>
@@ -172,8 +174,9 @@
 </template>
 
 <script>
+import * as memory from '../../helpers/memory/helpers';
 import * as tf from '@tensorflow/tfjs';
-import { getModelInfo } from '../../helpers/my_memory/indexedDB_script';
+import { mapState} from 'vuex';
 
 // Variables used in the script
 export default {
@@ -189,20 +192,20 @@ export default {
     return {
       isModelCreated: false,
       savedModelExists: false,
-      readyToTrain: false,
-      choicePreModel: false,
+      usedSavedModel: false,
       dateSaved: '',
       hourSaved: '',
       isDark: this.getTheme(),
     };
   },
+  computed: {
+    ...mapState(['useIndexedDB'])
+  },
   methods: {
     async goToTraining() {
-      if (!this.choicePreModel && !this.isModelCreated) {
-        await this.createNewModel();
+      if (this.useIndexedDB && !this.useSavedModel && !this.isModelCreated) {
+        await this.loadFreshModel();
         this.isModelCreated = true;
-
-        this.readyToTrain = true;
 
         this.$toast.success(
           `A new ${this.Task.displayInformation.taskTitle} model has been created. You can start training!`
@@ -214,19 +217,16 @@ export default {
         params: { Id: this.Id },
       });
     },
-    async deleteModel() {
-      console.log('Delete Model');
+    async deleteSavedModel() {
+      console.log(`Deleting model ${this.Task.trainingInformation.modelId}`);
       this.savedModelExists = false;
-      await tf.io.removeModel(
-        'indexeddb://saved_'.concat(this.Task.trainingInformation.modelId)
-      );
+      await memory.deleteSavedModel(this.Task.taskId, this.Task.trainingInformation.modelId);
     },
 
-    async optionPrevModel() {
-      this.choicePreModel = !this.choicePreModel;
-      if (this.choicePreModel) {
-        await this.loadSavedModel();
-        this.readyToTrain = true;
+    async toggleUseSavedModel() {
+      this.useSavedModel = !this.useSavedModel;
+      if (this.useSavedModel) {
+        await memory.loadSavedModel(this.Task.taskId, this.Task.trainingInformation.modelId);
 
         this.$toast.success(
           `The ${this.Task.displayInformation.taskTitle} model has been loaded. You can start training!`
@@ -235,21 +235,14 @@ export default {
       }
     },
 
-    async loadSavedModel() {
-      const savedModelPath = 'indexeddb://'.concat(
-        'saved_'.concat(this.Task.trainingInformation.modelId)
-      );
-      var savedModel = await tf.loadLayersModel(savedModelPath);
-
-      const savePathDb = 'indexeddb://working_'.concat(
-        this.Task.trainingInformation.modelId
-      );
-      await savedModel.save(savePathDb);
+    async loadFreshModel() {
+      await this.Task.createModel().then((freshModel) => {
+        memory.updateWorkingModel(
+          this.Task.taskId, this.Task.trainingInformation.modelId, freshModel
+        );
+      });
     },
 
-    async createNewModel() {
-      await this.Task.createModel();
-    },
     getTheme: function() {
       if (window.localStorage.getItem('dark')) {
         return JSON.parse(window.localStorage.getItem('dark'));
@@ -260,14 +253,16 @@ export default {
       );
     },
   },
+
   async mounted() {
     // This method is called when the component is created
     this.$nextTick(async function() {
-      let saveName = 'saved_'.concat(this.Task.trainingInformation.modelId);
-      let modelInfo = await getModelInfo(saveName);
+      let savedModelMetadata = await memory.getSavedModelMetadata(
+        this.Task.taskId, this.Task.trainingInformation.modelId
+      );
 
-      if (modelInfo != undefined) {
-        let date = modelInfo.modelArtifactsInfo.dateSaved;
+      if (savedModelMetadata) {
+        let date = savedModelMetadata.dateSaved;
         this.dateSaved =
           date.getDate() +
           '/' +

@@ -36,13 +36,48 @@
                 <p class="text-base">- Keep data at its source</p>
               </div>
             </div>
-            <button
-              v-on:click="goToTaskList()"
-              type="button"
-              class="w-1/6 text-lg border-2 border-transparent bg-green-500 ml-9 py-2 px-4 font-bold uppercase text-white rounded transform transition motion-reduce:transform-none duration-500 focus:outline-none"
+            <div class="flex items-center justify-center p-4">
+              <button
+                v-on:click="
+                  setIndexedDB(true);
+                  goToTaskList();
+                "
+                type="button"
+                class="text-lg border-2 border-transparent bg-green-500 ml-3 py-2 px-4 font-bold uppercase text-white rounded transform transition motion-reduce:transform-none hover:scale-105 duration-500 focus:outline-none"
+              >
+                Start building
+              </button>
+            </div>
+            <div
+              class="group flex-col items-center justify-between p-4 bg-white rounded-md dark:bg-darker dark:bg-dark"
             >
-              Start building
-            </button>
+              <div
+                class="ml-10  text-xl text-gray-500 dark:text-light ont-semibold"
+              >
+                <span class="text-primary-dark dark:text-primary-light">
+                  For little contributions or browsers without IndexedDB support
+                </span>
+                <p class="text-base">
+                  - Faster loading times
+                </p>
+                <p class="text-base">
+                  - Turns off the model library
+                </p>
+              </div>
+            </div>
+            <div class="flex items-center justify-center p-4">
+              <button
+                v-on:click="
+                  setIndexedDB(false);
+                  goToTaskList();
+                "
+                type="button"
+                class="text-lg border-2 border-transparent bg-green-500 ml-3 py-2 px-4 font-bold uppercase text-white rounded transform transition motion-reduce:transform-none hover:scale-105 duration-500 focus:outline-none"
+              >
+                Fast build
+              </button>
+            </div>
+            <!-- component -->
           </div>
         </section>
       </div>
@@ -67,20 +102,25 @@
 </template>
 
 <script>
-import { initializeIndexedDB } from '../helpers/my_memory/indexedDB_script';
+import { mapMutations, mapState } from 'vuex';
 
 export default {
-  name: 'taskList',
+  name: 'home',
+  computed: {
+    ...mapState(['useIndexedDB']),
+  },
   methods: {
+    ...mapMutations(['setIndexedDB']),
     goToTaskList() {
+      if (this.useIndexedDB && !window.indexedDB) {
+        this.$toast.error('IndexedDB is not supported by your browser. You will not be able to save models.');
+        this.setIndexedDB(false);
+      }
       this.$emit('gototasks');
       this.$router.push({
         path: '/tasks',
       });
     },
-  },
-  mounted() {
-    initializeIndexedDB();
   },
 };
 </script>
