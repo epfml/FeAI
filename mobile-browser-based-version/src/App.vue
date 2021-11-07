@@ -810,8 +810,9 @@ export default {
           });
         },
       });
-
-      this.refreshModelLibrary();
+      if (this.useIndexedDB) {
+        this.refreshModelLibrary();
+      }
     },
   },
 };
