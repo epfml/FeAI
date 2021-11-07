@@ -236,7 +236,7 @@
         >
           <div
             v-show="isSettingsPanelOpen"
-            v-on:click="openSettingsPanel()"
+            v-on:click="closeSettingsPanel()"
             class="transform fixed inset-0 z-10 bg-primary-darker"
             style="opacity: 0.5"
             aria-hidden="true"
@@ -450,7 +450,7 @@
         >
           <div
             v-show="isModelLibraryOpen"
-            v-on:click="openModelLibrary()"
+            v-on:click="closeModelLibrary()"
             class="transform fixed inset-0 z-10 bg-primary-darker"
             style="opacity: 0.5"
             aria-hidden="true"
