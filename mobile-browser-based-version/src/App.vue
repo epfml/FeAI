@@ -132,7 +132,7 @@
 
             <!-- Get Model Library-->
             <a
-              v-show="useIndexedDB"
+              v-if="useIndexedDB"
               type="a"
               data-title="Models"
               data-placement="right"
@@ -434,7 +434,10 @@
         </transition>
       </div>
 
-      <div style="position: absolute; z-index: 100">
+      <div
+        v-if="useIndexedDB"
+        style="position: absolute; z-index: 100"
+      >
         <!-- Model Library -->
         <!-- Backdrop -->
         <transition
@@ -786,9 +789,8 @@ export default {
       await memory.deleteSavedModel(modelMetadata.taskId, modelMetadata.modelName);
     },
 
-    // change to account for model naming changes +
     async openTesting(modelMetadata) {
-        this.$router.push({ name: modelMetadata.modelName.concat('.testing') });
+        this.$router.push({ name: modelMetadata.taskId.concat('.testing') });
     },
 
     async downloadModel(modelMetadata) {
