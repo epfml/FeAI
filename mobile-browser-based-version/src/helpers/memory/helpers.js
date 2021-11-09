@@ -1,6 +1,6 @@
 /**
  * Helper functions used to load and save TFJS models from IndexedDB. The
- * working model is the model workingly being trained for a task. Saved models
+ * working model is the model currently being trained for a task. Saved models
  * are models that were explicitly saved to IndexedDB. The two working/ and saved/
  * folders are invisible to the user. The user only interacts with the saved/
  * folder via the model library. The working/ folder is only used by the backend.

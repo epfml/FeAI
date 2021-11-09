@@ -322,7 +322,6 @@ export default {
       // take care of communication processes
       communicationManager: new CommunicationManager(
         this.Task.taskId,
-        this.Task.trainingInformation.port,
         this.$store.getters.password(this.Id)
       ),
     };
