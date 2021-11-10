@@ -5,5 +5,4 @@ group:
     - source: mobile-browser-based-version/
       dest: mobile-browser-based-version/
       exclude: |
-	package-lock.json
-      
+        package-lock.json
