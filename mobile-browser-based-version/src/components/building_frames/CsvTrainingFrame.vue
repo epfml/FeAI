@@ -330,7 +330,12 @@ export default {
   computed: {
     ...mapState(['useIndexedDB'])
   },
-
+  watch: {
+    // Link the UI with the training manager logic
+    useIndexedDB(next, prev) {
+      this.trainingManager.setIndexedDB(next);
+    }
+  },
   methods: {
     async saveModelButton() {
       await saveWorkingModel(this.Task.taskId, this.Task.trainingInformation.modelId);

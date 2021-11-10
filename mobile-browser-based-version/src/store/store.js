@@ -7,7 +7,7 @@ export const store = createStore({
     globalTaskFrameState: new Array(),
     passwords: new Array(),
     tasks: new Array(),
-    useIndexedDB: false,
+    useIndexedDB: true,
   },
   mutations: {
     increment(state) {
@@ -28,7 +28,8 @@ export const store = createStore({
     },
 
     setIndexedDB(state, payload) {
-      state.useIndexedDB = payload;
+      // Convert payload to boolean value
+      state.useIndexedDB = payload ? true : false;
     }
   },
 

@@ -78,7 +78,7 @@
   <!-- Card to load a model-->
   <a id="load-model">
     <div
-      v-if="useIndexedDB && savedModelExists"
+      v-if="useIndexedDB && workingModelExists"
       class="grid grid-cols-1 p-4 space-y-8 lg:gap-8"
     >
       <div class="col-span-1 bg-white rounded-lg dark:bg-darker">
@@ -118,8 +118,9 @@
         >
           <div class>
             <span class="text-sm text-gray-500 dark:text-light"
-              >Use a model you've already worked on. <br />
-              This model was saved the
+              >FeAI cached the last model you were working on for you.
+              Select it to start training from it. Otherwise, it will be overridden the next time you train the {{ Task.displayInformation.taskTitle }} task.
+              This model was last updated the
               <span class="text-primary-dark dark:text-primary-light">
                 {{ dateSaved }}
               </span>
@@ -143,7 +144,7 @@
           </div>
           <button
             class="relative focus:outline-none"
-            v-on:click="toggleUseSavedModel()"
+            v-on:click="toggleUseWorkingModel()"
           >
             <div
               class="w-12 h-6 transition rounded-full outline-none bg-primary-100 dark:bg-primary-darker"
@@ -151,8 +152,8 @@
             <div
               class="absolute top-0 left-0 inline-flex items-center justify-center w-6 h-6 transition-all duration-200 ease-in-out transform scale-110 rounded-full shadow-sm"
               :class="{
-                'translate-x-0  bg-white dark:bg-primary-100': !useSavedModel,
-                'translate-x-6 bg-primary-light dark:bg-primary': useSavedModel,
+                'translate-x-0  bg-white dark:bg-primary-100': !useWorkingModel,
+                'translate-x-6 bg-primary-light dark:bg-primary': useWorkingModel,
               }"
             ></div>
           </button>
@@ -191,19 +192,34 @@ export default {
   data() {
     return {
       isModelCreated: false,
-      savedModelExists: false,
-      usedSavedModel: false,
+      workingModelExists: false,
+      useWorkingModel: false,
       dateSaved: '',
       hourSaved: '',
       isDark: this.getTheme(),
     };
   },
+  watch: {
+    useWorkingModel() {
+      let modelInUseMessage;
+      if (this.useWorkingModel) {
+        modelInUseMessage = `The previous ${this.Task.displayInformation.taskTitle} model has been selected. You can start training!`;
+      } else {
+        modelInUseMessage = `A new ${this.Task.displayInformation.taskTitle} model will be created. You can start training!`;
+      }
+      this.$toast.success(modelInUseMessage);
+      setTimeout(this.$toast.clear, 30000);
+    }
+  },
   computed: {
-    ...mapState(['useIndexedDB'])
+    ...mapState(['useIndexedDB']),
+    createFreshModel() {
+      return !this.isModelCreated && !(this.workingModelExists && this.useWorkingModel);
+    }
   },
   methods: {
     async goToTraining() {
-      if (this.useIndexedDB && !this.useSavedModel && !this.isModelCreated) {
+      if (this.useIndexedDB && this.createFreshModel) {
         await this.loadFreshModel();
         this.isModelCreated = true;
 
@@ -217,22 +233,14 @@ export default {
         params: { Id: this.Id },
       });
     },
-    async deleteSavedModel() {
-      console.log(`Deleting model ${this.Task.trainingInformation.modelId}`);
-      this.savedModelExists = false;
-      await memory.deleteSavedModel(this.Task.taskId, this.Task.trainingInformation.modelId);
+    async deleteModel() {
+      this.workingModelExists = false;
+      await memory.deleteWorkingModel(this.Task.taskId, this.Task.trainingInformation.modelId);
+      console.log(`Deleted the cached ${this.Task.displayInformation.taskTitle} model.`);
     },
 
-    async toggleUseSavedModel() {
-      this.useSavedModel = !this.useSavedModel;
-      if (this.useSavedModel) {
-        await memory.loadSavedModel(this.Task.taskId, this.Task.trainingInformation.modelId);
-
-        this.$toast.success(
-          `The ${this.Task.displayInformation.taskTitle} model has been loaded. You can start training!`
-        );
-        setTimeout(this.$toast.clear, 30000);
-      }
+    async toggleUseWorkingModel() {
+      this.useWorkingModel = !this.useWorkingModel;
     },
 
     async loadFreshModel() {
@@ -257,20 +265,20 @@ export default {
   async mounted() {
     // This method is called when the component is created
     this.$nextTick(async function() {
-      let savedModelMetadata = await memory.getSavedModelMetadata(
+      let workingModelMetadata = await memory.getWorkingModelMetadata(
         this.Task.taskId, this.Task.trainingInformation.modelId
       );
 
-      if (savedModelMetadata) {
-        let date = savedModelMetadata.dateSaved;
-        this.dateSaved =
-          date.getDate() +
-          '/' +
-          (date.getMonth() + 1) +
-          '/' +
-          date.getFullYear();
-        this.hourSaved = date.getHours() + 'h' + date.getMinutes();
-        this.savedModelExists = true;
+      if (workingModelMetadata) {
+        this.workingModelExists = true;
+        let date = workingModelMetadata.dateSaved;
+        let zeroPad = (number) => String(number).padStart(2, '0');
+        this.dateSaved = [
+          date.getDate(), date.getMonth() + 1, date.getFullYear()
+        ].map(zeroPad).join('/');
+        this.hourSaved = [
+          date.getHours(), date.getMinutes()
+        ].map(zeroPad).join('h');
       }
     });
   },

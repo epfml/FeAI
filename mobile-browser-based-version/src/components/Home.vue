@@ -38,43 +38,11 @@
             </div>
             <div class="flex items-center justify-center p-4">
               <button
-                v-on:click="
-                  setIndexedDB(true);
-                  goToTaskList();
-                "
+                v-on:click="goToTaskList()"
                 type="button"
                 class="text-lg border-2 border-transparent bg-green-500 ml-3 py-2 px-4 font-bold uppercase text-white rounded transform transition motion-reduce:transform-none hover:scale-105 duration-500 focus:outline-none"
               >
                 Start building
-              </button>
-            </div>
-            <div
-              class="group flex-col items-center justify-between p-4 bg-white rounded-md dark:bg-darker dark:bg-dark"
-            >
-              <div
-                class="ml-10  text-xl text-gray-500 dark:text-light ont-semibold"
-              >
-                <span class="text-primary-dark dark:text-primary-light">
-                  For little contributions or browsers without IndexedDB support
-                </span>
-                <p class="text-base">
-                  - Faster loading times
-                </p>
-                <p class="text-base">
-                  - Turns off the model library
-                </p>
-              </div>
-            </div>
-            <div class="flex items-center justify-center p-4">
-              <button
-                v-on:click="
-                  setIndexedDB(false);
-                  goToTaskList();
-                "
-                type="button"
-                class="text-lg border-2 border-transparent bg-green-500 ml-3 py-2 px-4 font-bold uppercase text-white rounded transform transition motion-reduce:transform-none hover:scale-105 duration-500 focus:outline-none"
-              >
-                Fast build
               </button>
             </div>
             <!-- component -->
@@ -86,7 +54,7 @@
       <footer
         class="flex items-center justify-between p-4 bg-white border-t dark:bg-darker dark:border-primary-darker"
       >
-        <div>De-AI &copy; 2021</div>
+        <div>Fe-AI &copy; 2021</div>
         <div>
           Join us on
           <a
@@ -102,25 +70,26 @@
 </template>
 
 <script>
-import { mapMutations, mapState } from 'vuex';
+
+import { mapMutations } from 'vuex';
 
 export default {
   name: 'home',
-  computed: {
-    ...mapState(['useIndexedDB']),
-  },
   methods: {
     ...mapMutations(['setIndexedDB']),
     goToTaskList() {
-      if (this.useIndexedDB && !window.indexedDB) {
-        this.$toast.error('IndexedDB is not supported by your browser. You will not be able to save models.');
-        this.setIndexedDB(false);
-      }
       this.$emit('gototasks');
       this.$router.push({
         path: '/tasks',
       });
     },
   },
+  mounted() {
+    /**
+     * At the start of the application, use IndexedDB by default if it is
+     * available.
+     */
+    this.setIndexedDB(window.indexedDB);
+  }
 };
 </script>

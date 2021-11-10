@@ -1,6 +1,7 @@
 import {
   getWorkingModel,
-  updateWorkingModel
+  updateWorkingModel,
+  getWorkingModelMetadata
 } from '../memory/helpers';
 import * as tf from '@tensorflow/tfjs';
 
@@ -27,6 +28,16 @@ export class TrainingManager {
   }
 
   /**
+   * Setter called by the UI to update the IndexedDB status midway through
+   * training.
+   * @param {Boolean} payload whether or not to use IndexedDB
+   */
+  setIndexedDB(payload) {
+    // Ensure the attribute is always a boolean
+    this.useIndexedDB = payload ? true : false;
+  }
+
+  /**
    * Train the task's model either alone or in a distributed fashion depending on the user's choice.
    * @param {Object} dataset the dataset to train on
    * @param {Boolean} distributedTraining train in a distributed fashion
@@ -36,10 +47,15 @@ export class TrainingManager {
     const labels = dataset.ytrain;
 
     let model;
+    let modelParams = [this.task.taskId, this.task.trainingInformation.modelId]
+    /**
+     * If IndexedDB is turned on and the working model exists, then load the
+     * existing model from IndexedDB. Otherwise, create a fresh new one.
+     */
     if (this.useIndexedDB) {
-      model = await getWorkingModel(
-        this.task.taskId, this.task.trainingInformation.modelId
-      );
+      if (await getWorkingModelMetadata(...modelParams)) {
+        model = await getWorkingModel(...modelParams);
+      }
     } else {
       model = await this.task.createModel();
     }
@@ -98,17 +114,20 @@ export class TrainingManager {
             (logs['val_acc'] * 100).toFixed(2),
             (logs['acc'] * 100).toFixed(2)
           );
-          console.log(`EPOCH (${epoch + 1}): Train Accuracy: ${(
-            logs['acc'] * 100
-          ).toFixed(2)},
-             Val Accuracy:  ${(logs['val_acc'] * 100).toFixed(2)}\n`);
+          console.log(
+            `EPOCH (${epoch + 1}):
+            Train Accuracy: ${(logs['acc'] * 100).toFixed(2)},
+            Val Accuracy:  ${(logs['val_acc'] * 100).toFixed(2)}\n`
+          );
           console.log(`loss ${logs.loss.toFixed(4)}`);
+          if (this.useIndexedDB) {
+            await updateWorkingModel(
+              this.task.taskId, trainingInformation.modelId, model
+            );
+          }
         },
       },
     }).then(async info => {
-      if (this.useIndexedDB) {
-        await updateWorkingModel(this.task.taskId, trainingInformation.modelId, model);
-      }
       console.log('Training finished', info.history);
     });
   }
@@ -140,16 +159,19 @@ export class TrainingManager {
             (logs.acc * 100).toFixed(2),
             (logs.val_acc * 100).toFixed(2)
           );
-          console.log(`EPOCH (${epoch + 1}): Train Accuracy: ${(
-            logs.acc * 100
-          ).toFixed(2)},
-             Val Accuracy:  ${(logs.val_acc * 100).toFixed(2)}\n`);
+          console.log(
+            `EPOCH (${epoch + 1}):
+            Train Accuracy: ${(logs.acc * 100).toFixed(2)},
+            Val Accuracy:  ${(logs.val_acc * 100).toFixed(2)}\n`
+          );
+          if (this.useIndexedDB) {
+            await updateWorkingModel(
+              this.task.taskId, trainingInformation.modelId, model
+            );
+          }
         },
       },
     }).then(async info => {
-      if (this.useIndexedDB) {
-        await updateWorkingModel(this.task.taskId, trainingInformation.modelId, model);
-      }
       console.log('Training finished', info.history);
     });
   }

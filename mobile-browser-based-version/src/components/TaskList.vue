@@ -18,7 +18,7 @@
             >
               <div>
                 <h6
-                  class="text-xl font-medium leading-none tracking-wider dark:group-hover:text-darker"
+                  class="text-xl font-medium leading-none tracking-wider"
                 >
                   {{ task.displayInformation.taskTitle }}
                 </h6>

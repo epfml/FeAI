@@ -326,6 +326,31 @@
               </div>
               <!-- Content -->
               <div class="flex-1 overflow-hidden hover:overflow-y-auto">
+                <!-- IndexedDB -->
+                <div class="p-4 space-y-4 md:p-8">
+                  <h6 class="text-lg font-medium text-gray-400 dark:text-light">
+                    Model storage
+                  </h6>
+                  <span class="text-s">
+                    Turn on to get storage options for your trained models. This uses
+                    your browser's own database (IndexedDB).
+                  </span>
+                  <button
+                    class="relative focus:outline-none"
+                    v-on:click="toggleIndexedDB()"
+                  >
+                    <div
+                      class="w-12 h-6 transition rounded-full outline-none bg-primary-100 dark:bg-primary-darker"
+                    ></div>
+                    <div
+                      class="absolute top-0 left-0 inline-flex items-center justify-center w-6 h-6 transition-all duration-200 ease-in-out transform scale-110 rounded-full shadow-sm"
+                      :class="{
+                        'translate-x-0  bg-white dark:bg-primary-100': !useIndexedDB,
+                        'translate-x-6 bg-primary-light dark:bg-primary': useIndexedDB,
+                      }"
+                    ></div>
+                  </button>
+                </div>
                 <!-- Theme -->
                 <div class="p-4 space-y-4 md:p-8">
                   <h6 class="text-lg font-medium text-gray-400 dark:text-light">
@@ -522,27 +547,19 @@
                   id="settinsPanelLabel"
                   class="text-xl font-medium text-gray-500 dark:text-light"
                 >
-                  Library
+                  Model Library
                 </h2>
               </div>
               <!-- Content -->
               <div class="flex-1 overflow-hidden hover:overflow-y-auto">
-                <!-- Theme -->
-                <div class="p-4 space-y-4 md:p-8">
-                  <h6 class="text-lg font-medium text-gray-400 dark:text-light">
-                    Warning
-                  </h6>
-                  <span class="text-s">
-                    When a model has been deleted, the application might need to
-                    be re-launched.
-                  </span>
-                </div>
-
                 <!-- Model list -->
                 <div class="p-4 space-y-4 md:p-8">
                   <h6 class="text-lg font-medium text-gray-400 dark:text-light">
                     My model library
                   </h6>
+                  <span class="text-s">
+                    List of trained models that were saved.
+                  </span>
                   <div v-for="(item, idx) in modelMap" :key="idx">
                     <div
                       class="flex items-center grid-cols-3 justify-between px-4 py-2 space-x-4 transition-colors border rounded-md hover:text-gray-900 hover:border-gray-900 dark:border-primary dark:hover:text-primary-100 dark:hover:border-primary-light focus:outline-none focus:ring focus:ring-primary-lighter focus:ring-offset-2 dark:focus:ring-offset-dark dark:focus:ring-primary-dark"
@@ -559,9 +576,9 @@
                           </span>
                         </span>
                       </div>
-                      <div class="w-1/6">
+                      <div class="w-1/9">
                         <button
-                          v-on:click="deleteModel(item[1])"
+                          v-on:click="deleteModel(item[0])"
                           class="flex items-center justify-center px-4 py-2 space-x-4 transition-colors border rounded-md hover:text-gray-900 hover:border-gray-900 dark:border-primary dark:hover:text-primary-100 dark:hover:border-primary-light focus:outline-none focus:ring focus:ring-primary-lighter focus:ring-offset-2 dark:focus:ring-offset-dark dark:focus:ring-primary-dark"
                           :class="{
                             'border-gray-900 text-gray-900 dark:border-primary-light dark:text-primary-100': isDark,
@@ -570,7 +587,7 @@
                         >
                           <span>
                             <svg
-                              class="w-7 h-7"
+                              class="h-9 w-5"
                               xmlns="http://www.w3.org/2000/svg"
                               fill="none"
                               viewBox="0 0 17 17"
@@ -583,7 +600,7 @@
                           </span>
                         </button>
                       </div>
-                      <div class="w-1/6">
+                      <div class="w-1/9">
                         <button
                           v-on:click="downloadModel(item[1])"
                           class="flex items-center justify-center px-4 py-2 space-x-4 transition-colors border rounded-md hover:text-gray-900 hover:border-gray-900 dark:border-primary dark:hover:text-primary-100 dark:hover:border-primary-light focus:outline-none focus:ring focus:ring-primary-lighter focus:ring-offset-2 dark:focus:ring-offset-dark dark:focus:ring-primary-dark"
@@ -595,7 +612,34 @@
                           <span>
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
-                              class="h-7 w-7"
+                              class="h-9 w-5"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                              />
+                            </svg>
+                          </span>
+                        </button>
+                      </div>
+                      <div class="w-1/9">
+                        <button
+                          v-on:click="loadModel(item[1])"
+                          class="flex items-center justify-center px-4 py-2 space-x-4 transition-colors border rounded-md hover:text-gray-900 hover:border-gray-900 dark:border-primary dark:hover:text-primary-100 dark:hover:border-primary-light focus:outline-none focus:ring focus:ring-primary-lighter focus:ring-offset-2 dark:focus:ring-offset-dark dark:focus:ring-primary-dark"
+                          :class="{
+                            'border-gray-900 text-gray-900 dark:border-primary-light dark:text-primary-100': isDark,
+                            'text-gray-500 dark:text-primary-light': !isDark,
+                          }"
+                        >
+                          <span>
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              class="h-9 w-5"
                               fill="none"
                               viewBox="0 0 24 24"
                               stroke="currentColor"
@@ -635,7 +679,7 @@
 import * as memory from './helpers/memory/helpers';
 import * as tf from '@tensorflow/tfjs';
 import tippy from 'tippy.js';
-import { mapState } from 'vuex';
+import { mapState, mapMutations } from 'vuex';
 
 
 export default {
@@ -656,6 +700,10 @@ export default {
     ...mapState(['useIndexedDB'])
   },
   methods: {
+    ...mapMutations(['setIndexedDB']),
+    toggleIndexedDB() {
+      this.setIndexedDB(!this.useIndexedDB && window.indexedDB);
+    },
     getTheme() {
       if (window.localStorage.getItem('dark')) {
         return JSON.parse(window.localStorage.getItem('dark'));
@@ -715,15 +763,14 @@ export default {
       this.setTheme(this.isDark);
     },
     openSettingsPanel() {
-      this.refreshModel();
       this.isSettingsPanelOpen = true;
     },
     closeSettingsPanel() {
       this.isSettingsPanelOpen = false;
     },
-    async openModelLibrary() {
+    openModelLibrary() {
       this.isModelLibraryOpen = true;
-      await this.refreshModelLibrary(); // should it await?
+      this.refreshModelLibrary(); // should it await?
     },
     closeModelLibrary() {
       this.isModelLibraryOpen = false;
@@ -744,20 +791,16 @@ export default {
       this.$router.push({ name: 'trophee' });
     },
     async refreshModelLibrary() {
-      let refreshedModelMap = new Map();
+      this.modelMap.clear();
       await tf.io.listModels().then(models => {
         for (let savePath in models) {
 
-          let [location, _, type, task, name] = savePath.split('/');
-
-          console.log(`Model file: ${location}//${type}/${task}/${name}`);
-
-          if (!(location === 'indexeddb:' && type === 'saved')) {
+          let [location, _, folder, task, name] = savePath.split('/');
+          if (!(location === 'indexeddb:' && folder === 'saved')) {
             continue
           }
 
           let modelMetadata = models[savePath];
-          console.log(`Metadata: ${JSON.stringify(modelMetadata)}`);
           let date = new Date(modelMetadata.dateSaved);
           let dateSaved =
             date.getDate() + '/' +
@@ -769,32 +812,35 @@ export default {
             modelMetadata.weightSpecsBytes +
             modelMetadata.weightDataBytes;
 
-          refreshedModelMap.set(savePath, {
+          this.modelMap.set(savePath, {
             modelName: name,
             taskId: task,
-            modelType: type,
+            modelFolder: folder,
             date: dateSaved,
             hours: hourSaved,
             fileSize: size / 1000,
           });
         }
-
-        this.modelMap = refreshedModelMap;
       });
     },
 
-    async deleteModel(modelMetadata) {
-      console.log(`Deleting model ${modelMetadata.modelName}`);
-      this.modelMap.delete(modelMetadata.modelName);
-      await memory.deleteSavedModel(modelMetadata.taskId, modelMetadata.modelName);
+    deleteModel(savePath) {
+      let modelMetadata = this.modelMap.get(savePath);
+      this.modelMap.delete(savePath);
+      memory.deleteSavedModel(modelMetadata.taskId, modelMetadata.modelName);
     },
 
-    async openTesting(modelMetadata) {
+    openTesting(modelMetadata) {
         this.$router.push({ name: modelMetadata.taskId.concat('.testing') });
     },
 
-    async downloadModel(modelMetadata) {
-      await memory.downloadSavedModel(modelMetadata.taskId, modelMetadata.modelName);
+    downloadModel(modelMetadata) {
+       memory.downloadSavedModel(modelMetadata.taskId, modelMetadata.modelName);
+    },
+
+    async loadModel(modelMetadata) {
+      await memory.loadSavedModel(modelMetadata.taskId, modelMetadata.modelName);
+      this.$toast.success(`Loaded ${modelMetadata.modelName}, ready for next training session.`);
     },
 
     async mounted() {
@@ -810,9 +856,6 @@ export default {
           });
         },
       });
-      if (this.useIndexedDB) {
-        this.refreshModelLibrary();
-      }
     },
   },
 };
