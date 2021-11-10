@@ -1,6 +1,9 @@
 group:
   repos: |
-    epfml/DeAI@sync_test
+    epfml/FeAI-privately/@sync
   files:
-    - source: mobile-browser-based-version/src/helpers/data_validation
-      dest: mobile-browser-based-version/src/helpers/data_validation_script
+    - source: mobile-browser-based-version/
+      dest: mobile-browser-based-version/
+      exclude: |
+	package-lock.json
+      
