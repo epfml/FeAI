@@ -17,22 +17,17 @@ const SAVED_MODEL = 'saved';
 
 async function _getModelMetadata(taskId, modelName, modelType) {
   let key = INDEXEDDB_SCHEME.concat(`${modelType}/${taskId}/${modelName}`);
-  return tf.io.listModels().then((models) =>
+  return await tf.io.listModels().then((models) =>
     key in models ? models[key] : false
   );
 }
 
 async function _getModel(taskId, modelName, modelType) {
-  return tf.loadLayersModel(
+  return await tf.loadLayersModel(
     INDEXEDDB_SCHEME.concat(`${modelType}/${taskId}/${modelName}`)
   );
 }
 
-/**
- * Remove a previously saved model from IndexedDB.
- * @param {String} taskId the model's corresponding task
- * @param {String} modelName the model's file name
- */
 async function _deleteModel(taskId, modelName, modelType) {
   await tf.io.removeModel(
     INDEXEDDB_SCHEME.concat(`${modelType}/${taskId}/${modelName}`)
@@ -46,7 +41,7 @@ async function _deleteModel(taskId, modelName, modelType) {
  * @param {String} modelName the working model's file name
  */
 export async function getWorkingModelMetadata(taskId, modelName) {
-  return _getModelMetadata(taskId, modelName, WORKING_MODEL);
+  return await _getModelMetadata(taskId, modelName, WORKING_MODEL);
 }
 
 /**
@@ -56,17 +51,17 @@ export async function getWorkingModelMetadata(taskId, modelName) {
  * @param {String} modelName the model's file name
  */
 export async function getSavedModelMetadata(taskId, modelName) {
-  return _getModelMetadata(taskId, modelName, SAVED_MODEL);
+  return await _getModelMetadata(taskId, modelName, SAVED_MODEL);
 }
 
 /**
- * Loads the working working model from IndexedDB and returns it as a fresh
+ * Loads the current working model from IndexedDB and returns it as a fresh
  * TFJS object.
  * @param {String} taskId the working model's corresponding task
  * @param {String} modelName the working model's file name
  */
 export async function getWorkingModel(taskId, modelName) {
-  return _getModel(taskId, modelName, WORKING_MODEL);
+  return await _getModel(taskId, modelName, WORKING_MODEL);
 }
 
 /**
@@ -76,11 +71,12 @@ export async function getWorkingModel(taskId, modelName) {
  * @param {String} modelName the saved model's file name
  */
 export async function getSavedModel(taskId, modelName) {
-  return _getModel(taskId, modelName, SAVED_MODEL);
+  return await _getModel(taskId, modelName, SAVED_MODEL);
 }
 
 /**
- * Loads a previously saved model into the current working model.
+ * Loads a model from the model library into the current working model. This
+ * means copying it from indexeddb://saved/ to indexeddb://workng/.
  * @param {String} taskId the saved model's corresponding task
  * @param {String} modelName the saved model's file name
  */
@@ -92,7 +88,7 @@ export async function loadSavedModel(taskId, modelName) {
 }
 
 /**
- * Loads a fresh model into the current working model.
+ * Loads a fresh TFJS model object into the current working model in IndexedDB.
  * @param {String} taskId the working model's corresponding task
  * @param {String} modelName the working model's file name
  * @param {Object} model the fresh model
@@ -104,21 +100,32 @@ export async function updateWorkingModel(taskId, modelName, model) {
 }
 
 /**
- * Saves the current working model.
+ * Adds the current working model to the model library. This means copying it
+ * from indexeddb://working/ to indexeddb://saved/.
  * @param {String} taskId the working model's corresponding task
  * @param {String} modelName the working model's file name
  */
 export async function saveWorkingModel(taskId, modelName) {
   await tf.io.copyModel(
-    INDEXEDDB_SCHEME.concat(`working/${taskId}/${modelName}`),
-    INDEXEDDB_SCHEME.concat(`saved/${taskId}/${modelName}`)
+    INDEXEDDB_SCHEME.concat(`${WORKING_MODEL}/${taskId}/${modelName}`),
+    INDEXEDDB_SCHEME.concat(`${SAVED_MODEL}/${taskId}/${modelName}`)
   );
 }
 
+/**
+ * Removes the working model model from IndexedDB.
+ * @param {String} taskId the model's corresponding task
+ * @param {String} modelName the model's file name
+ */
 export async function deleteWorkingModel(taskId, modelName) {
   await _deleteModel(taskId, modelName, WORKING_MODEL);
 }
 
+/**
+ * Remove a previously saved model from IndexedDB.
+ * @param {String} taskId the model's corresponding task
+ * @param {String} modelName the model's file name
+ */
 export async function deleteSavedModel(taskId, modelName) {
   await _deleteModel(taskId, modelName, SAVED_MODEL);
 }
@@ -130,7 +137,7 @@ export async function deleteSavedModel(taskId, modelName) {
  */
 export async function downloadSavedModel(taskId, modelName) {
   await tf.io.copyModel(
-    INDEXEDDB_SCHEME.concat(`saved/${taskId}/${modelName}`),
+    INDEXEDDB_SCHEME.concat(`${SAVED_MODEL}/${taskId}/${modelName}`),
     DOWNLOADS_SCHEME.concat(`${taskId}_${modelName}`)
   );
 }

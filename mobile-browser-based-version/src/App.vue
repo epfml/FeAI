@@ -329,12 +329,18 @@
                 <!-- IndexedDB -->
                 <div class="p-4 space-y-4 md:p-8">
                   <h6 class="text-lg font-medium text-gray-400 dark:text-light">
-                    Model storage
+                    Model library
                   </h6>
                   <span class="text-s">
                     Turn on to get storage options for your trained models. This uses
-                    your browser's own database (IndexedDB).
+                    your browser's own database, namely
+                    <a
+                      class="text-blue-600"
+                      href="https://en.wikipedia.org/wiki/Indexed_Database_API"
+                      target="_blank"
+                    >IndexedDB</a>.
                   </span>
+                  <br><br>
                   <button
                     class="relative focus:outline-none"
                     v-on:click="toggleIndexedDB()"
@@ -644,12 +650,9 @@
                               viewBox="0 0 24 24"
                               stroke="currentColor"
                             >
-                              <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-                              />
+                              <path d="M12 14l9-5-9-5-9 5 9 5z"/>
+                              <path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222" />
                             </svg>
                           </span>
                         </button>
@@ -795,8 +798,8 @@ export default {
       await tf.io.listModels().then(models => {
         for (let savePath in models) {
 
-          let [location, _, folder, task, name] = savePath.split('/');
-          if (!(location === 'indexeddb:' && folder === 'saved')) {
+          let [location, _, directory, task, name] = savePath.split('/');
+          if (!(location === 'indexeddb:' && directory === 'saved')) {
             continue
           }
 
@@ -815,7 +818,7 @@ export default {
           this.modelMap.set(savePath, {
             modelName: name,
             taskId: task,
-            modelFolder: folder,
+            modelType: directory,
             date: dateSaved,
             hours: hourSaved,
             fileSize: size / 1000,
