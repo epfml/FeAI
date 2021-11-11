@@ -5,10 +5,13 @@ import '@/assets/css/tailwind.css';
 import '@/assets/css/styles.css';
 import Toaster from '@meforma/vue-toaster';
 import { store } from './store/store';
+import VueApexCharts from 'vue3-apexcharts';
 
 const app = createApp(App);
 
 app.use(store);
+app.use(VueApexCharts);
+
 app
   .use(Toaster)
   .use(router)
