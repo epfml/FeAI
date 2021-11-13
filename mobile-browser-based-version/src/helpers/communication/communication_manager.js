@@ -9,33 +9,30 @@ const TIME_PER_TRIES = 100;
 const MAX_TRIES = 100;
 
 /**
- * Class that deals with communication with the server.
+ * Class that deals with communication with the server when training a specific
+ * task.
  */
 export class CommunicationManager {
   /**
-   * Prepares connection to a centralized server.
-   * @param {Number} portNbr the port number to connect.
-   * @param {String} password
+   * Prepares connection to a centralized server for training a given task.
+   * @param {String} taskId the task ID
+   * @param {String} password the task's password
    */
-  constructor(portNbr, password = null) {
-    this.portNbr = portNbr;
+  constructor(taskId, password = null) {
+    this.serverUrl = process.env.VUE_APP_SERVER_URI;
     this.clientId = null;
-    this.isConnected = false;
+    this.taskId = taskId;
     this.password = password;
   }
 
   /**
    * Disconnection process when user quits the task.
    */
-  disconnect(environment) {
-    const serverUrl = process.env.VUE_APP_SERVER_URI;
-    const url = serverUrl.concat(
-      'disconnect/',
-      environment.Task.taskId,
-      '/',
-      this.clientId
+  disconnect() {
+    const disconnectUrl = this.serverUrl.concat(
+      `disconnect/${this.taskId}/${this.clientId}`
     );
-    fetch(url, {
+    fetch(disconnectUrl, {
       method: 'GET',
       keepalive: true,
     });
@@ -44,50 +41,40 @@ export class CommunicationManager {
   /**
    * Initialize the connection to the server.
    */
-  async connect(environment) {
-    // Create an ID used to connect to the server
+  async connect() {
+    // Create an ID used to connect to the server.
     this.clientId = await makeid(10);
-    const serverUrl = process.env.VUE_APP_SERVER_URI;
-    const url = serverUrl.concat(
-      'connect/',
-      environment.Task.taskId,
-      '/',
-      this.clientId
+    const connectUrl = this.serverUrl.concat(
+      `connect/${this.taskId}/${this.clientId}`
     );
-    const response = await fetch(url, { method: 'GET' });
-
-    if (response.ok) {
-      environment.$toast.success(
-        'Succesfully connected to server. Distributed training available.'
-      );
-    } else {
-      console.log('Error in connecting');
-      environment.$toast.error(
-        'Failed to connect to server. Fallback to training alone.'
-      );
-    }
-    setTimeout(environment.$toast.clear, 30000);
+    const response = await fetch(connectUrl, { method: 'GET' });
+    return response.ok;
   }
 
-  receiveWeightsBreak(taskId, epoch) {
-    const communicationManager = this;
+  receiveWeightsBreak(epoch) {
+    if (this.clientId === null) {
+      return;
+    }
+    const that = this;
     return new Promise(resolve => {
       (async function waitData(n) {
-        const serverUrl = process.env.VUE_APP_SERVER_URI;
-        const url = serverUrl.concat('receive_weights/', taskId, '/', epoch);
-        const response = await fetch(url, {
+        const receiveWeightsUrl = that.serverUrl.concat(
+          `receive_weights/${that.taskId}/${epoch}`
+        );
+        const response = await fetch(receiveWeightsUrl, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            id: communicationManager.clientId,
+            id: that.clientId,
             timestamp: new Date(),
           }),
         });
         if (response.ok) {
-          const data = await response.json();
-          return resolve(msgpack.decode(Uint8Array.from(data.weights.data)));
+          const body = await response.json();
+          console.log(body); console.log(body.weights);
+          return resolve(msgpack.decode(Uint8Array.from(body.weights.data)));
         }
         if (n >= MAX_TRIES - 1) {
           console.log(
@@ -100,10 +87,15 @@ export class CommunicationManager {
     });
   }
 
-  async sendWeights(weights, taskId, epoch) {
-    const serverUrl = process.env.VUE_APP_SERVER_URI;
-    const url = serverUrl.concat('send_weights/', taskId, '/', epoch);
-    const response = await fetch(url, {
+  async sendWeights(weights, epoch) {
+    if (this.clientId === null) {
+      return;
+    }
+    const payload = msgpack.encode(Array.from(serializeWeights(weights)));
+    const sendWeightsUrl = this.serverUrl.concat(
+      `send_weights/${this.taskId}/${epoch}`
+    );
+    const response = await fetch(sendWeightsUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -111,26 +103,23 @@ export class CommunicationManager {
       body: JSON.stringify({
         id: this.clientId,
         timestamp: new Date(),
-        weights: weights,
+        weights: payload,
       }),
     });
     return response.ok;
   }
 
-  async onEpochEndCommunication(model, taskId, epoch, trainingInformant) {
-    // Send local weights to server
-    const serializedWeights = await serializeWeights(model);
+  async onEpochEndCommunication(model, epoch, trainingInformant) {
+    // Send weights to server
     trainingInformant.addMessage('Sending weights to server');
     await this.sendWeights(
-      msgpack.encode(Array.from(serializedWeights)),
-      taskId,
+      model.weights,
       epoch
     );
-
     // Receive averaged weights from server
-    trainingInformant.addMessage('Waiting to receive weights');
+    trainingInformant.addMessage('Waiting to receive weights from server');
     var startTime = new Date();
-    await this.receiveWeightsBreak(taskId, epoch).then(weights => {
+    await this.receiveWeightsBreak(epoch).then(receivedWeights => {
       var endTime = new Date();
       var timeDiff = endTime - startTime; // in ms
       timeDiff /= 1000;
@@ -138,9 +127,9 @@ export class CommunicationManager {
       trainingInformant.updateNbrUpdatesWithOthers(1);
       trainingInformant.addMessage('Updating local weights');
 
-      let newWeights = weights.length == 0 ? serializedWeights : weights;
-
-      assignWeightsToModel(newWeights, model);
+      if (receivedWeights.length > 0) {
+        assignWeightsToModel(model, receivedWeights);
+      }
     });
   }
 }

@@ -7,6 +7,7 @@ export const store = createStore({
     globalTaskFrameState: new Array(),
     passwords: new Array(),
     tasks: new Array(),
+    useIndexedDB: true,
   },
   mutations: {
     increment(state) {
@@ -25,6 +26,11 @@ export const store = createStore({
     async addTask(state, payload) {
       state.tasks[payload.task.trainingInformation.modelId] = payload.task;
     },
+
+    setIndexedDB(state, payload) {
+      // Convert payload to boolean value
+      state.useIndexedDB = payload ? true : false;
+    }
   },
 
   getters: {

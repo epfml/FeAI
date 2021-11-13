@@ -259,13 +259,17 @@
           </span>
         </div>
         <div class="flex items-center justify-center p-4">
-          <button
+          <div
             id="train-model-button"
-            v-on:click="saveModel()"
-            class="text-lg border-2 border-transparent bg-primary ml-3 py-2 px-4 font-bold uppercase text-white rounded transform transition motion-reduce:transform-none hover:scale-110 duration-500 focus:outline-none"
+            v-on:click="saveModelButton()"
+            class="text-lg border-2 border-transparent text-white rounded ml-3 py-2 px-4 font-bold uppercase"
+            :class="{
+              'cursor-pointer bg-primary transform transition motion-reduce:transform-none hover:scale-110 duration-500 focus:outline-none': useIndexedDB,
+              'bg-gray-400': !useIndexedDB,
+            }"
           >
-            Save My model
-          </button>
+            Save my model
+          </div>
         </div>
       </div>
     </div>
@@ -273,14 +277,16 @@
 </template>
 
 <script>
-import { mapState } from 'vuex';
 import { TrainingInformant } from '../../helpers/training/training_informant';
 import { CommunicationManager } from '../../helpers/communication/communication_manager';
 import { TrainingManager } from '../../helpers/training/training_manager';
 import { FileUploadManager } from '../../helpers/data_validation/file_upload_manager';
+import { saveWorkingModel } from '../../helpers/memory/helpers';
 import UploadingFrame from './UploadingFrame';
 import TrainingInformationFrame from './TrainingInformationFrame';
+
 import * as tf from '@tensorflow/tfjs';
+import { mapState } from 'vuex';
 
 export default {
   name: 'CsvTrainingFrame',
@@ -288,10 +294,13 @@ export default {
     Id: String,
     Task: Object,
   },
+  components: {
+    UploadingFrame,
+    TrainingInformationFrame,
+  },
   data() {
     return {
       // variables for general informations
-      modelName: null,
       dataFormatInfoText: '',
       dataExampleText: '',
       dataExample: null,
@@ -312,22 +321,45 @@ export default {
 
       // take care of communication processes
       communicationManager: new CommunicationManager(
-        this.Task.trainingInformation.port,
+        this.Task.taskId,
         this.$store.getters.password(this.Id)
-      ), // TO DO: to modularize
+      ),
     };
   },
 
-  methods: {
-    saveModel() {
-      this.trainingManager.saveModel();
+  computed: {
+    ...mapState(['useIndexedDB']),
+  },
+  watch: {
+    // Link the UI with the training manager logic
+    useIndexedDB(next, prev) {
+      this.trainingManager.setIndexedDB(next);
     },
+  },
+  methods: {
+    async saveModelButton() {
+      if (this.useIndexedDB) {
+        await saveWorkingModel(
+          this.Task.taskId,
+          this.Task.trainingInformation.modelId
+        );
+        this.$toast.success(
+          `The current ${this.Task.displayInformation.taskTitle} model has been saved.`
+        );
+      } else {
+        this.$toast.error(
+          'The model library is currently turned off. See settings for more information'
+        );
+      }
+      setTimeout(this.$toast.clear, 30000);
+    },
+
     async joinTraining(distributed) {
       const nbrFiles = this.fileUploadManager.numberOfFiles();
-      
+
       // Check that the user indeed gave a file
       if (nbrFiles == 0) {
-        this.$toast.error( "Error : No files were uploaded" ); 
+        this.$toast.error('Error : No files were uploaded');
         setTimeout(this.$toast.clear, 30000);
       } else {
         // Assume we only read the first file
@@ -337,28 +369,28 @@ export default {
         let reader = new FileReader();
         reader.onload = async e => {
           // Preprocess the data and get object of the form {accepted: True/False, Xtrain: training data, ytrain: lavels}
-          var processedData = await this.Task.dataPreprocessing(
+          var processedDataset = await this.Task.dataPreprocessing(
             e,
             this.headers
           );
-          await this.trainingManager.trainModel(distributed, processedData);
+
+          this.$toast.success('Training has started!');
+          setTimeout(this.$toast.clear, 30000);
+
+          await this.trainingManager.trainModel(processedDataset, distributed);
+
+          this.$toast.success('Training has finished.');
+          setTimeout(this.$toast.clear, 30000);
         };
         reader.readAsText(file);
       }
     },
   },
-  components: {
-    UploadingFrame,
-    TrainingInformationFrame,
-  },
 
   async mounted() {
     // This method is called when the component is created
     this.$nextTick(async function() {
-      // initialize information variables
-      this.modelName = this.Task.trainingInformation.modelId;
-
-      console.log(`Mounting ${this.modelName}`);
+      console.log(`Mounting ${this.Task.displayInformation.taskTitle} task`);
 
       this.dataFormatInfoText = this.Task.displayInformation.dataFormatInformation;
       this.dataExampleText = this.Task.displayInformation.dataExampleText;
@@ -367,32 +399,36 @@ export default {
       });
       this.dataExample = this.Task.displayInformation.dataExample;
 
-      // initialize the training manager
+      // Create the training manager
       this.trainingManager = new TrainingManager(
-        this.Task.taskId,
-        this.Task.trainingInformation
+        this.Task,
+        this.communicationManager,
+        this.trainingInformant,
+        this.useIndexedDB
       );
 
-      // initialize training informant
+      // Initialize the training informant's charts
       this.trainingInformant.initializeCharts();
 
       window.addEventListener('beforeunload', event => {
-        this.communicationManager.disconnect(this);
+        this.communicationManager.disconnect();
       });
 
-      // initialize communication manager
-      this.communicationManager.connect(this);
-
-      // initialize training manager
-      await this.trainingManager.initialization(
-        this.communicationManager,
-        this.trainingInformant,
-        this
-      );
+      // Connect to centralized server
+      if (this.communicationManager.connect()) {
+        this.$toast.success(
+          'Succesfully connected to server. Distributed training available.'
+        );
+      } else {
+        console.log('Error in connecting');
+        this.$toast.error(
+          'Failed to connect to server. Fallback to training alone.'
+        );
+      }
+      setTimeout(this.$toast.clear, 30000);
     });
   },
   async unmounted() {
-    // close the connection with the server
     this.communicationManager.disconnect();
   },
 };

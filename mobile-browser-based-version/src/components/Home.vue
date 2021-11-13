@@ -36,13 +36,16 @@
                 <p class="text-base">- Keep data at its source</p>
               </div>
             </div>
-            <button
-              v-on:click="goToTaskList()"
-              type="button"
-              class="w-1/6 text-lg border-2 border-transparent bg-green-500 ml-9 py-2 px-4 font-bold uppercase text-white rounded transform transition motion-reduce:transform-none duration-500 focus:outline-none"
-            >
-              Start building
-            </button>
+            <div class="flex items-center justify-center p-4">
+              <button
+                v-on:click="goToTaskList()"
+                type="button"
+                class="text-lg border-2 border-transparent bg-green-500 ml-3 py-2 px-4 font-bold uppercase text-white rounded transform transition motion-reduce:transform-none hover:scale-105 duration-500 focus:outline-none"
+              >
+                Start building
+              </button>
+            </div>
+            <!-- component -->
           </div>
         </section>
       </div>
@@ -67,11 +70,13 @@
 </template>
 
 <script>
-import { initializeIndexedDB } from '../helpers/my_memory/indexedDB_script';
+
+import { mapMutations } from 'vuex';
 
 export default {
-  name: 'taskList',
+  name: 'home',
   methods: {
+    ...mapMutations(['setIndexedDB']),
     goToTaskList() {
       this.$emit('gototasks');
       this.$router.push({
@@ -80,7 +85,11 @@ export default {
     },
   },
   mounted() {
-    initializeIndexedDB();
-  },
+    /**
+     * At the start of the application, use IndexedDB by default if it is
+     * available.
+     */
+    this.setIndexedDB(window.indexedDB);
+  }
 };
 </script>

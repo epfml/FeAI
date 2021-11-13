@@ -153,15 +153,15 @@ export default {
     Task: Object,
     fileUploadManager: Object,
   },
+  components: {
+    SingleUploadFrame,
+  },
   data() {
     return {
       labels: null,
       nbrLabels: null,
       csvLabels: false,
     };
-  },
-  components: {
-    SingleUploadFrame,
   },
   mounted() {
     if (this.Task.trainingInformation.LABEL_LIST) {
