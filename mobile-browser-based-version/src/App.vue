@@ -577,7 +577,6 @@
                       it on in the
                       <button
                         class="text-blue-600"
-                        leave-from-class=""
                         v-on:click="
                           closeModelLibrary();
                           openSettingsPanel();
@@ -833,13 +832,17 @@ export default {
 
           let modelMetadata = models[savePath];
           let date = new Date(modelMetadata.dateSaved);
-          let dateSaved =
-            date.getDate() +
-            '/' +
-            (date.getMonth() + 1) +
-            '/' +
-            date.getFullYear();
-          let hourSaved = date.getHours() + 'h' + date.getMinutes();
+          let zeroPad = number => String(number).padStart(2, '0');
+          let dateSaved = [
+            date.getDate(),
+            date.getMonth() + 1,
+            date.getFullYear(),
+          ]
+            .map(zeroPad)
+            .join('/');
+          let hourSaved = [date.getHours(), date.getMinutes()]
+            .map(zeroPad)
+            .join('h');
           let size =
             modelMetadata.modelTopologyBytes +
             modelMetadata.weightSpecsBytes +
