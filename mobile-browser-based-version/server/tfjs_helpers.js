@@ -1,5 +1,5 @@
-const tf = require('@tensorflow/tfjs')
-require('@tensorflow/tfjs-node')
+import * as tf from '@tensorflow/tfjs';
+import '@tensorflow/tfjs-node';
 
 async function serializeTensor(tensor) {
   return {
@@ -21,7 +21,7 @@ async function serializeVariable(variable) {
     $variable: {
       name: variable.name,
       val: await serializeTensor(variable.val),
-    }
+    },
   };
 }
 
@@ -30,9 +30,9 @@ async function serializeWeights(weights) {
 }
 
 async function averageWeights(peersSerializedWeights) {
-  const firstWeights = peersSerializedWeights[0]
-  const otherWeights = peersSerializedWeights.slice(1)
-  let resultWeights = []
+  const firstWeights = peersSerializedWeights[0];
+  const otherWeights = peersSerializedWeights.slice(1);
+  let resultWeights = [];
   firstWeights.forEach((weight, idx) => {
     let tensorSum = deserializeTensor(weight['$variable'].val);
     otherWeights.forEach((serializedWeights, peer) => {
@@ -43,8 +43,8 @@ async function averageWeights(peersSerializedWeights) {
     });
     let val = tensorSum.div(peersSerializedWeights.length);
     let newWeight = {
-          name: weight['$variable'].name,
-          val: val
+      name: weight['$variable'].name,
+      val: val,
     };
     resultWeights.push(newWeight);
     tensorSum.dispose();
@@ -53,4 +53,4 @@ async function averageWeights(peersSerializedWeights) {
   return serializedWeights;
 }
 
-module.exports = { serializeWeights, averageWeights };
+export { serializeWeights, averageWeights };
