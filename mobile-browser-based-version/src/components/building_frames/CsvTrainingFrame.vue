@@ -219,10 +219,7 @@
     </div>
 
     <!-- Save the model button -->
-    <div
-      v-show="useIndexedDB"
-      class="grid grid-cols-1 p-4 space-y-8 lg:gap-8"
-    >
+    <div class="grid grid-cols-1 p-4 space-y-8 lg:gap-8">
       <div class="col-span-1 bg-white rounded-lg dark:bg-darker">
         <div
           class="flex items-center justify-between p-4 border-b dark:border-primary"
@@ -261,15 +258,18 @@
             saved model.
           </span>
         </div>
-        <div
-          class="flex items-center justify-center p-4">
-          <button
+        <div class="flex items-center justify-center p-4">
+          <div
             id="train-model-button"
             v-on:click="saveModelButton()"
-            class="text-lg border-2 border-transparent bg-primary ml-3 py-2 px-4 font-bold uppercase text-white rounded transform transition motion-reduce:transform-none hover:scale-110 duration-500 focus:outline-none"
+            class="text-lg border-2 border-transparent text-white rounded ml-3 py-2 px-4 font-bold uppercase"
+            :class="{
+              'cursor-pointer bg-primary transform transition motion-reduce:transform-none hover:scale-110 duration-500 focus:outline-none': useIndexedDB,
+              'bg-gray-400': !useIndexedDB,
+            }"
           >
-            Save My model
-          </button>
+            Save my model
+          </div>
         </div>
       </div>
     </div>
@@ -328,20 +328,29 @@ export default {
   },
 
   computed: {
-    ...mapState(['useIndexedDB'])
+    ...mapState(['useIndexedDB']),
   },
   watch: {
     // Link the UI with the training manager logic
     useIndexedDB(next, prev) {
       this.trainingManager.setIndexedDB(next);
-    }
+    },
   },
   methods: {
     async saveModelButton() {
-      await saveWorkingModel(this.Task.taskId, this.Task.trainingInformation.modelId);
-      this.$toast.success(
-        `The current ${this.Task.displayInformation.taskTitle} model has been saved.`
-      );
+      if (this.useIndexedDB) {
+        await saveWorkingModel(
+          this.Task.taskId,
+          this.Task.trainingInformation.modelId
+        );
+        this.$toast.success(
+          `The current ${this.Task.displayInformation.taskTitle} model has been saved.`
+        );
+      } else {
+        this.$toast.error(
+          'The model library is currently turned off. See settings for more information'
+        );
+      }
       setTimeout(this.$toast.clear, 30000);
     },
 
@@ -350,7 +359,7 @@ export default {
 
       // Check that the user indeed gave a file
       if (nbrFiles == 0) {
-        this.$toast.error( "Error : No files were uploaded" );
+        this.$toast.error('Error : No files were uploaded');
         setTimeout(this.$toast.clear, 30000);
       } else {
         // Assume we only read the first file
@@ -370,7 +379,7 @@ export default {
 
           await this.trainingManager.trainModel(processedDataset, distributed);
 
-          this.$toast.success('Training has finished.')
+          this.$toast.success('Training has finished.');
           setTimeout(this.$toast.clear, 30000);
         };
         reader.readAsText(file);
@@ -381,7 +390,6 @@ export default {
   async mounted() {
     // This method is called when the component is created
     this.$nextTick(async function() {
-
       console.log(`Mounting ${this.Task.displayInformation.taskTitle} task`);
 
       this.dataFormatInfoText = this.Task.displayInformation.dataFormatInformation;
