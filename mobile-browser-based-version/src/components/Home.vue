@@ -75,8 +75,9 @@ import { mapMutations } from 'vuex';
 export default {
   name: 'Home',
   methods: {
+    ...mapMutations(['setActivePage']),
     goToTaskList() {
-      this.$emit('gototasks');
+      this.setActivePage('tasks');
       this.$router.push({
         path: '/tasks',
       });

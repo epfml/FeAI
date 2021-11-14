@@ -236,6 +236,7 @@
 import Settings from './Settings.vue';
 import ModelLibrary from './ModelLibrary.vue';
 import tippy from 'tippy.js';
+import { mapState, mapMutations } from 'vuex';
 
 export default {
   name: 'Sidebar',
@@ -243,28 +244,19 @@ export default {
     Settings,
     ModelLibrary,
   },
-  props: {
-    ActivePage: String,
-  },
   data() {
     return {
       loading: false,
       isMenuOpen: false,
       isSettingsPanelOpen: false,
       isModelLibraryOpen: false,
-      activePage: '',
     };
   },
-  watch: {
-    ActivePage(newValue) {
-      /**
-       * Override own activePage with the inherited read-only property's
-       * potential changes.
-       */
-      this.activePage = newValue;
-    },
+  computed: {
+    ...mapState(['activePage']),
   },
   methods: {
+    ...mapMutations(['setActivePage']),
     switchFromModelLibraryToSettings() {
       this.isModeLibraryOpen = false;
       this.isSettingsPanelOpen = true;
@@ -283,15 +275,15 @@ export default {
       this.isModelLibraryOpen = false;
     },
     goToHome() {
-      this.activePage = 'home';
+      this.setActivePage('home');
       this.$router.push({ name: 'home' });
     },
     goToTaskList() {
-      this.activePage = 'tasks';
+      this.setActivePage('tasks');
       this.$router.push({ name: 'tasks' });
     },
     goToInformation() {
-      this.activePage = 'info';
+      this.setActivePage('info');
       this.$router.push({ name: 'information' });
     },
   },

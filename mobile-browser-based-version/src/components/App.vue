@@ -9,17 +9,14 @@
         class="fixed inset-y-0 z-10 flex flex-shrink-0 bg-white border-r md:static dark:border-primary-darker dark:bg-darker focus:outline-none"
         style="position: sticky"
       >
-        <Sidebar v-bind:ActivePage="this.activePage" />
+        <Sidebar />
       </aside>
 
       <!-- Main Page -->
       <div class="overflow-x-scroll flex-grow z-0">
         <router-view v-slot="{ Component }">
           <keep-alive>
-            <component
-              v-on:gototasks="this.activePage = 'tasks'"
-              :is="Component"
-            />
+            <component :is="Component" />
           </keep-alive>
         </router-view>
       </div>
@@ -35,15 +32,6 @@ export default {
   name: 'App',
   components: {
     Sidebar,
-  },
-  data() {
-    return {
-      /**
-       * Used to propagate the router view's active page to the
-       * sidebar's. There might be cleaner ways of doing this.
-       */
-      activePage: '',
-    };
   },
   computed: {
     ...mapState(['isDark']),
