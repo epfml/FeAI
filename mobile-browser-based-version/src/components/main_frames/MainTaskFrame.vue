@@ -248,7 +248,8 @@
 </template>
 
 <script>
-var Hashes = require('jshashes');
+import Hashes from 'jshashes';
+
 export default {
   name: 'MainTaskFrame',
   props: {
@@ -264,7 +265,7 @@ export default {
       openUploadData: false,
       isActiveModelStatistic: false,
       openModelStatistic: false,
-      isSidebarOpen: window.innerWidth <= 1024 ? false : true,
+      isSidebarOpen: window.innerWidth <= 1024,
       window: {
         width: window.innerWidth,
         height: window.innerHeight,
@@ -289,11 +290,7 @@ export default {
     async handleResize() {
       this.window.width = window.innerWidth;
       this.window.height = window.innerHeight;
-      if (this.window.width <= 1024) {
-        this.isSidebarOpen = false;
-      } else {
-        this.isSidebarOpen = true;
-      }
+      this.isSidebarOpen = this.window.width <= 1024;
     },
     login() {
       var SHA256 = new Hashes.SHA256();

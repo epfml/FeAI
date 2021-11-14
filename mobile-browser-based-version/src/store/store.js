@@ -8,6 +8,7 @@ export const store = createStore({
     passwords: new Array(),
     tasks: new Array(),
     useIndexedDB: true,
+    isDark: false,
   },
   mutations: {
     increment(state) {
@@ -30,7 +31,11 @@ export const store = createStore({
     setIndexedDB(state, payload) {
       // Convert payload to boolean value
       state.useIndexedDB = payload ? true : false;
-    }
+    },
+
+    setAppTheme(state, payload) {
+      state.isDark = payload ? true : false;
+    },
   },
 
   getters: {

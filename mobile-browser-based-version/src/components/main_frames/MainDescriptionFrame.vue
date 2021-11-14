@@ -18,7 +18,6 @@
 </template>
 <script>
 import DescriptionFrame from '../building_frames/DescriptionFrame';
-import { defineComponent } from 'vue';
 
 export default {
   name: 'MainDescriptionFrame',
