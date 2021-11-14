@@ -9,11 +9,11 @@
         class="fixed inset-y-0 z-10 flex flex-shrink-0 bg-white border-r md:static dark:border-primary-darker dark:bg-darker focus:outline-none"
         style="position: sticky"
       >
-        <Sidebar v-bind:ActivePage="this.activePage" /> <!-- add event listener for dimming the rest (opacity .5)-->
+        <Sidebar v-bind:ActivePage="this.activePage" />
       </aside>
 
       <!-- Main Page -->
-      <div class="overflow-x-scroll flex-grow">
+      <div class="overflow-x-scroll flex-grow z-0">
         <router-view v-slot="{ Component }">
           <keep-alive>
             <component
@@ -90,7 +90,6 @@ export default {
         '--color-primary-darker',
         `var(--color-${color}-darker)`
       );
-      window.localStorage.setItem('color', color);
     },
   },
   mounted() {

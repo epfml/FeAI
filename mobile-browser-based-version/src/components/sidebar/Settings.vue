@@ -148,32 +148,32 @@
         </h6>
         <div class="flex justify-center">
           <button
-            v-on:click="setAppColors('cyan')"
+            v-on:click="setColors('cyan')"
             class="w-10 h-10 rounded-full"
             style="background-color: var(--color-cyan)"
           ></button>
           <button
-            v-on:click="setAppColors('teal')"
+            v-on:click="setColors('teal')"
             class="w-10 h-10 rounded-full"
             style="background-color: var(--color-teal)"
           ></button>
           <button
-            v-on:click="setAppColors('green')"
+            v-on:click="setColors('green')"
             class="w-10 h-10 rounded-full"
             style="background-color: var(--color-green)"
           ></button>
           <button
-            v-on:click="setAppColors('fuchsia')"
+            v-on:click="setColors('fuchsia')"
             class="w-10 h-10 rounded-full"
             style="background-color: var(--color-fuchsia)"
           ></button>
           <button
-            v-on:click="setAppColors('blue')"
+            v-on:click="setColors('blue')"
             class="w-10 h-10 rounded-full"
             style="background-color: var(--color-blue)"
           ></button>
           <button
-            v-on:click="setAppColors('violet')"
+            v-on:click="setColors('violet')"
             class="w-10 h-10 rounded-full"
             style="background-color: var(--color-violet)"
           ></button>
@@ -219,10 +219,16 @@ export default {
         '--color-primary-darker',
         `var(--color-${color}-darker)`
       );
+    },
+    setBrowserColors(color) {
       window.localStorage.setItem('color', color);
     },
     setBrowserTheme(value) {
       window.localStorage.setItem('dark', value);
+    },
+    setColors(color) {
+      this.setAppColors(color);
+      this.setBrowserColors(color);
     },
     setLightTheme() {
       this.setAppTheme(false);

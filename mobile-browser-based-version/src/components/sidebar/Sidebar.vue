@@ -1,8 +1,5 @@
 <template>
-  <!-- Sidebar Minimal -->
-  <!-- Sidebar Backdrop -->
-
-  <!-- Mini Sidebar -->
+  <!-- Mini Sidebar (LHS) -->
   <nav
     class="flex flex-col flex-shrink-0 h-full px-2 py-4 border-r dark:border-primary-darker"
   >
@@ -18,7 +15,7 @@
 
     <!-- Mini Sidebar content-->
     <div class="flex flex-col items-center justify-center flex-1 space-y-4">
-      <!-- Home link -->
+      <!-- Go to Home page -->
       <!-- Active classes "bg-primary text-white" -->
       <!-- inActive classes "bg-primary-50 text-primary-lighter" -->
       <a
@@ -49,7 +46,7 @@
         </svg>
       </a>
 
-      <!-- Go To Task List-->
+      <!-- Go to Task List page -->
       <a
         type="a"
         data-title="Tasks"
@@ -80,7 +77,7 @@
         </svg>
       </a>
 
-      <!-- Get Model Library-->
+      <!-- Display Model Library panel -->
       <a
         type="a"
         data-title="Models"
@@ -103,7 +100,7 @@
         </svg>
       </a>
 
-      <!-- Info link -->
+      <!-- Go to Information page -->
       <!-- Active classes "bg-primary text-white" -->
       <!-- inActive classes "bg-primary-50 text-primary-lighter" -->
       <a
@@ -133,7 +130,7 @@
         </svg>
       </a>
 
-      <!-- Get Setting Panel-->
+      <!-- Display Settings panel-->
       <a
         type="a"
         data-title="Settings"
@@ -167,8 +164,8 @@
     </div>
   </nav>
 
-  <!-- Menu -->
-  <div style="position: absolute; z-index: 100">
+  <!-- Menu (RHS) -->
+  <div class="absolute">
     <!-- Backdrop -->
     <transition
       enter-class="transition duration-300 ease-in-out"
@@ -187,6 +184,7 @@
       ></div>
     </transition>
 
+    <!-- Panel -->
     <transition
       enter-active-class="transition duration-300 ease-in-out sm:duration-500"
       enter-from-class="translate-x-full"
@@ -195,7 +193,6 @@
       leave-class="translate-x-0"
       leave-to-class="translate-x-full"
     >
-      <!-- Panel -->
       <section
         x-ref="panel"
         tabindex="-1"
@@ -253,7 +250,6 @@ export default {
     return {
       loading: false,
       isMenuOpen: false,
-      isSideBarOpen: window.innerWidth >= 1024,
       isSettingsPanelOpen: false,
       isModelLibraryOpen: false,
       activePage: '',
@@ -262,7 +258,7 @@ export default {
   watch: {
     ActivePage(newValue) {
       /**
-       * Override own activePage with the inherited property's
+       * Override own activePage with the inherited read-only property's
        * potential changes.
        */
       this.activePage = newValue;
