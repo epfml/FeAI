@@ -174,6 +174,7 @@ export default {
       this.$emit('switch-panel');
     },
     async refreshModelLibrary() {
+      console.log('Refreshing the model library.');
       this.modelMap.clear();
       await tf.io.listModels().then(models => {
         for (let savePath in models) {
@@ -235,9 +236,9 @@ export default {
         `Loaded ${modelMetadata.modelName}, ready for next training session.`
       );
     },
-    mounted() {
-      this.refreshModelLibrary();
-    },
+  },
+  mounted() {
+    this.refreshModelLibrary();
   },
 };
 </script>

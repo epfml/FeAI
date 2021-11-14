@@ -9,7 +9,7 @@
         class="fixed inset-y-0 z-10 flex flex-shrink-0 bg-white border-r md:static dark:border-primary-darker dark:bg-darker focus:outline-none"
         style="position: sticky"
       >
-        <Sidebar v-bind:ActivePage="this.activePage" />
+        <Sidebar v-bind:ActivePage="this.activePage" /> <!-- add event listener for dimming the rest (opacity .5)-->
       </aside>
 
       <!-- Main Page -->
@@ -59,6 +59,39 @@ export default {
         window.matchMedia('(prefers-color-scheme: dark)').matches
       );
     },
+    getBrowserColors() {
+      if (window.localStorage.getItem('color')) {
+        return window.localStorage.getItem('color');
+      } else {
+        return 'cyan';
+      }
+    },
+    setAppColors(color) {
+      const root = document.documentElement;
+      root.style.setProperty('--color-primary', `var(--color-${color})`);
+      root.style.setProperty('--color-primary-50', `var(--color-${color}-50)`);
+      root.style.setProperty(
+        '--color-primary-100',
+        `var(--color-${color}-100)`
+      );
+      root.style.setProperty(
+        '--color-primary-light',
+        `var(--color-${color}-light)`
+      );
+      root.style.setProperty(
+        '--color-primary-lighter',
+        `var(--color-${color}-lighter)`
+      );
+      root.style.setProperty(
+        '--color-primary-dark',
+        `var(--color-${color}-dark)`
+      );
+      root.style.setProperty(
+        '--color-primary-darker',
+        `var(--color-${color}-darker)`
+      );
+      window.localStorage.setItem('color', color);
+    },
   },
   mounted() {
     /**
@@ -70,6 +103,11 @@ export default {
      * browser-saved theme.
      */
     this.setAppTheme(this.getBrowserTheme());
+    /**
+     * Intialize the app's colors to the browser-saved
+     * color.
+     */
+    this.setAppColors(this.getBrowserColors());
   },
 };
 </script>

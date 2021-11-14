@@ -148,32 +148,32 @@
         </h6>
         <div class="flex justify-center">
           <button
-            v-on:click="setColors('cyan')"
+            v-on:click="setAppColors('cyan')"
             class="w-10 h-10 rounded-full"
             style="background-color: var(--color-cyan)"
           ></button>
           <button
-            v-on:click="setColors('teal')"
+            v-on:click="setAppColors('teal')"
             class="w-10 h-10 rounded-full"
             style="background-color: var(--color-teal)"
           ></button>
           <button
-            v-on:click="setColors('green')"
+            v-on:click="setAppColors('green')"
             class="w-10 h-10 rounded-full"
             style="background-color: var(--color-green)"
           ></button>
           <button
-            v-on:click="setColors('fuchsia')"
+            v-on:click="setAppColors('fuchsia')"
             class="w-10 h-10 rounded-full"
             style="background-color: var(--color-fuchsia)"
           ></button>
           <button
-            v-on:click="setColors('blue')"
+            v-on:click="setAppColors('blue')"
             class="w-10 h-10 rounded-full"
             style="background-color: var(--color-blue)"
           ></button>
           <button
-            v-on:click="setColors('violet')"
+            v-on:click="setAppColors('violet')"
             class="w-10 h-10 rounded-full"
             style="background-color: var(--color-violet)"
           ></button>
@@ -187,12 +187,6 @@ import { mapState, mapMutations } from 'vuex';
 
 export default {
   name: 'Settings',
-  data() {
-    return {
-      color: this.getColor(),
-      selectedColor: this.getColor(),
-    };
-  },
   computed: {
     ...mapState(['useIndexedDB', 'isDark']),
   },
@@ -201,14 +195,7 @@ export default {
     toggleIndexedDB() {
       this.setIndexedDB(!this.useIndexedDB && window.indexedDB);
     },
-    getColor() {
-      if (window.localStorage.getItem('color')) {
-        return window.localStorage.getItem('color');
-      } else {
-        return 'cyan';
-      }
-    },
-    setColors(color) {
+    setAppColors(color) {
       const root = document.documentElement;
       root.style.setProperty('--color-primary', `var(--color-${color})`);
       root.style.setProperty('--color-primary-50', `var(--color-${color}-50)`);
@@ -232,7 +219,6 @@ export default {
         '--color-primary-darker',
         `var(--color-${color}-darker)`
       );
-      this.selectedColor = color;
       window.localStorage.setItem('color', color);
     },
     setBrowserTheme(value) {
