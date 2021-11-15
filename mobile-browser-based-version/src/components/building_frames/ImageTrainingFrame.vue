@@ -118,10 +118,6 @@
       </button>
     </div>
 
-    <div class="flex items-center justify-center p-4">
-      Currently {{ num_peers }} peers in the network
-    </div>
-
     <!-- Training Board -->
     <div>
       <TrainingInformationFrame
@@ -131,7 +127,10 @@
     </div>
 
     <!-- Save the model button -->
-    <div class="grid grid-cols-1 p-4 space-y-8 lg:gap-8">
+    <div
+      v-show="useIndexedDB"
+      class="grid grid-cols-1 p-4 space-y-8 lg:gap-8"
+    >
       <div class="col-span-1 bg-white rounded-lg dark:bg-darker">
         <div
           class="flex items-center justify-between p-4 border-b dark:border-primary"
@@ -173,7 +172,7 @@
         <div class="flex items-center justify-center p-4">
           <button
             id="train-model-button"
-            v-on:click="saveModel()"
+            v-on:click="saveModelButton()"
             class="text-lg border-2 border-transparent bg-primary ml-3 py-2 px-4 font-bold uppercase text-white rounded transform transition motion-reduce:transform-none hover:scale-110 duration-500 focus:outline-none"
           >
             Save My model
@@ -235,15 +234,18 @@
 </template>
 
 <script>
-import tippy from 'tippy.js';
-import { TrainingInformant } from '../../helpers/training_script/training_informant';
-import { CommunicationManager } from '../../helpers/communication_script/communication_manager';
-import { TrainingManager } from '../../helpers/training_script/training_manager';
+import { TrainingInformant } from '../../helpers/training/training_informant';
+import { CommunicationManager } from '../../helpers/communication/communication_manager';
+import { TrainingManager } from '../../helpers/training/training_manager';
 import TrainingInformationFrame from './TrainingInformationFrame';
-import { checkData } from '../../helpers/data_validation_script/helpers-image-tasks';
-import { FileUploadManager } from '../../helpers/data_validation_script/file_upload_manager';
+import { saveWorkingModel } from '../../helpers/memory/helpers';
+import { checkData } from '../../helpers/data_validation/helpers_image_tasks';
+import { FileUploadManager } from '../../helpers/data_validation/file_upload_manager';
 import UploadingFrame from './UploadingFrame';
 import 'tippy.js/themes/light.css';
+
+import tippy from 'tippy.js';
+import { mapState } from 'vuex';
 
 // manager for the training loop
 var trainingManager = null;
@@ -256,7 +258,6 @@ export default {
   data() {
     return {
       // variables for general informations
-      modelName: null,
       DataFormatInfoText: '',
       DataExampleText: '',
       DataExample: null,
@@ -264,7 +265,6 @@ export default {
       // different task labels
       taskLabels: [],
       trainingManager: null,
-      num_peers: 0,
 
       // manager that returns feedbacks when training
       trainingInformant: new TrainingInformant(
@@ -280,25 +280,36 @@ export default {
 
       // take care of communication processes
       communicationManager: new CommunicationManager(
+        this.Task.taskId,
         this.Task.trainingInformation.port,
         this.$store.getters.password(this.Id)
-      ), // TO DO: to modularize
+      ),
     };
   },
+
+  computed: {
+    ...mapState(['useIndexedDB']),
+  },
+
   methods: {
-    saveModel() {
-      this.trainingManager.saveModel();
+    async saveModelButton() {
+      await saveWorkingModel(this.Task.taskId, this.Task.trainingInformation.modelId);
+      this.$toast.success(
+        `The current ${this.Task.displayInformation.taskTitle} model has been saved.`
+      );
+      setTimeout(this.$toast.clear, 30000);
     },
 
     async joinTraining(distributed) {
       const filesElement = this.fileUploadManager.getFilesList();
 
       // Check that the user indeed gave a file
-      if (filesElement.length == 0) {
-        alert('Training aborted. No uploaded file given as input.');
+      if (this.fileUploadManager.numberOfFiles() == 0) {
+        this.$toast.error( "Error : No files were uploaded" );
+        setTimeout(this.$toast.clear, 30000);
       } else {
         this.$toast.success(
-          `Thank you for your contribution. Image preprocessing has started`
+          'Thank you for your contribution. Image preprocessing has started'
         );
         setTimeout(this.$toast.clear, 30000);
 
@@ -311,18 +322,15 @@ export default {
           let processedData = await this.Task.dataPreprocessing(filesElement);
 
           this.$toast.success(
-            `Image preprocessing has finished and training has started`
+            'Image preprocessing has finished and training has started'
           );
           setTimeout(this.$toast.clear, 30000);
 
-          await this.trainingManager.trainModel(distributed, processedData);
+          await this.trainingManager.trainModel(processedData, distributed);
         } else {
-          console.log('Invalid image input.');
+          console.log('Invalid image input');
           console.log(
-            'Number of images with valid format: ' +
-              status_validation.nr_accepted +
-              ' out of ' +
-              filesElement.length
+            `Number of images with valid format: ${status_validation.nr_accepted} out of ${filesElement.length}`
           );
         }
       }
@@ -360,42 +368,42 @@ export default {
 
     // This method is called when the component is created
     this.$nextTick(async function() {
-      // initialize information variables
       this.modelName = this.Task.trainingInformation.modelId;
       this.DataFormatInfoText = this.Task.displayInformation.dataFormatInformation;
       this.DataExampleText = this.Task.displayInformation.dataExampleText;
       this.DataExample = this.Task.displayInformation.dataExample;
       this.taskLabels = this.Task.trainingInformation.LABEL_LIST;
       this.DataExampleImage = this.Task.displayInformation.dataExampleImage;
-      console.log('Mounting' + this.modelName);
+      console.log(`Mounting ${this.Task.displayInformation.taskTitle} task`);
 
-      // initialize the training manager
-      this.trainingManager = new TrainingManager(this.Task.trainingInformation);
+      // Create the training manager
+      this.trainingManager = new TrainingManager(
+        this.Task, this.communicationManager, this.trainingInformant
+      );
 
-      // initialize training informant
+      // Initialize training informant
       this.trainingInformant.initializeCharts();
 
-      // initialize communication manager
-      this.communicationManager.initializeConnection(
-        this.Task.trainingInformation.epoch,
-        this
-      );
+      // Connect to centralized server
+      if (this.communicationManager.connect()) {
+        this.$toast.success(
+          'Succesfully connected to server. Distributed training available.'
+        );
+      } else {
+        console.log('Error in connecting');
+        this.$toast.error(
+          'Failed to connect to server. Fallback to training alone.'
+        );
+      }
+      setTimeout(this.$toast.clear, 30000);
 
-      window.addEventListener('beforeunload', (event) => {
-        this.communicationManager.disconnect(this)
+      window.addEventListener('beforeunload', event => {
+        this.communicationManager.disconnect();
       });
-
-      // initialize training manager
-      this.trainingManager.initialization(
-        this.communicationManager,
-        this.trainingInformant,
-        this
-      );
     });
   },
   async unmounted() {
-    // close the connection with the server
-    this.communicationManager.disconect();
+    this.communicationManager.disconnect();
   },
 };
 </script>

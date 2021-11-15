@@ -207,30 +207,12 @@ export default {
   },
   data() {
     return {
-      galleryName: 'gallery_'
-        .concat(String(this.Id))
-        .concat('_')
-        .concat(String(this.label)),
-      fileTemplName: 'file-template_'
-        .concat(String(this.Id))
-        .concat('_')
-        .concat(String(this.label)),
-      imageTemplName: 'image-template_'
-        .concat(String(this.Id))
-        .concat('_')
-        .concat(String(this.label)),
-      emptyName: 'empty_'
-        .concat(String(this.Id))
-        .concat('_')
-        .concat(String(this.label)),
-      hiddenInputName: 'hidden-input_'
-        .concat(String(this.Id))
-        .concat('_')
-        .concat(String(this.label)),
-      uploadButtonName: 'uploadButton_'
-        .concat(String(this.Id))
-        .concat('_')
-        .concat(String(this.label)),
+      galleryName: `gallery_${this.Id}_${this.label}`,
+      fileTemplName: `file-template_${this.Id}_${this.label}`,
+      imageTemplName: `image-template_${this.Id}_${this.label}`,
+      emptyName: `empty_${this.Id}_${this.label}`,
+      hiddenInputName: `hidden-input_${this.Id}_${this.label}`,
+      uploadButtonName: `uploadedButton_${this.Id}_${this.label}`,
       nbrUploadedFiles: 0,
       fileTempl: null,
       imageTempl: null,

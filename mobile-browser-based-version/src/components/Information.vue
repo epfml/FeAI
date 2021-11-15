@@ -13,7 +13,7 @@
               class="group flex-col items-center justify-between p-4 bg-white rounded-md dark:bg-darker hover:text-primary dark:hover:text-light  dark:bg-dark"
             >
               <h6
-                class="text-xl font-large leading-none tracking-wider dark:group-hover:text-darker px-2 py-6"
+                class="text-xl font-large leading-none tracking-wider px-2 py-6"
               >
                 Information
               </h6>
@@ -125,7 +125,7 @@
                 </div>
 
                 <h6
-                  class="text-xl font-large leading-none tracking-wider dark:group-hover:text-darker px-2 py-6"
+                  class="text-xl font-large leading-none tracking-wider px-2 py-6"
                 >
                   Features
                 </h6>
@@ -202,7 +202,7 @@
                 </div>
 
                 <h6
-                  class="text-xl font-large leading-none tracking-wider dark:group-hover:text-darker px-2 py-6"
+                  class="text-xl font-large leading-none tracking-wider px-2 py-6"
                 >
                   How to use
                 </h6>
@@ -292,7 +292,7 @@
                   </div>
                 </div>
                 <h6
-                  class="text-xl font-large leading-none tracking-wider dark:group-hover:text-darker p-2 py-6"
+                  class="text-xl font-large leading-none tracking-wider p-2 py-6"
                 >
                   Further links
                 </h6>
@@ -338,7 +338,7 @@
       <footer
         class="flex items-center justify-between p-4 bg-white border-t dark:bg-darker dark:border-primary-darker"
       >
-        <div>De-AI &copy; 2021</div>
+        <div>FeAI &copy; 2021</div>
         <div>
           Join us on
           <a
