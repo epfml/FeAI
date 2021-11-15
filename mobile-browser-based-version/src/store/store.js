@@ -1,5 +1,5 @@
 import { createStore } from 'vuex';
-import { TrainingManager } from '../helpers/training_script/training_manager'; //"../../helpers/training_script/training_manager";
+import { TrainingManager } from '../helpers/training/training_manager'; //"../../helpers/training_script/training_manager";
 
 export const store = createStore({
   state: {
@@ -7,6 +7,7 @@ export const store = createStore({
     globalTaskFrameState: new Array(),
     passwords: new Array(),
     tasks: new Array(),
+    useIndexedDB: true,
   },
   mutations: {
     increment(state) {
@@ -25,6 +26,11 @@ export const store = createStore({
     async addTask(state, payload) {
       state.tasks[payload.task.trainingInformation.modelId] = payload.task;
     },
+
+    setIndexedDB(state, payload) {
+      // Convert payload to boolean value
+      state.useIndexedDB = payload ? true : false;
+    }
   },
 
   getters: {

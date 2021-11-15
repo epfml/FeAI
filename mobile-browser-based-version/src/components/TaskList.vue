@@ -9,7 +9,7 @@
         <section class="flex-col items-center justify-center p-4 space-y-4">
           <div
             v-for="task in tasks"
-            :key="task.trainingInformation.modelId"
+            :key="task.taskId"
             class="grid grid-cols-1 gap-8 p-4 lg:grid-cols-1 xl:grid-cols-1"
           >
             <!-- Titanic's card-->
@@ -18,7 +18,7 @@
             >
               <div>
                 <h6
-                  class="text-xl font-medium leading-none tracking-wider dark:group-hover:text-darker"
+                  class="text-xl font-medium leading-none tracking-wider"
                 >
                   {{ task.displayInformation.taskTitle }}
                 </h6>
@@ -33,7 +33,7 @@
               <div class="py-2">
                 <span>
                   <button
-                    v-on:click="goToSelection(task.trainingInformation.modelId)"
+                    v-on:click="goToSelection(task.taskId)"
                     type="button"
                     class="w-1/6 text-lg border-2 border-transparent bg-green-500 my-2 font-bold uppercase text-white rounded transform transition motion-reduce:transform-none duration-500 focus:outline-none"
                   >
@@ -50,7 +50,7 @@
       <footer
         class="flex items-center justify-between p-4 bg-white border-t dark:bg-darker dark:border-primary-darker"
       >
-        <div>De-AI &copy; 2021</div>
+        <div>FeAI &copy; 2021</div>
         <div>
           Join us on
           <a
@@ -75,7 +75,7 @@ import MainTestingFrame from '../components/main_frames/MainTestingFrame';
 // WARNING: temporay code until serialization of Task object
 // Import the tasks objects Here
 import { CsvTask } from '../task_definition/csv_task';
-import { ImageTask } from '../task_definition/image_task'
+import { ImageTask } from '../task_definition/image_task';
 
 import { defineComponent } from 'vue';
 
@@ -83,10 +83,8 @@ export default {
   name: 'taskList',
   data() {
     return {
-      taskSelected: '',
-      mnist: '/mnist-model/description',
       tasks: [],
-      tasksUrl: 'https://feai-328012.ew.r.appspot.com/tasks',
+      tasksUrl: process.env.VUE_APP_SERVER_URI.concat('tasks'),
     };
   },
   methods: {
@@ -103,9 +101,11 @@ export default {
     },
   },
   async mounted() {
+    console.log(`Centralized server URL: ${process.env.VUE_APP_SERVER_URI}`);
     let tasks = await fetch(this.tasksUrl)
       .then(response => response.json())
       .then(tasks => {
+        console.log('Loaded tasks from server');
         for (let task of tasks) {
           console.log(`Processing ${task.taskId}`);
           let newTask;
@@ -133,52 +133,50 @@ export default {
           // Definition of an extension of the task-related component
           var MainDescriptionFrameSp = defineComponent({
             extends: MainDescriptionFrame,
-            name: newTask.trainingInformation.modelId.concat('.description'),
-            key: newTask.trainingInformation.modelId.concat('.description'),
+            name: newTask.taskId.concat('.description'),
+            key: newTask.taskId.concat('.description'),
           });
           var MainTrainingFrameSp = defineComponent({
             extends: MainTrainingFrame,
-            name: newTask.trainingInformation.modelId.concat('.training'),
-            key: newTask.trainingInformation.modelId.concat('.training'),
+            name: newTask.taskId.concat('.training'),
+            key: newTask.taskId.concat('.training'),
           });
           var MainTestingFrameSp = defineComponent({
             extends: MainTestingFrame,
-            name: newTask.trainingInformation.modelId.concat('.testing'),
-            key: newTask.trainingInformation.modelId.concat('.testing'),
+            name: newTask.taskId.concat('.testing'),
+            key: newTask.taskId.concat('.testing'),
           });
           // Add task subroutes on the go
           let newTaskRoute = {
-            path: '/'.concat(newTask.trainingInformation.modelId),
-            name: newTask.trainingInformation.modelId,
+            path: '/'.concat(newTask.taskId),
+            name: newTask.taskId,
             component: MainTaskFrame,
-            props: { Id: newTask.trainingInformation.modelId, Task: newTask },
+            props: { Id: newTask.taskId, Task: newTask },
             children: [
               {
                 path: 'description',
-                name: newTask.trainingInformation.modelId.concat(
-                  '.description'
-                ),
+                name: newTask.taskId.concat('.description'),
                 component: MainDescriptionFrameSp,
                 props: {
-                  Id: newTask.trainingInformation.modelId,
+                  Id: newTask.taskId,
                   Task: newTask,
                 },
               },
               {
                 path: 'training',
-                name: newTask.trainingInformation.modelId.concat('.training'),
+                name: newTask.taskId.concat('.training'),
                 component: MainTrainingFrameSp,
                 props: {
-                  Id: newTask.trainingInformation.modelId,
+                  Id: newTask.taskId,
                   Task: newTask,
                 },
               },
               {
                 path: 'testing',
-                name: newTask.trainingInformation.modelId.concat('.testing'),
+                name: newTask.taskId.concat('.testing'),
                 component: MainTestingFrameSp,
                 props: {
-                  Id: newTask.trainingInformation.modelId,
+                  Id: newTask.taskId,
                   Task: newTask,
                 },
               },
@@ -187,9 +185,9 @@ export default {
           this.$router.addRoute(newTaskRoute);
         }
       });
-      for (let task of this.tasks) {
-        await this.$store.commit('addTask', {task: task});
-      }
+    for (let task of this.tasks) {
+      await this.$store.commit('addTask', { task: task });
+    }
   },
 };
 </script>

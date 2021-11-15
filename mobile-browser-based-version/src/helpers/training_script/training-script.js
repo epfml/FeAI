@@ -2,7 +2,7 @@ import * as tf from '@tensorflow/tfjs';
 import { model } from '@tensorflow/tfjs';
 import { handleData } from '../communication_script/peer';
 import { storeModel } from '../my_memory_script/indexedDB_script';
-import { InteroperabilityLayer } from './custom_layers';
+import { InteroperabilityLayer } from '../model_definition/custom_layers';
 
 /**
  * Trains the model given as argument

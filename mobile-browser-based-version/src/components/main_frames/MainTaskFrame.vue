@@ -232,7 +232,7 @@
       <footer
         class="flex items-center justify-between p-4 bg-white border-t dark:bg-darker dark:border-primary-darker"
       >
-        <div>De-AI &copy; 2021</div>
+        <div>FeAI &copy; 2021</div>
         <div>
           Join us on
           <a
@@ -277,8 +277,8 @@ export default {
   methods: {
     goToTraining() {
       this.$router.push({
-        name: this.Task.trainingInformation.modelId + '.training',
-        params: { Id: this.Task.trainingInformation.modelId },
+        name: this.Task.taskId + '.training',
+        params: { Id: this.Task.taskId },
       });
     },
     goToModelDescription() {
