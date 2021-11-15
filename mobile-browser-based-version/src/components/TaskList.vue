@@ -17,9 +17,7 @@
               class="group flex-col items-center justify-between p-4 bg-white rounded-md dark:bg-darker dark:bg-dark"
             >
               <div>
-                <h6
-                  class="text-xl font-medium leading-none tracking-wider"
-                >
+                <h6 class="text-xl font-medium leading-none tracking-wider">
                   {{ task.displayInformation.taskTitle }}
                 </h6>
               </div>
@@ -80,7 +78,7 @@ import { ImageTask } from '../task_definition/image_task';
 import { defineComponent } from 'vue';
 
 export default {
-  name: 'taskList',
+  name: 'TaskList',
   data() {
     return {
       tasks: [],
