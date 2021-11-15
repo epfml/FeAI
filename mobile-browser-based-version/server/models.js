@@ -60,7 +60,7 @@ async function createLUSCovidModel() {
   );
   model.add(tf.layers.dense({ units: 64, activation: 'relu' }));
   model.add(tf.layers.dense({ units: 2, activation: 'softmax' }));
-  await model.save(SCHEME.concat(path.join(__dirname, 'luscovid')));
+  await model.save(SCHEME.concat(path.join(__dirname, 'lus_covid')));
 }
 
 async function createCifar10Model() {
