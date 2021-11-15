@@ -249,6 +249,57 @@
       />
     </div>
 
+    <div class="grid grid-cols-1 p-4 space-y-8 lg:gap-8">
+      <div class="col-span-1 bg-white rounded-lg dark:bg-darker">
+        <div
+          class="flex items-center justify-between p-4 border-b dark:border-primary"
+        >
+          <h4 class="text-lg font-semibold text-gray-500 dark:text-light">
+            Peers Interoperability Heatmap
+          </h4>
+          <div class="flex items-center">
+            <span aria-hidden="true">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="currentColor"
+                class="bi bi-card-checklist w-7 h-7"
+                viewBox="0 0 16 16"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M3.5 6a.5.5 0 0 0-.5.5v8a.5.5 0 0 0 .5.5h9a.5.5 0 0 0 .5-.5v-8a.5.5 0 0 0-.5-.5h-2a.5.5 0 0 1 0-1h2A1.5 1.5 0 0 1 14 6.5v8a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 2 14.5v-8A1.5 1.5 0 0 1 3.5 5h2a.5.5 0 0 1 0 1h-2z"
+                />
+                <path
+                  fill-rule="evenodd"
+                  d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"
+                />
+              </svg>
+            </span>
+          </div>
+        </div>
+        <!-- Descrition -->
+        <div class="relative p-4 overflow-x-scroll">
+          <span
+            style="white-space: pre-line"
+            class="text-sm text-gray-500 dark:text-light"
+          >
+            The heatmap displays the normalization operated by the
+            Interoperability layers of each peers in the network.
+            This is a placeholder heatmap and needs to be connected to the results of iFedAvg.
+          </span>
+        </div>
+        <!-- Heatmap -->
+        <div>
+          <apexchart
+            width="500"
+            type="heatmap"
+            :options="chartOptions"
+            :series="series"
+          ></apexchart>
+        </div>
+      </div>
+    </div>
+
     <!-- Save the model button -->
     <div class="grid grid-cols-1 p-4 space-y-8 lg:gap-8">
       <div class="col-span-1 bg-white rounded-lg dark:bg-darker">
@@ -341,6 +392,36 @@ export default {
       // headers related to training task of containing item of the form {id: "", userHeader: ""}
       headers: [],
 
+      // Test Apexcharts
+      chartOptions: {
+        dataLabels: {
+          enabled: true,
+          style: {
+            colors: ['#000000'],
+          },
+          offsetX: 30,
+        },
+        chart: {
+          id: 'vuechart-example',
+        },
+        xaxis: {
+          categories: ['Id', 'Age', 'SibSp', 'Parch', 'Fare', 'Pclass'],
+        },
+      },
+      series: [
+        {
+          name: 'You',
+          data: [0.9, 1.0, 0.4, 1.01, 0.9, 1.2],
+        },
+        {
+          name: 'client-2',
+          data: [1.01, 0.9, 1.2, 0.9, 1.0, 0.4],
+        },
+        {
+          name: 'client-3',
+          data: [0.9, 0.1, 0.4, 1.01, 2.6, 1.2],
+        },
+      ],
       // returns feedbacks when training
       trainingInformant: new TrainingInformant(
         10,
