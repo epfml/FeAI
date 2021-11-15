@@ -167,6 +167,7 @@ function disconnectFromServer(request, response) {
   const task = request.params.task;
   if (!(clients.has(task) && clients.get(task).includes(id))) {
     response.status(400).send(INVALID_REQUEST_KEYS_MESSAGE);
+    return;
   }
 
   clients.set(

@@ -74,17 +74,15 @@
 </template>
 
 <script>
-
 export default {
-  name: 'notFound',
+  name: 'NotFound',
   methods: {
     goToPreviousPage() {
       this.$router.go(-1);
     },
     goToHomePage() {
       this.$router.push({ name: 'home' });
-    }
-  }
-}
-
+    },
+  },
+};
 </script>

@@ -70,26 +70,18 @@
 </template>
 
 <script>
-
 import { mapMutations } from 'vuex';
 
 export default {
-  name: 'home',
+  name: 'Home',
   methods: {
-    ...mapMutations(['setIndexedDB']),
+    ...mapMutations(['setActivePage']),
     goToTaskList() {
-      this.$emit('gototasks');
+      this.setActivePage('tasks');
       this.$router.push({
         path: '/tasks',
       });
     },
   },
-  mounted() {
-    /**
-     * At the start of the application, use IndexedDB by default if it is
-     * available.
-     */
-    this.setIndexedDB(window.indexedDB);
-  }
 };
 </script>
