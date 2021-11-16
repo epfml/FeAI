@@ -72,6 +72,7 @@ export async function makeid(length) {
   return result;
 }
 
+// should be moved to the communication manager
 export function authenticate(data, senderId, password) {
   if (password) {
     if (!('password_hash' in data)) {

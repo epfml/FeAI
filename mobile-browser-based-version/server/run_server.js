@@ -251,8 +251,6 @@ async function receiveAveragedWeights(request, response) {
     return;
   }
 
-  logsAppend(request, requestType);
-
   const receivedWeights = weightsMap.get(task).get(round);
   if (
     receivedWeights.size <
@@ -286,6 +284,7 @@ async function receiveAveragedWeights(request, response) {
 
   let weights = msgpack.encode(Array.from(serializedWeights));
   response.status(200).send({ weights: weights });
+  logsAppend(request, requestType);
   return;
 }
 
@@ -371,8 +370,8 @@ function receiveDataSamplesNumbersPerClient(request, response) {
     dataSamplesMap.get(task).get(latestRound)
   );
 
-  response.status(200).send(Array.from(latestDataSamplesMap));
-
+  const samples = msgpack.encode(Array.from(latestDataSamplesMap));
+  response.status(200).send({ samples: samples });
   logsAppend(request, requestType);
   return;
 }
