@@ -48,11 +48,7 @@ export default {
       );
     },
     getBrowserColors() {
-      if (window.localStorage.getItem('color')) {
-        return window.localStorage.getItem('color');
-      } else {
-        return 'cyan';
-      }
+      return window.localStorage.getItem('color') ?? 'cyan';
     },
     setAppColors(color) {
       const root = document.documentElement;

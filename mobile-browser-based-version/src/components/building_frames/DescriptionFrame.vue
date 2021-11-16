@@ -213,7 +213,6 @@ export default {
       useWorkingModel: false,
       dateSaved: '',
       hourSaved: '',
-      isDark: this.getTheme(),
     };
   },
   watch: {
@@ -229,7 +228,7 @@ export default {
     },
   },
   computed: {
-    ...mapState(['useIndexedDB']),
+    ...mapState(['useIndexedDB', 'isDark']),
     createFreshModel() {
       return (
         !this.isModelCreated &&
