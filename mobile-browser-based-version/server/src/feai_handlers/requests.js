@@ -53,7 +53,7 @@ const clients = new Map();
 if (fs.existsSync(config.TASKS_FILE)) {
   const tasks = JSON.parse(fs.readFileSync(config.TASKS_FILE));
   tasks.forEach((task) => {
-    clients.set(task.taskId, []);
+    clients.set(task.taskID, []);
   });
 }
 
