@@ -109,10 +109,10 @@ export class CommunicationManager {
       }),
     };
     return await _tryRequest(requestURL, requestOptions, MAX_TRIES).then(
-      response =>
+      (response) =>
         response
           .json()
-          .then(body => msgpack.decode(Uint8Array.from(body.weights.data))),
+          .then((body) => msgpack.decode(Uint8Array.from(body.weights.data))),
       () => Uint8Array.from([])
     );
   }
@@ -147,8 +147,8 @@ export class CommunicationManager {
       }),
     };
     return await _tryRequest(requestURL, requestOptions, MAX_TRIES).then(
-      response =>
-        response.json().then(body => new Map(msgpack.decode(body.samples))),
+      (response) =>
+        response.json().then((body) => new Map(msgpack.decode(body.samples))),
       () => new Map()
     );
   }
@@ -166,7 +166,7 @@ export class CommunicationManager {
      */
     trainingInformant.addMessage('Waiting to receive weights from server');
     var startTime = new Date();
-    await this.receiveAggregatedWeights(epoch).then(receivedWeights => {
+    await this.receiveAggregatedWeights(epoch).then((receivedWeights) => {
       var endTime = new Date();
       var timeDiff = endTime - startTime; // in ms
       timeDiff /= 1000;
@@ -184,7 +184,7 @@ export class CommunicationManager {
     trainingInformant.addMessage(
       'Waiting to receive metadata & statistics from server'
     );
-    await this.receiveDataShares(epoch).then(dataShares => {
+    await this.receiveDataShares(epoch).then((dataShares) => {
       if (dataShares.length > 0) {
         trainingInformant.updateDataShares(dataShares);
       }
@@ -197,21 +197,21 @@ export class CommunicationManager {
  * Limited to a number of tries.
  * @param {String} requestURL The request's URL.
  * @param {Object} requestOptions The request's options.
- * @param {Number} tries The number of tries.
+ * @param {Number} triesLeft The number of tries left.
  * @returns The successful response.
  * @throws An error if a successful response could not be obtained
  * after the specified number of tries.
  */
-async function _tryRequest(requestURL, requestOptions, tries) {
+async function _tryRequest(requestURL, requestOptions, triesLeft) {
   const response = await fetch(requestURL, requestOptions);
   if (response.ok) {
     return response;
   }
-  if (tries <= 0) {
+  if (triesLeft <= 0) {
     throw new Error('Failed to get response from server.');
   }
   /**
    * Wait before performing the request again.
    */
-  setTimeout(() => _tryRequest(tries - 1), TIME_PER_TRIES);
+  setTimeout(() => _tryRequest(triesLeft - 1), TIME_PER_TRIES);
 }

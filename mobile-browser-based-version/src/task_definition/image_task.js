@@ -38,11 +38,7 @@ export class ImageTask extends Task {
         3,
       ]);
 
-      const processedImg = batched
-        .toFloat()
-        .div(127.5)
-        .sub(1)
-        .expandDims(0);
+      const processedImg = batched.toFloat().div(127.5).sub(1).expandDims(0);
 
       let result = null;
       console.log(this.trainingInformation.aggregateImagesById);
@@ -69,7 +65,7 @@ export class ImageTask extends Task {
     let imageUri = [];
     let imageNames = [];
 
-    Object.keys(trainingData).forEach(key => {
+    Object.keys(trainingData).forEach((key) => {
       labels.push(trainingData[key]['label']);
       imageNames.push(trainingData[key]['name']);
       imageUri.push(key);
@@ -129,7 +125,9 @@ export class ImageTask extends Task {
   labelsPreprocessing(labels) {
     const nbLabels = labels.length;
     const labelsOneHotEncoded = [];
-    labels.forEach(label => labelsOneHotEncoded.push(this.oneHotEncode(label)));
+    labels.forEach((label) =>
+      labelsOneHotEncoded.push(this.oneHotEncode(label))
+    );
     return tf.tensor2d(labelsOneHotEncoded, [
       nbLabels,
       this.trainingInformation.LABEL_LIST.length,
@@ -217,7 +215,7 @@ export class ImageTask extends Task {
       const imageUri = [];
       const imageNames = [];
 
-      Object.keys(testingData).forEach(key => {
+      Object.keys(testingData).forEach((key) => {
         imageNames.push(testingData[key].name);
         imageUri.push(key);
       });
@@ -279,11 +277,11 @@ export class ImageTask extends Task {
     return new Promise((resolve, reject) => {
       Papa.parse(label_file, {
         download: true,
-        step: function(row) {
+        step: function (row) {
           let idx = filenames.indexOf(row.data[0]);
           if (idx >= 0) labels[idx] = lnames[row.data[1]];
         },
-        complete: function() {
+        complete: function () {
           console.log('Read labels:', labels);
           resolve(labels);
         },

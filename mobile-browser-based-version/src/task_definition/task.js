@@ -1,24 +1,25 @@
 import * as tf from '@tensorflow/tfjs';
 
 export class Task {
-
-  constructor(taskId, displayInformation, trainingInformation) {
-    this.taskId = taskId;
+  constructor(taskID, displayInformation, trainingInformation) {
+    this.taskID = taskID;
     this.displayInformation = displayInformation;
     this.trainingInformation = trainingInformation;
   }
 
   async createModel() {
-    let serverUrl = process.env.VUE_APP_SERVER_URI;
+    let serverURL = process.env.VUE_APP_SERVER_URI;
     let newModel = await tf.loadLayersModel(
-      serverUrl.concat('tasks/', this.taskId, '/model.json')
+      serverURL.concat(`tasks/${this.taskID}/model.json`)
     );
     return newModel;
   }
 
-  // should not be here
+  // Should not be here
   async getModelFromStorage() {
-    let savePath = `indexeddb://saved_${this.trainingInformation.modelId}`;
+    let savePath = 'indexeddb://working_'.concat(
+      this.trainingInformation.modelID
+    );
     let model = await tf.loadLayersModel(savePath);
     return model;
   }

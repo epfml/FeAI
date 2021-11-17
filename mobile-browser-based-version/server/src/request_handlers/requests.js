@@ -52,7 +52,7 @@ const clients = new Map();
 // Initialize task-clients map
 if (fs.existsSync(config.TASKS_FILE)) {
   const tasks = JSON.parse(fs.readFileSync(config.TASKS_FILE));
-  tasks.forEach(task => {
+  tasks.forEach((task) => {
     clients.set(task.taskId, []);
   });
 }
@@ -92,7 +92,7 @@ export function logsAppend(request, type) {
   logs.push({
     timestamp: timestamp,
     clientId: id,
-    taskId: task,
+    taskID: task,
     round: round,
     request: type,
   });
@@ -118,9 +118,9 @@ export function queryLogs(request, response) {
     .status(200)
     .send(
       logs.filter(
-        entry =>
+        (entry) =>
           (id ? entry.clientId === id : true) &&
-          (task ? entry.taskId === task : true) &&
+          (task ? entry.taskID === task : true) &&
           (round ? entry.round === round : true)
       )
     );
@@ -171,7 +171,7 @@ export function disconnectFromServer(request, response) {
 
   clients.set(
     task,
-    clients.get(task).filter(clientId => clientId != id)
+    clients.get(task).filter((clientId) => clientId != id)
   );
   console.log(`Client with ID ${id} disconnected from the server`);
   response.status(200).send('Successfully disconnected from the server.');
@@ -209,10 +209,7 @@ export function sendIndividualWeights(request, response) {
   }
 
   const weights = msgpack.decode(Uint8Array.from(request.body.weights.data));
-  weightsMap
-    .get(task)
-    .get(round)
-    .set(id, weights);
+  weightsMap.get(task).get(round).set(id, weights);
   response.status(200).send('Weights successfully received.');
 
   logsAppend(request, requestType);
@@ -271,7 +268,7 @@ export async function receiveAveragedWeights(request, response) {
     if (!fs.existsSync(milestoneDir)) {
       fs.mkdirSync(milestoneDir);
     }
-    fs.writeFile(path.join(milestoneDir, milestoneFile), weightsJson, err => {
+    fs.writeFile(path.join(milestoneDir, milestoneFile), weightsJson, (err) => {
       if (err) {
         console.log(err);
         console.log(`Failed to save weights to ${milestoneFile}`);
@@ -319,10 +316,7 @@ export function sendDataSamplesNumber(request, response) {
     dataSamplesMap.get(task).set(round, new Map());
   }
 
-  dataSamplesMap
-    .get(task)
-    .get(round)
-    .set(id, samples);
+  dataSamplesMap.get(task).get(round).set(id, samples);
   response.status(200).send('Number of samples successfully received.');
 
   logsAppend(request, requestType);
