@@ -16,8 +16,8 @@ export const store = createStore({
     },
 
     addGlobalTaskFrameState(state, newGlobalTaskFrameState) {
-      let modelId = newGlobalTaskFrameState.modelId;
-      state.globalTaskFrameState[modelId] = newGlobalTaskFrameState;
+      let modelID = newGlobalTaskFrameState.modelID;
+      state.globalTaskFrameState[modelID] = newGlobalTaskFrameState;
     },
 
     addPassword(state, payload) {
@@ -25,7 +25,7 @@ export const store = createStore({
     },
 
     addTask(state, payload) {
-      state.tasks[payload.task.trainingInformation.modelId] = payload.task;
+      state.tasks[payload.task.trainingInformation.modelID] = payload.task;
     },
 
     setIndexedDB(state, payload) {
@@ -43,14 +43,14 @@ export const store = createStore({
   },
 
   getters: {
-    globalTaskFrameState: state => modelId => {
-      return state.globalTaskFrameState[modelId];
+    globalTaskFrameState: (state) => (modelID) => {
+      return state.globalTaskFrameState[modelID];
     },
-    password: state => taskId => {
-      return taskId in state.passwords ? state.passwords[taskId] : null;
+    password: (state) => (taskID) => {
+      return taskID in state.passwords ? state.passwords[taskID] : null;
     },
-    tasks: state => modelId => {
-      return state.tasks[modelId];
+    tasks: (state) => (modelID) => {
+      return state.tasks[modelID];
     },
   },
 });

@@ -2,14 +2,31 @@
   <div :class="{ dark: isDark }">
     <!-- Global container for the screen -->
     <div
-      class="flex h-screen antialiased text-gray-900 bg-gray-100 dark:bg-dark dark:text-light"
+      class="
+        flex
+        h-screen
+        antialiased
+        text-gray-900
+        bg-gray-100
+        dark:bg-dark dark:text-light
+      "
     >
       <!-- Sidebar -->
       <aside
-        class="fixed inset-y-0 z-10 flex flex-shrink-0 bg-white border-r md:static dark:border-primary-darker dark:bg-darker focus:outline-none"
+        class="
+          fixed
+          inset-y-0
+          z-10
+          flex flex-shrink-0
+          bg-white
+          border-r
+          md:static
+          dark:border-primary-darker dark:bg-darker
+          focus:outline-none
+        "
         style="position: sticky"
       >
-        <Sidebar />
+        <sidebar />
       </aside>
 
       <!-- Main Page -->
@@ -29,7 +46,7 @@ import Sidebar from './sidebar/Sidebar.vue';
 import { mapState, mapMutations } from 'vuex';
 
 export default {
-  name: 'App',
+  name: 'app',
   components: {
     Sidebar,
   },
@@ -48,11 +65,7 @@ export default {
       );
     },
     getBrowserColors() {
-      if (window.localStorage.getItem('color')) {
-        return window.localStorage.getItem('color');
-      } else {
-        return 'cyan';
-      }
+      return window.localStorage.getItem('color') ?? 'cyan';
     },
     setAppColors(color) {
       const root = document.documentElement;

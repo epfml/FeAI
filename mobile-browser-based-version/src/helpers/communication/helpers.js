@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import * as tf from '@tensorflow/tfjs';
 import { Hashes } from 'jshashes';
 

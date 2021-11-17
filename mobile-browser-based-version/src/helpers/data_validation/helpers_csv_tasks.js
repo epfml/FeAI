@@ -6,16 +6,13 @@
  */
 export async function checkData(file, headers) {
   var content = file.target.result;
-  var userHeader = content
-    .split('\n')
-    .shift()
-    .split(','); // user's header array
-  userHeader = userHeader.map(element => {
+  var userHeader = content.split('\n').shift().split(','); // user's header array
+  userHeader = userHeader.map((element) => {
     return element.replace('/\r?\n|\r/', '').replace(/\s/g, '');
   });
 
   // Replace potential special characters added by user's OS system
-  userHeader = userHeader.map(element => {
+  userHeader = userHeader.map((element) => {
     return element.replace('/\r?\n|\r/', '').replace(/\s/g, '');
   });
 
@@ -41,7 +38,7 @@ export async function checkData(file, headers) {
   var numberWrong = 0;
   var headerCopied = [];
   if (checkHeaderLength) {
-    headers.forEach(row => {
+    headers.forEach((row) => {
       checkHeaderContent =
         checkHeaderContent && userHeader.includes(row.userHeader);
       headerCopied.push(row.userHeader);

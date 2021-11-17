@@ -5,7 +5,7 @@ export class TrainingChart {
     /**
      * Returns the CSS colors graphs should be rendered in
      */
-    const cssColors = color => {
+    const cssColors = (color) => {
       return getComputedStyle(document.documentElement).getPropertyValue(color);
     };
 

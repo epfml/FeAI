@@ -93,7 +93,7 @@ function logsAppend(request, type) {
   logs.push({
     timestamp: timestamp,
     clientId: id,
-    taskId: task,
+    taskID: task,
     round: round,
     request: type,
   });
@@ -121,7 +121,7 @@ function queryLogs(request, response) {
       logs.filter(
         entry =>
           (id ? entry.clientId === id : true) &&
-          (task ? entry.taskId === task : true) &&
+          (task ? entry.taskID === task : true) &&
           (round ? entry.round === round : true)
       )
     );
@@ -426,7 +426,7 @@ const tasksFilePath = path.join(__dirname, TASKS_FILE);
 if (fs.existsSync(tasksFilePath)) {
   const tasks = JSON.parse(fs.readFileSync(tasksFilePath));
   tasks.forEach(task => {
-    clients.set(task.taskId, []);
+    clients.set(task.taskID, []);
   });
 }
 
