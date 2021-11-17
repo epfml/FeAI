@@ -2,10 +2,10 @@ import * as tf from '@tensorflow/tfjs';
 
 /*
  * This class defines a new type of Layer for Interoperability personalization.
- * It performs the operation (input + bias) [Hadamard Product] weights 
+ * It performs the operation (input + bias) [Hadamard Product] weights
  * as defined in David Roschewit's paper on Interoperability (https://arxiv.org/abs/2107.06580).
- * 
- * The idea is to wrap a given model between two interoperability layers and train it like that. 
+ *
+ * The idea is to wrap a given model between two interoperability layers and train it like that.
  * It allows us to learn a feature-shift and a target-shift with respect to the federation.
  * The values of weight and biases are directly interpretable to understand differences in distributions of features.
  */

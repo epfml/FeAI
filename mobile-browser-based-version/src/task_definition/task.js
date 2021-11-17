@@ -1,7 +1,6 @@
 import * as tf from '@tensorflow/tfjs';
-
+import { personalizationType } from '../helpers/model_definition/model';
 export class Task {
-
   constructor(taskId, displayInformation, trainingInformation) {
     this.taskId = taskId;
     this.displayInformation = displayInformation;
@@ -13,6 +12,9 @@ export class Task {
     let newModel = await tf.loadLayersModel(
       serverUrl.concat('tasks/', this.taskId, '/model.json')
     );
+    newModel.setUserDefinedMetadata({
+      personalizationType: personalizationType.NONE,
+    });
     return newModel;
   }
 

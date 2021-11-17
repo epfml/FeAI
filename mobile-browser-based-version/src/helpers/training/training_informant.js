@@ -1,5 +1,5 @@
 import { TrainingChart } from './training_chart';
-
+import { personalizationType } from '../model_definition/model';
 /**
  * Class that collects information about the status of the training-loop of the model.
  */
@@ -34,6 +34,9 @@ export class TrainingInformant {
     // training accuracy chart
     this.trainingAccuracyChart = null; // new TrainingChart("trainingAccuracy_".concat(taskName), "Training Accuracy")
     this.trainingAccuracy = null;
+
+    // is the model using Interoperability (default to false)
+    this.displayHeatmap = false;
   }
 
   /**
@@ -101,9 +104,18 @@ export class TrainingInformant {
    * @param {Number} validationAccuracy the validation accuracy achieved by the model in the given epoch.
    */
   updateCharts(epoch, validationAccuracy, trainingAccuracy) {
-    console.log(this);
     this.validationAccuracyChart.updateGraph(epoch, validationAccuracy);
     this.trainingAccuracyChart.updateGraph(epoch, trainingAccuracy);
+  }
+
+  /**
+   *
+   * @returns
+   */
+  updateHeatmapData(weights, biases) {
+    this.displayHeatmap = true;
+    this.weights = weights;
+    this.biases = biases;
   }
 
   /**
