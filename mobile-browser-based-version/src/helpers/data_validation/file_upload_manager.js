@@ -58,14 +58,6 @@ export class FileUploadManager {
    * @returns the number of files in the file's list
    */
   numberOfFiles() {
-    return Object.keys(this.filesList).length;
-  }
-
-  /**
-   *
-   * clears the fileList
-   */
-   clear() {
-     this.filesList = {};
+    return Object.keys(this.filesList).length
   }
 }
