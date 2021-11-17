@@ -1,5 +1,5 @@
 import express from 'express';
-import * as requests from './feai_handlers/requests.js';
+import * as requests from './request_handlers/feai_handlers/requests.js';
 
 const feaiRouter = express.Router();
 feaiRouter.get('/', (req, res) => res.send('FeAI server'));
@@ -28,4 +28,4 @@ feaiTasksRouter.get('/logs', requests.queryLogs);
 
 const deaiRouter = express.Router();
 
-export default { feaiRouter, deaiRouter };
+export { feaiRouter, deaiRouter };

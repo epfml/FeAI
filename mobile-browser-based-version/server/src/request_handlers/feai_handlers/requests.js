@@ -1,8 +1,8 @@
 import path from 'path';
 import fs from 'fs';
 import msgpack from 'msgpack-lite';
-import * as config from '../../config.js';
-import { averageWeights } from '../helpers/tfjs_helpers.js';
+import * as config from '../../../config.js';
+import { averageWeights } from '../../helpers/tfjs_helpers.js';
 
 /**
  * Fraction of client reponses required to complete communication round.
@@ -252,7 +252,7 @@ export async function receiveAveragedWeights(request, response) {
     receivedWeights.size <
     Math.ceil(clients.get(task).length * CLIENTS_THRESHOLD)
   ) {
-    response.status(200).send({});
+    response.status(400).send({});
     return;
   }
 

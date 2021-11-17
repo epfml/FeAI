@@ -1,7 +1,7 @@
 import models from './tasks/models.js';
 import express from 'express';
 import cors from 'cors';
-import { feaiRouter, deaiRouter } from 'router';
+import { feaiRouter, deaiRouter } from './router.js';
 
 const app = express();
 app.enable('trust proxy');
