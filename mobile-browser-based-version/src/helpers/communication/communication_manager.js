@@ -30,7 +30,7 @@ export class CommunicationManager {
    * @param {String} serverURL The URL of the centralized server.
    * @param {String} taskPassword The password of the task.
    */
-  constructor(taskID, serverURL, taskPassword = null) {
+  constructor(serverURL, taskID, taskPassword = null) {
     this.serverURL = serverURL;
     this.taskID = taskID;
     this.clientID = null;

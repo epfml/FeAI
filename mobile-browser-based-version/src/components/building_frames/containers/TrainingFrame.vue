@@ -122,16 +122,14 @@ export default {
       trainingManager: null,
 
       // manager that returns feedbacks when training
-      trainingInformant: new TrainingInformant(
-        10,
-        this.Task.trainingInformation.modelID
-      ),
+      trainingInformant: new TrainingInformant(10, this.Task.taskID),
 
       // manager for the file uploading process
       fileUploadManager: new FileUploadManager(this.nbrClasses, this),
 
       // take care of communication processes
       communicationManager: new CommunicationManager(
+        process.env.VUE_APP_SERVER_URI,
         this.Task.taskID,
         this.$store.getters.password(this.Id)
       ), // TO DO: to modularize

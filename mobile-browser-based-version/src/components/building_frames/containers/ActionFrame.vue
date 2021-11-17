@@ -60,9 +60,10 @@ export default {
   },
   async mounted() {
     // This method is called when the component is created
-    this.$nextTick(async function() {
+    this.$nextTick(async function () {
       // initialize information variables
-      this.dataFormatInfoText = this.Task.displayInformation.dataFormatInformation;
+      this.dataFormatInfoText =
+        this.Task.displayInformation.dataFormatInformation;
       this.dataExampleText = this.Task.displayInformation.dataExampleText;
       console.log(`Mounting ${this.Task.trainingInformation.modelID}`);
     });
