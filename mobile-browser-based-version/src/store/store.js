@@ -1,4 +1,5 @@
 import { createStore } from 'vuex';
+import { TrainingManager } from '../helpers/training_script/training_manager'; //"../../helpers/training_script/training_manager";
 
 export const store = createStore({
   state: {
@@ -6,43 +7,30 @@ export const store = createStore({
     globalTaskFrameState: new Array(),
     passwords: new Array(),
     tasks: new Array(),
-    useIndexedDB: true,
-    isDark: false,
-    activePage: 'home',
   },
   mutations: {
     increment(state) {
       state.count++;
     },
 
-    addGlobalTaskFrameState(state, newGlobalTaskFrameState) {
+    async addGlobalTaskFrameState(state, newGlobalTaskFrameState) {
       let modelId = newGlobalTaskFrameState.modelId;
       state.globalTaskFrameState[modelId] = newGlobalTaskFrameState;
     },
 
-    addPassword(state, payload) {
+    async addPassword(state, payload) {
       state.passwords[payload.id] = payload.password;
     },
 
-    addTask(state, payload) {
+    async addTask(state, payload) {
       state.tasks[payload.task.trainingInformation.modelId] = payload.task;
-    },
-
-    setIndexedDB(state, payload) {
-      // Convert payload to boolean value
-      state.useIndexedDB = payload ? true : false;
-    },
-
-    setAppTheme(state, payload) {
-      state.isDark = payload ? true : false;
-    },
-
-    setActivePage(state, payload) {
-      state.activePage = payload;
     },
   },
 
   getters: {
+    trainingManagers: state => {
+      return state.trainingManagers;
+    },
     globalTaskFrameState: state => modelId => {
       return state.globalTaskFrameState[modelId];
     },

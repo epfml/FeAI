@@ -1,25 +1,37 @@
 import * as tf from '@tensorflow/tfjs';
 
 export class Task {
-
   constructor(taskId, displayInformation, trainingInformation) {
     this.taskId = taskId;
     this.displayInformation = displayInformation;
     this.trainingInformation = trainingInformation;
+    this.modelPrefix = 'working';
   }
 
   async createModel() {
-    let serverUrl = process.env.VUE_APP_SERVER_URI;
     let newModel = await tf.loadLayersModel(
-      serverUrl.concat('tasks/', this.taskId, '/model.json')
+      'https://deai-313515.ew.r.appspot.com/tasks/' +
+        this.taskId +
+        '/model.json'
     );
-    return newModel;
+    const savePathDb = 'indexeddb://working_'.concat(
+      this.trainingInformation.modelId
+    );
+
+    // only keep this here
+    await newModel.save(savePathDb);
   }
 
-  // should not be here
   async getModelFromStorage() {
-    let savePath = `indexeddb://saved_${this.trainingInformation.modelId}`;
+    let savePath = 'indexeddb://'
+      .concat(this.modelPrefix)
+      .concat('_')
+      .concat(this.trainingInformation.modelId);
     let model = await tf.loadLayersModel(savePath);
     return model;
+  }
+
+  setModelPrefix(prefix) {
+    this.modelPrefix = prefix
   }
 }
