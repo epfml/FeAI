@@ -29,19 +29,19 @@ export class CsvTask extends Task {
       console.log('User File Validated. Start parsing.');
       console.log(headerCopied);
 
-      let originalHeaders = headers.map(element => element['userHeader']);
+      let originalHeaders = headers.map((element) => element['userHeader']);
       let inputColumns = this.trainingInformation.inputColumns;
       let indices = Array.from({ length: headers.length }, (x, i) => i);
-      let inputIndices = indices.filter(i =>
+      let inputIndices = indices.filter((i) =>
         inputColumns.includes(originalHeaders[i])
       );
       let Xcsv = d3.csvParse(
         file.target.result,
-        function(d) {
-          let result = inputIndices.map(i => +d[headerCopied[i]]);
+        function (d) {
+          let result = inputIndices.map((i) => +d[headerCopied[i]]);
           return result;
         },
-        function(error, rows) {
+        function (error, rows) {
           console.log(error);
           console.log(rows);
         }
@@ -49,10 +49,10 @@ export class CsvTask extends Task {
       let yIdx = originalHeaders.indexOf(this.trainingInformation.outputColumn);
       let ycsv = d3.csvParse(
         file.target.result,
-        function(d) {
+        function (d) {
           return +d[headerCopied[yIdx]];
         },
-        function(error, rows) {
+        function (error, rows) {
           console.log(error);
           console.log(rows);
         }
@@ -89,19 +89,19 @@ export class CsvTask extends Task {
       console.log('User File Validated. Start parsing.');
       console.log(headerCopied);
 
-      let originalHeaders = headers.map(element => element['userHeader']);
+      let originalHeaders = headers.map((element) => element['userHeader']);
       let inputColumns = this.trainingInformation.inputColumns;
       let indices = Array.from({ length: headers.length }, (x, i) => i);
-      let inputIndices = indices.filter(i =>
+      let inputIndices = indices.filter((i) =>
         inputColumns.includes(originalHeaders[i])
       );
       let Xcsv = d3.csvParse(
         file.target.result,
-        function(d) {
-          let result = inputIndices.map(i => +d[headerCopied[i]]);
+        function (d) {
+          let result = inputIndices.map((i) => +d[headerCopied[i]]);
           return result;
         },
-        function(error, rows) {
+        function (error, rows) {
           console.log(error);
           console.log(rows);
         }
@@ -109,7 +109,7 @@ export class CsvTask extends Task {
       let xTest = tf.tensor2d(Xcsv);
       let predictions = loadedModel.predict(xTest);
       predictions = await predictions.data();
-      predictions = predictions.map(p => (p >= 0.5 ? 1 : 0));
+      predictions = predictions.map((p) => (p >= 0.5 ? 1 : 0));
       return predictions;
     } else {
       console.log('Cannot start testing.');

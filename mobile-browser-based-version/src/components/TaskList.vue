@@ -9,7 +9,13 @@
       <card>
         <div>
           <h6
-            class="text-xl font-medium leading-none tracking-wider dark:group-hover:text-darker"
+            class="
+              text-xl
+              font-medium
+              leading-none
+              tracking-wider
+              dark:group-hover:text-darker
+            "
           >
             {{ task.displayInformation.taskTitle }}
           </h6>
@@ -72,8 +78,8 @@ export default {
   },
   async mounted() {
     await fetch(this.tasksURL)
-      .then(response => response.json())
-      .then(tasks => {
+      .then((response) => response.json())
+      .then((tasks) => {
         for (let task of tasks) {
           console.log(`Processing ${task.taskID}`);
           let newTask;
@@ -153,7 +159,7 @@ export default {
           this.$router.addRoute(newTaskRoute);
         }
       });
-    this.tasks.forEach(task => this.addTask({ task: task }));
+    this.tasks.forEach((task) => this.addTask({ task: task }));
   },
 };
 </script>

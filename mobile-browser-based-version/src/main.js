@@ -24,9 +24,4 @@ const i18n = createI18n({
 
 // Create vue app
 const app = createApp(App);
-app.use(store);
-app.use(i18n);
-app
-  .use(Toaster)
-  .use(router)
-  .mount('#app');
+app.use(store).use(i18n).use(Toaster).use(router).mount('#app');

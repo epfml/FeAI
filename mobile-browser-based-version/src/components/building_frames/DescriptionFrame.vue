@@ -41,13 +41,36 @@
                 v-on:click="toggleUseWorkingModel()"
               >
                 <div
-                  class="w-12 h-6 transition rounded-full outline-none bg-primary-100 dark:bg-primary-darker"
+                  class="
+                    w-12
+                    h-6
+                    transition
+                    rounded-full
+                    outline-none
+                    bg-primary-100
+                    dark:bg-primary-darker
+                  "
                 ></div>
                 <div
-                  class="absolute top-0 left-0 w-6 h-6 transition-all duration-200 ease-in-out transform scale-110 rounded-full shadow-sm"
+                  class="
+                    absolute
+                    top-0
+                    left-0
+                    w-6
+                    h-6
+                    transition-all
+                    duration-200
+                    ease-in-out
+                    transform
+                    scale-110
+                    rounded-full
+                    shadow-sm
+                  "
                   :class="{
-                    'translate-x-0 bg-white dark:bg-primary-100': !useWorkingModel,
-                    'translate-x-6 bg-primary-light dark:bg-primary': useWorkingModel,
+                    'translate-x-0 bg-white dark:bg-primary-100':
+                      !useWorkingModel,
+                    'translate-x-6 bg-primary-light dark:bg-primary':
+                      useWorkingModel,
                   }"
                 ></div>
               </button>
@@ -55,9 +78,29 @@
             <div class="flex pt-4 space-x-4 justify-center">
               <button
                 v-on:click="saveModel()"
-                class="flex items-center justify-center px-4 py-2 space-x-4 transition-colors border rounded-md hover:text-gray-900 hover:border-gray-900 dark:border-primary dark:hover:text-primary-100 dark:hover:border-primary-light focus:outline-none focus:ring focus:ring-primary-lighter focus:ring-offset-2 dark:focus:ring-offset-dark dark:focus:ring-primary-dark"
+                class="
+                  flex
+                  items-center
+                  justify-center
+                  px-4
+                  py-2
+                  space-x-4
+                  transition-colors
+                  border
+                  rounded-md
+                  hover:text-gray-900 hover:border-gray-900
+                  dark:border-primary
+                  dark:hover:text-primary-100
+                  dark:hover:border-primary-light
+                  focus:outline-none
+                  focus:ring
+                  focus:ring-primary-lighter
+                  focus:ring-offset-2
+                  dark:focus:ring-offset-dark dark:focus:ring-primary-dark
+                "
                 :class="{
-                  'border-gray-900 text-gray-900 dark:border-primary-light dark:text-primary-100': !isDark,
+                  'border-gray-900 text-gray-900 dark:border-primary-light dark:text-primary-100':
+                    !isDark,
                   'text-gray-500 dark:text-primary-light': isDark,
                 }"
               >
@@ -65,9 +108,29 @@
               </button>
               <button
                 v-on:click="deleteModel()"
-                class="flex items-center justify-center px-4 py-2 space-x-4 transition-colors border rounded-md hover:text-gray-900 hover:border-gray-900 dark:border-primary dark:hover:text-primary-100 dark:hover:border-primary-light focus:outline-none focus:ring focus:ring-primary-lighter focus:ring-offset-2 dark:focus:ring-offset-dark dark:focus:ring-primary-dark"
+                class="
+                  flex
+                  items-center
+                  justify-center
+                  px-4
+                  py-2
+                  space-x-4
+                  transition-colors
+                  border
+                  rounded-md
+                  hover:text-gray-900 hover:border-gray-900
+                  dark:border-primary
+                  dark:hover:text-primary-100
+                  dark:hover:border-primary-light
+                  focus:outline-none
+                  focus:ring
+                  focus:ring-primary-lighter
+                  focus:ring-offset-2
+                  dark:focus:ring-offset-dark dark:focus:ring-primary-dark
+                "
                 :class="{
-                  'border-gray-900 text-gray-900 dark:border-primary-light dark:text-primary-100': !isDark,
+                  'border-gray-900 text-gray-900 dark:border-primary-light dark:text-primary-100':
+                    !isDark,
                   'text-gray-500 dark:text-primary-light': isDark,
                 }"
               >
@@ -80,9 +143,7 @@
               FeAI cached the last model you were working on for you. Turn on
               the model library (see settings) to see additional options.
             </p>
-            <p v-else>
-              The previous working model has been deleted.
-            </p>
+            <p v-else>The previous working model has been deleted.</p>
           </div>
         </div>
       </template>
@@ -197,7 +258,7 @@ export default {
       this.useWorkingModel = !this.useWorkingModel;
     },
     async loadFreshModel() {
-      await this.Task.createModel().then(freshModel => {
+      await this.Task.createModel().then((freshModel) => {
         memory.updateWorkingModel(
           this.Task.taskID,
           this.Task.trainingInformation.modelID,
@@ -217,7 +278,7 @@ export default {
   },
   async mounted() {
     // This method is called when the component is created
-    this.$nextTick(async function() {
+    this.$nextTick(async function () {
       /**
        * If the IndexedDB is turned on and a working model exists in IndexedDB
        * on loading the description frame, then display the model restoration
@@ -232,7 +293,7 @@ export default {
           this.workingModelExistsOnMount = true;
           this.workingModelExists = true;
           let date = workingModelMetadata.dateSaved;
-          let zeroPad = number => String(number).padStart(2, '0');
+          let zeroPad = (number) => String(number).padStart(2, '0');
           this.dateSaved = [
             date.getDate(),
             date.getMonth() + 1,

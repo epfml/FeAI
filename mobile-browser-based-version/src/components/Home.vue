@@ -23,7 +23,7 @@
         <div v-for="card in $tm('home.cards')" :key="card.header.text">
           <card>
             <div
-              class="ml-10  text-xl text-gray-500 dark:text-light ont-semibold"
+              class="ml-10 text-xl text-gray-500 dark:text-light ont-semibold"
             >
               <span class="text-primary-dark dark:text-primary-light">
                 {{ card.header.text }}

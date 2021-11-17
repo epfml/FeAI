@@ -63,7 +63,7 @@ export default {
   },
   async mounted() {
     // This method is called when the component is created
-    this.$nextTick(async function() {
+    this.$nextTick(async function () {
       // initialize information variables
       this.dataExample = this.Task.displayInformation.dataExample;
       this.taskLabels = this.Task.trainingInformation.LABEL_LIST;

@@ -5,7 +5,14 @@
     <div class="col-span-1 bg-white rounded-lg dark:bg-darker">
       <!-- Card header -->
       <div
-        class="flex items-center justify-between p-4 border-b dark:border-primary"
+        class="
+          flex
+          items-center
+          justify-between
+          p-4
+          border-b
+          dark:border-primary
+        "
       >
         <h4 class="text-lg font-semibold text-gray-500 dark:text-light">
           {{ header }}

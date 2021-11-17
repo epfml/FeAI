@@ -3,7 +3,16 @@
     <!-- Main Page Header -->
     <main v-bind:class="`${override ? '' : 'flex-1'} ${customClass}`">
       <div
-        class="flex flex-col pt-4 items-right justify-start flex-1 h-full min-h-screen overflow-y-auto"
+        class="
+          flex flex-col
+          pt-4
+          items-right
+          justify-start
+          flex-1
+          h-full
+          min-h-screen
+          overflow-y-auto
+        "
       >
         <section
           v-if="withSection"

@@ -26,7 +26,13 @@
               <td
                 v-for="example in dataExample"
                 :key="example"
-                class="border border-emerald-500 px-4 py-2 text-emerald-600 font-medium"
+                class="
+                  border border-emerald-500
+                  px-4
+                  py-2
+                  text-emerald-600
+                  font-medium
+                "
               >
                 {{ example.columnData }}
               </td>
@@ -52,7 +58,20 @@
                 :key="header.id"
               >
                 <div
-                  class="select-none p-2 transition duration-500 ease-in-out transform hover:-translate-y-2 rounded-2xl border-2 p-6 hover:shadow-2xl border-primary-dark"
+                  class="
+                    select-none
+                    p-2
+                    transition
+                    duration-500
+                    ease-in-out
+                    transform
+                    hover:-translate-y-2
+                    rounded-2xl
+                    border-2
+                    p-6
+                    hover:shadow-2xl
+                    border-primary-dark
+                  "
                 >
                   <div class="grid grid-cols-3 items-center p-2">
                     <div class="pl-1">
@@ -62,15 +81,27 @@
                         </div>
                       </div>
                     </div>
-                    <div>
-                      &larr;
-                    </div>
+                    <div>&larr;</div>
                     <div class="mb-3 pt-0">
                       <input
                         type="text"
                         v-model="header.userHeader"
                         placeholder="Enter your header"
-                        class="p-1 placeholder-gray-400 text-gray-700 dark:text-white relative bg-white dark:bg-dark rounded text-sm shadow outline-none focus:outline-none focus:shadow-outline w-full"
+                        class="
+                          p-1
+                          placeholder-gray-400
+                          text-gray-700
+                          dark:text-white
+                          relative
+                          bg-white
+                          dark:bg-dark
+                          rounded
+                          text-sm
+                          shadow
+                          outline-none
+                          focus:outline-none focus:shadow-outline
+                          w-full
+                        "
                       />
                     </div>
                   </div>
@@ -117,7 +148,7 @@ export default {
     async makePredictions(filesElement) {
       return new Promise((resolve, reject) => {
         let reader = new FileReader();
-        reader.onload = async e => {
+        reader.onload = async (e) => {
           // Preprocess the data and get object of the form {accepted: True/False, Xtrain: training data, ytrain: lavels}
           var predictions = await this.Task.predict(e, this.headers);
           resolve(predictions);
@@ -128,16 +159,16 @@ export default {
   },
   async mounted() {
     // This method is called when the component is created
-    this.$nextTick(async function() {
+    this.$nextTick(async function () {
       // initialize information variables
       this.classColumn = this.Task.trainingInformation.outputColumn;
-      this.Task.displayInformation.headers.forEach(item => {
+      this.Task.displayInformation.headers.forEach((item) => {
         if (item !== this.classColumn) {
           this.headers.push({ id: item, userHeader: item });
         }
       });
       this.dataExample = this.Task.displayInformation.dataExample.filter(
-        item => item.columnName !== this.classColumn
+        (item) => item.columnName !== this.classColumn
       );
     });
   },

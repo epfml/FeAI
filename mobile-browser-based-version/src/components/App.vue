@@ -2,11 +2,28 @@
   <div :class="{ dark: isDark }">
     <!-- Global container for the screen -->
     <div
-      class="flex h-screen antialiased text-gray-900 bg-gray-100 dark:bg-dark dark:text-light"
+      class="
+        flex
+        h-screen
+        antialiased
+        text-gray-900
+        bg-gray-100
+        dark:bg-dark dark:text-light
+      "
     >
       <!-- Sidebar -->
       <aside
-        class="fixed inset-y-0 z-10 flex flex-shrink-0 bg-white border-r md:static dark:border-primary-darker dark:bg-darker focus:outline-none"
+        class="
+          fixed
+          inset-y-0
+          z-10
+          flex flex-shrink-0
+          bg-white
+          border-r
+          md:static
+          dark:border-primary-darker dark:bg-darker
+          focus:outline-none
+        "
         style="position: sticky"
       >
         <sidebar />

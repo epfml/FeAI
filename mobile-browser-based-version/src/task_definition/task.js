@@ -5,7 +5,6 @@ export class Task {
     this.taskID = taskID;
     this.displayInformation = displayInformation;
     this.trainingInformation = trainingInformation;
-    this.modelPrefix = 'working';
   }
 
   async createModel() {
@@ -19,8 +18,7 @@ export class Task {
   // Should not be here
   async getModelFromStorage() {
     let savePath = 'indexeddb://'
-      .concat(this.modelPrefix)
-      .concat('_')
+      .concat('working_')
       .concat(this.trainingInformation.modelID);
     let model = await tf.loadLayersModel(savePath);
     return model;

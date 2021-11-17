@@ -32,15 +32,48 @@
         <li class="block p-1 w-1/2 sm:w-1/3 md:w-1/4 lg:w-1/6 xl:w-1/8 h-24">
           <article
             tabindex="0"
-            class="group hasImage w-full h-full rounded-md focus:outline-none focus:shadow-outline bg-gray-100 cursor-pointer relative text-transparent hover:text-white shadow-sm"
+            class="
+              group
+              hasImage
+              w-full
+              h-full
+              rounded-md
+              focus:outline-none focus:shadow-outline
+              bg-gray-100
+              cursor-pointer
+              relative
+              text-transparent
+              hover:text-white
+              shadow-sm
+            "
           >
             <img
               alt="upload preview"
-              class="img-preview w-full h-full sticky object-cover rounded-md bg-fixed"
+              class="
+                img-preview
+                w-full
+                h-full
+                sticky
+                object-cover
+                rounded-md
+                bg-fixed
+              "
             />
 
             <section
-              class="flex flex-col rounded-md text-xs break-words w-full h-full z-20 absolute top-0 py-2 px-3"
+              class="
+                flex flex-col
+                rounded-md
+                text-xs
+                break-words
+                w-full
+                h-full
+                z-20
+                absolute
+                top-0
+                py-2
+                px-3
+              "
             >
               <h1 class="flex-1"></h1>
               <div class="flex">
@@ -52,7 +85,14 @@
 
                 <p class="p-1 size text-xs"></p>
                 <button
-                  class="delete ml-auto focus:outline-none hover:bg-gray-300 p-1 rounded-md"
+                  class="
+                    delete
+                    ml-auto
+                    focus:outline-none
+                    hover:bg-gray-300
+                    p-1
+                    rounded-md
+                  "
                 >
                   <bin />
                 </button>
@@ -131,7 +171,7 @@ export default {
       for (const [id, prediction] of Object.entries(predictions)) {
         header_length = prediction.length;
         pred += `id,${prediction
-          .map(dict => dict['className'] + ',' + dict['probability'])
+          .map((dict) => dict['className'] + ',' + dict['probability'])
           .join(',')} \n`;
       }
       let header = 'id,';
@@ -152,7 +192,7 @@ export default {
   },
   async mounted() {
     // This method is called when the component is created
-    this.$nextTick(async function() {
+    this.$nextTick(async function () {
       // Code that will run only after the
       // entire view has been rendered
       /**
@@ -190,7 +230,7 @@ export default {
       const gallery = document.getElementById('gallery');
       const hidden = document.getElementById('hidden-input');
       document.getElementById('button').onclick = () => hidden.click();
-      hidden.onchange = e => {
+      hidden.onchange = (e) => {
         for (const file of e.target.files) {
           addFile(gallery, file);
         }
@@ -198,7 +238,7 @@ export default {
       /**
        * Returns the CSS colors graphs should be rendered in
        */
-      const cssColors = color => {
+      const cssColors = (color) => {
         return getComputedStyle(document.documentElement).getPropertyValue(
           color
         );

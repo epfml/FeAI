@@ -1,13 +1,28 @@
 <template>
   <!-- Mini Sidebar (LHS) -->
   <nav
-    class="flex flex-col flex-shrink-0 h-full px-2 py-4 border-r dark:border-primary-darker"
+    class="
+      flex flex-col flex-shrink-0
+      h-full
+      px-2
+      py-4
+      border-r
+      dark:border-primary-darker
+    "
   >
     <!-- Brand -->
     <div class="flex-shrink-0">
       <a
         v-on:click="goToHome()"
-        class="p-1 inline-block text-xl font-bold tracking-wider text-primary-dark dark:text-light"
+        class="
+          p-1
+          inline-block
+          text-xl
+          font-bold
+          tracking-wider
+          text-primary-dark
+          dark:text-light
+        "
       >
         FeAI
       </a>
@@ -23,7 +38,17 @@
         type="a"
         data-title="Home"
         data-placement="right"
-        class="p-2 transition-colors duration-200 rounded-full hover:text-primary hover:bg-primary-100 dark:hover:text-light dark:hover:bg-primary-dark dark:bg-dark focus:outline-none focus:bg-primary-100 dark:focus:bg-primary-dark focus:ring-primary-darker"
+        class="
+          p-2
+          transition-colors
+          duration-200
+          rounded-full
+          hover:text-primary hover:bg-primary-100
+          dark:hover:text-light dark:hover:bg-primary-dark dark:bg-dark
+          focus:outline-none focus:bg-primary-100
+          dark:focus:bg-primary-dark
+          focus:ring-primary-darker
+        "
         v-bind:class="[
           this.activePage === 'home' ? 'bg-primary' : 'bg-primary-50',
           this.activePage === 'home' ? 'text-white' : 'text-primary-lighter',
@@ -52,7 +77,17 @@
         data-title="Tasks"
         data-placement="right"
         v-on:click="goToTaskList()"
-        class="p-2 transition-colors duration-200 rounded-full hover:text-primary hover:bg-primary-100 dark:hover:text-light dark:hover:bg-primary-dark dark:bg-dark focus:outline-none focus:bg-primary-100 dark:focus:bg-primary-dark focus:ring-primary-darker"
+        class="
+          p-2
+          transition-colors
+          duration-200
+          rounded-full
+          hover:text-primary hover:bg-primary-100
+          dark:hover:text-light dark:hover:bg-primary-dark dark:bg-dark
+          focus:outline-none focus:bg-primary-100
+          dark:focus:bg-primary-dark
+          focus:ring-primary-darker
+        "
         v-bind:class="[
           this.activePage === 'tasks' ? 'bg-primary' : 'bg-primary-50',
           this.activePage === 'tasks' ? 'text-white' : 'text-primary-lighter',
@@ -83,7 +118,19 @@
         data-title="Models"
         data-placement="right"
         v-on:click="openModelLibrary()"
-        class="p-2 text-primary-lighter transition-colors duration-200 rounded-full bg-primary-50 hover:text-primary hover:bg-primary-100 dark:hover:text-light dark:hover:bg-primary-dark dark:bg-dark focus:outline-none focus:bg-primary-100 dark:focus:bg-primary-dark focus:ring-primary-darker"
+        class="
+          p-2
+          text-primary-lighter
+          transition-colors
+          duration-200
+          rounded-full
+          bg-primary-50
+          hover:text-primary hover:bg-primary-100
+          dark:hover:text-light dark:hover:bg-primary-dark dark:bg-dark
+          focus:outline-none focus:bg-primary-100
+          dark:focus:bg-primary-dark
+          focus:ring-primary-darker
+        "
       >
         <span class="sr-only">Open Model Library</span>
         <svg
@@ -108,7 +155,17 @@
         data-title="Information"
         data-placement="right"
         v-on:click="goToInformation()"
-        class="p-2 transition-colors duration-200 rounded-full hover:text-primary hover:bg-primary-100 dark:hover:text-light dark:hover:bg-primary-dark dark:bg-dark focus:outline-none focus:bg-primary-100 dark:focus:bg-primary-dark focus:ring-primary-darker"
+        class="
+          p-2
+          transition-colors
+          duration-200
+          rounded-full
+          hover:text-primary hover:bg-primary-100
+          dark:hover:text-light dark:hover:bg-primary-dark dark:bg-dark
+          focus:outline-none focus:bg-primary-100
+          dark:focus:bg-primary-dark
+          focus:ring-primary-darker
+        "
         v-bind:class="[
           this.activePage === 'info' ? 'bg-primary' : 'bg-primary-50',
           this.activePage === 'info' ? 'text-white' : 'text-primary-lighter',
@@ -136,7 +193,19 @@
         data-title="Settings"
         data-placement="right"
         v-on:click="openSettingsPanel()"
-        class="p-2 transition-colors duration-200 rounded-full text-primary-lighter bg-primary-50 hover:text-primary hover:bg-primary-100 dark:hover:text-light dark:hover:bg-primary-dark dark:bg-dark focus:outline-none focus:bg-primary-100 dark:focus:bg-primary-dark focus:ring-primary-darker"
+        class="
+          p-2
+          transition-colors
+          duration-200
+          rounded-full
+          text-primary-lighter
+          bg-primary-50
+          hover:text-primary hover:bg-primary-100
+          dark:hover:text-light dark:hover:bg-primary-dark dark:bg-dark
+          focus:outline-none focus:bg-primary-100
+          dark:focus:bg-primary-dark
+          focus:ring-primary-darker
+        "
       >
         <span class="sr-only">Open Settings Panel</span>
         <svg
@@ -197,7 +266,20 @@
         x-ref="panel"
         tabindex="-1"
         v-show="isMenuOpen"
-        class="transform fixed inset-y-0 right-0 z-20 w-full max-w-xs bg-white shadow-xl dark:bg-darker dark:text-light sm:max-w-md focus:outline-none"
+        class="
+          transform
+          fixed
+          inset-y-0
+          right-0
+          z-20
+          w-full
+          max-w-xs
+          bg-white
+          shadow-xl
+          dark:bg-darker dark:text-light
+          sm:max-w-md
+          focus:outline-none
+        "
         aria-labelledby="panelLabel"
       >
         <!-- Close button -->
@@ -292,7 +374,7 @@ export default {
       theme: 'custom-dark',
       delay: 0,
       duration: 0,
-      content: reference => reference.getAttribute('data-title'),
+      content: (reference) => reference.getAttribute('data-title'),
       onMount(instance) {
         instance.popperInstance.setOptions({
           placement: instance.reference.getAttribute('data-placement'),

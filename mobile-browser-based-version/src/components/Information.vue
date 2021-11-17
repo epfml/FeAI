@@ -4,7 +4,15 @@
       <!-- Titanic's card-->
       <card customClass="hover:text-primary dark:hover:text-light">
         <h6
-          class="text-xl font-large leading-none tracking-wider dark:group-hover:text-darker px-2 py-6"
+          class="
+            text-xl
+            font-large
+            leading-none
+            tracking-wider
+            dark:group-hover:text-darker
+            px-2
+            py-6
+          "
         >
           Information
         </h6>
@@ -94,7 +102,15 @@
           </div>
 
           <h6
-            class="text-xl font-large leading-none tracking-wider dark:group-hover:text-darker px-2 py-6"
+            class="
+              text-xl
+              font-large
+              leading-none
+              tracking-wider
+              dark:group-hover:text-darker
+              px-2
+              py-6
+            "
           >
             Features
           </h6>
@@ -160,7 +176,15 @@
           </div>
 
           <h6
-            class="text-xl font-large leading-none tracking-wider dark:group-hover:text-darker px-2 py-6"
+            class="
+              text-xl
+              font-large
+              leading-none
+              tracking-wider
+              dark:group-hover:text-darker
+              px-2
+              py-6
+            "
           >
             How to use
           </h6>
@@ -239,7 +263,15 @@
             </div>
           </div>
           <h6
-            class="text-xl font-large leading-none tracking-wider dark:group-hover:text-darker p-2 py-6"
+            class="
+              text-xl
+              font-large
+              leading-none
+              tracking-wider
+              dark:group-hover:text-darker
+              p-2
+              py-6
+            "
           >
             Further links
           </h6>

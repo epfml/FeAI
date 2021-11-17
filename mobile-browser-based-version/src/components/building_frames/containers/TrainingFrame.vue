@@ -219,7 +219,7 @@ export default {
   },
   async mounted() {
     // This method is called when the component is created
-    this.$nextTick(async function() {
+    this.$nextTick(async function () {
       // Create the training manager
       this.trainingManager = new TrainingManager(
         this.Task,

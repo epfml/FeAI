@@ -17,18 +17,17 @@
 </template>
 
 <script>
-import Upload from "../../../assets/svg/Upload.vue";
-import IconCard from "../../containers/IconCard.vue";
-import SingleUploadFrame from "./SingleUploadFrame";
+import Upload from '../../../assets/svg/Upload.vue';
+import IconCard from '../../containers/IconCard.vue';
+import SingleUploadFrame from './SingleUploadFrame';
 
 export default {
-  name: "UploadingFrame",
+  name: 'UploadingFrame',
   props: {
     Id: String,
     Task: Object,
     fileUploadManager: Object,
-    displayLabels : {default:true, type: Boolean},
-
+    displayLabels: { default: true, type: Boolean },
   },
   data() {
     return {
@@ -42,13 +41,17 @@ export default {
       return this.csvLabels || this.nbrLabels == 1;
     },
     header() {
-      return !this.displayLabels ? 'Upload My Data' : this.csvLabels ? 'Link My Data' : 'Connect Data'
+      return !this.displayLabels
+        ? 'Upload My Data'
+        : this.csvLabels
+        ? 'Link My Data'
+        : 'Connect Data';
     },
     formatLabels() {
-      return !this.displayLabels ?
-        ['']
-        : this.csvLabels 
-        ? ["Images", "Labels"]
+      return !this.displayLabels
+        ? ['']
+        : this.csvLabels
+        ? ['Images', 'Labels']
         : this.nbrLabels == 1
         ? [1]
         : this.labels;
@@ -66,7 +69,7 @@ export default {
     } else {
       this.nbrLabels = 1;
     }
-      
+
     if (this.Task.trainingInformation.LABEL_ASSIGNMENT) {
       this.csvLabels = true;
     }

@@ -3,7 +3,17 @@
   <div class="flex flex-col h-screen">
     <!-- Panel header -->
     <div
-      class="flex flex-col items-center justify-center flex-shrink-0 px-4 py-8 space-y-4 border-b dark:border-primary-dark"
+      class="
+        flex flex-col
+        items-center
+        justify-center
+        flex-shrink-0
+        px-4
+        py-8
+        space-y-4
+        border-b
+        dark:border-primary-dark
+      "
     >
       <span class="text-gray-500 dark:text-primary">
         <svg
@@ -36,9 +46,7 @@
           My model library
         </h6>
         <span class="text-s">
-          <p v-if="useIndexedDB">
-            List of trained models that were saved.
-          </p>
+          <p v-if="useIndexedDB">List of trained models that were saved.</p>
           <p v-else>
             The model library is currently unavailable. You can turn it on in
             the
@@ -50,7 +58,27 @@
         <div v-if="useIndexedDB">
           <div v-for="(item, idx) in modelMap" :key="idx">
             <div
-              class="flex items-center grid-cols-3 justify-between px-4 py-2 space-x-4 transition-colors border rounded-md hover:text-gray-900 hover:border-gray-900 dark:border-primary dark:hover:text-primary-100 dark:hover:border-primary-light focus:outline-none focus:ring focus:ring-primary-lighter focus:ring-offset-2 dark:focus:ring-offset-dark dark:focus:ring-primary-dark"
+              class="
+                flex
+                items-center
+                grid-cols-3
+                justify-between
+                px-4
+                py-2
+                space-x-4
+                transition-colors
+                border
+                rounded-md
+                hover:text-gray-900 hover:border-gray-900
+                dark:border-primary
+                dark:hover:text-primary-100
+                dark:hover:border-primary-light
+                focus:outline-none
+                focus:ring
+                focus:ring-primary-lighter
+                focus:ring-offset-2
+                dark:focus:ring-offset-dark dark:focus:ring-primary-dark
+              "
             >
               <div
                 class="cursor-pointer w-2/3"
@@ -67,9 +95,29 @@
               <div class="w-1/9">
                 <button
                   v-on:click="deleteModel(item[0])"
-                  class="flex items-center justify-center px-4 py-2 space-x-4 transition-colors border rounded-md hover:text-gray-900 hover:border-gray-900 dark:border-primary dark:hover:text-primary-100 dark:hover:border-primary-light focus:outline-none focus:ring focus:ring-primary-lighter focus:ring-offset-2 dark:focus:ring-offset-dark dark:focus:ring-primary-dark"
+                  class="
+                    flex
+                    items-center
+                    justify-center
+                    px-4
+                    py-2
+                    space-x-4
+                    transition-colors
+                    border
+                    rounded-md
+                    hover:text-gray-900 hover:border-gray-900
+                    dark:border-primary
+                    dark:hover:text-primary-100
+                    dark:hover:border-primary-light
+                    focus:outline-none
+                    focus:ring
+                    focus:ring-primary-lighter
+                    focus:ring-offset-2
+                    dark:focus:ring-offset-dark dark:focus:ring-primary-dark
+                  "
                   :class="{
-                    'border-gray-900 text-gray-900 dark:border-primary-light dark:text-primary-100': isDark,
+                    'border-gray-900 text-gray-900 dark:border-primary-light dark:text-primary-100':
+                      isDark,
                     'text-gray-500 dark:text-primary-light': !isDark,
                   }"
                 >
@@ -91,9 +139,29 @@
               <div class="w-1/9">
                 <button
                   v-on:click="downloadModel(item[1])"
-                  class="flex items-center justify-center px-4 py-2 space-x-4 transition-colors border rounded-md hover:text-gray-900 hover:border-gray-900 dark:border-primary dark:hover:text-primary-100 dark:hover:border-primary-light focus:outline-none focus:ring focus:ring-primary-lighter focus:ring-offset-2 dark:focus:ring-offset-dark dark:focus:ring-primary-dark"
+                  class="
+                    flex
+                    items-center
+                    justify-center
+                    px-4
+                    py-2
+                    space-x-4
+                    transition-colors
+                    border
+                    rounded-md
+                    hover:text-gray-900 hover:border-gray-900
+                    dark:border-primary
+                    dark:hover:text-primary-100
+                    dark:hover:border-primary-light
+                    focus:outline-none
+                    focus:ring
+                    focus:ring-primary-lighter
+                    focus:ring-offset-2
+                    dark:focus:ring-offset-dark dark:focus:ring-primary-dark
+                  "
                   :class="{
-                    'border-gray-900 text-gray-900 dark:border-primary-light dark:text-primary-100': isDark,
+                    'border-gray-900 text-gray-900 dark:border-primary-light dark:text-primary-100':
+                      isDark,
                     'text-gray-500 dark:text-primary-light': !isDark,
                   }"
                 >
@@ -118,9 +186,29 @@
               <div class="w-1/9">
                 <button
                   v-on:click="loadModel(item[1])"
-                  class="flex items-center justify-center px-4 py-2 space-x-4 transition-colors border rounded-md hover:text-gray-900 hover:border-gray-900 dark:border-primary dark:hover:text-primary-100 dark:hover:border-primary-light focus:outline-none focus:ring focus:ring-primary-lighter focus:ring-offset-2 dark:focus:ring-offset-dark dark:focus:ring-primary-dark"
+                  class="
+                    flex
+                    items-center
+                    justify-center
+                    px-4
+                    py-2
+                    space-x-4
+                    transition-colors
+                    border
+                    rounded-md
+                    hover:text-gray-900 hover:border-gray-900
+                    dark:border-primary
+                    dark:hover:text-primary-100
+                    dark:hover:border-primary-light
+                    focus:outline-none
+                    focus:ring
+                    focus:ring-primary-lighter
+                    focus:ring-offset-2
+                    dark:focus:ring-offset-dark dark:focus:ring-primary-dark
+                  "
                   :class="{
-                    'border-gray-900 text-gray-900 dark:border-primary-light dark:text-primary-100': isDark,
+                    'border-gray-900 text-gray-900 dark:border-primary-light dark:text-primary-100':
+                      isDark,
                     'text-gray-500 dark:text-primary-light': !isDark,
                   }"
                 >
@@ -176,7 +264,7 @@ export default {
     async refreshModelLibrary() {
       console.log('Refreshing the model library.');
       this.modelMap.clear();
-      await tf.io.listModels().then(models => {
+      await tf.io.listModels().then((models) => {
         for (let savePath in models) {
           let [location, _, directory, task, name] = savePath.split('/');
           if (!(location === 'indexeddb:' && directory === 'saved')) {
@@ -185,7 +273,7 @@ export default {
 
           let modelMetadata = models[savePath];
           let date = new Date(modelMetadata.dateSaved);
-          let zeroPad = number => String(number).padStart(2, '0');
+          let zeroPad = (number) => String(number).padStart(2, '0');
           let dateSaved = [
             date.getDate(),
             date.getMonth() + 1,
