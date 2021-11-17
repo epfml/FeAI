@@ -56,7 +56,7 @@ export class CommunicationManager {
       return;
     }
     const that = this;
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       (async function waitData(n) {
         const receiveWeightsUrl = that.serverUrl.concat(
           `receive_weights/${that.taskID}/${epoch}`
@@ -73,7 +73,8 @@ export class CommunicationManager {
         });
         if (response.ok) {
           const body = await response.json();
-          console.log(body); console.log(body.weights);
+          console.log(body);
+          console.log(body.weights);
           return resolve(msgpack.decode(Uint8Array.from(body.weights.data)));
         }
         if (n >= MAX_TRIES - 1) {
@@ -112,14 +113,11 @@ export class CommunicationManager {
   async onEpochEndCommunication(model, epoch, trainingInformant) {
     // Send weights to server
     trainingInformant.addMessage('Sending weights to server');
-    await this.sendWeights(
-      model.weights,
-      epoch
-    );
+    await this.sendWeights(model.weights, epoch);
     // Receive averaged weights from server
     trainingInformant.addMessage('Waiting to receive weights from server');
     var startTime = new Date();
-    await this.receiveWeightsBreak(epoch).then(receivedWeights => {
+    await this.receiveWeightsBreak(epoch).then((receivedWeights) => {
       var endTime = new Date();
       var timeDiff = endTime - startTime; // in ms
       timeDiff /= 1000;

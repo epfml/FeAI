@@ -58,6 +58,6 @@ export class FileUploadManager {
    * @returns the number of files in the file's list
    */
   numberOfFiles() {
-    return Object.keys(this.filesList).length
+    return Object.keys(this.filesList).length;
   }
 }

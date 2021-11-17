@@ -43,13 +43,13 @@ export const store = createStore({
   },
 
   getters: {
-    globalTaskFrameState: state => modelID => {
+    globalTaskFrameState: (state) => (modelID) => {
       return state.globalTaskFrameState[modelID];
     },
-    password: state => taskID => {
+    password: (state) => (taskID) => {
       return taskID in state.passwords ? state.passwords[taskID] : null;
     },
-    tasks: state => modelID => {
+    tasks: (state) => (modelID) => {
       return state.tasks[modelID];
     },
   },

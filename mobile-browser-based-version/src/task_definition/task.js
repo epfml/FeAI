@@ -17,9 +17,9 @@ export class Task {
 
   // Should not be here
   async getModelFromStorage() {
-    let savePath = 'indexeddb://'
-      .concat('working_')
-      .concat(this.trainingInformation.modelID);
+    let savePath = 'indexeddb://working_'.concat(
+      this.trainingInformation.modelID
+    );
     let model = await tf.loadLayersModel(savePath);
     return model;
   }
