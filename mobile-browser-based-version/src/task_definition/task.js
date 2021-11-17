@@ -21,7 +21,7 @@ export class Task {
     let savePath = 'indexeddb://'
       .concat(this.modelPrefix)
       .concat('_')
-      .concat(this.trainingInformation.modelId);
+      .concat(this.trainingInformation.modelID);
     let model = await tf.loadLayersModel(savePath);
     return model;
   }

@@ -203,7 +203,7 @@ export default {
 
           this.modelMap.set(savePath, {
             modelName: name,
-            taskId: task,
+            taskID: task,
             modelType: directory,
             date: dateSaved,
             hours: hourSaved,
@@ -216,20 +216,20 @@ export default {
     deleteModel(savePath) {
       let modelMetadata = this.modelMap.get(savePath);
       this.modelMap.delete(savePath);
-      memory.deleteSavedModel(modelMetadata.taskId, modelMetadata.modelName);
+      memory.deleteSavedModel(modelMetadata.taskID, modelMetadata.modelName);
     },
 
     openTesting(modelMetadata) {
-      this.$router.push({ name: modelMetadata.taskId.concat('.testing') });
+      this.$router.push({ name: modelMetadata.taskID.concat('.testing') });
     },
 
     downloadModel(modelMetadata) {
-      memory.downloadSavedModel(modelMetadata.taskId, modelMetadata.modelName);
+      memory.downloadSavedModel(modelMetadata.taskID, modelMetadata.modelName);
     },
 
     async loadModel(modelMetadata) {
       await memory.loadSavedModel(
-        modelMetadata.taskId,
+        modelMetadata.taskID,
         modelMetadata.modelName
       );
       this.$toast.success(

@@ -54,7 +54,7 @@ export default {
       // initialize information variables
       this.dataFormatInfoText = this.Task.displayInformation.dataFormatInformation;
       this.dataExampleText = this.Task.displayInformation.dataExampleText;
-      console.log(`Mounting ${this.Task.trainingInformation.modelId}`);
+      console.log(`Mounting ${this.Task.trainingInformation.modelID}`);
     });
   },
 };

@@ -29,7 +29,7 @@ import Sidebar from './sidebar/Sidebar.vue';
 import { mapState, mapMutations } from 'vuex';
 
 export default {
-  name: 'App',
+  name: 'app',
   components: {
     Sidebar,
   },

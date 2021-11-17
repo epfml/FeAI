@@ -47,7 +47,7 @@ export class TrainingManager {
     const labels = dataset.ytrain;
 
     let model;
-    let modelParams = [this.task.taskId, this.task.trainingInformation.modelId]
+    let modelParams = [this.task.taskID, this.task.trainingInformation.modelID]
     /**
      * If IndexedDB is turned on and the working model exists, then load the
      * existing model from IndexedDB. Otherwise, create a fresh new one.
@@ -122,7 +122,7 @@ export class TrainingManager {
           console.log(`loss ${logs.loss.toFixed(4)}`);
           if (this.useIndexedDB) {
             await updateWorkingModel(
-              this.task.taskId, trainingInformation.modelId, model
+              this.task.taskID, trainingInformation.modelID, model
             );
           }
         },
@@ -166,7 +166,7 @@ export class TrainingManager {
           );
           if (this.useIndexedDB) {
             await updateWorkingModel(
-              this.task.taskId, trainingInformation.modelId, model
+              this.task.taskID, trainingInformation.modelID, model
             );
           }
         },

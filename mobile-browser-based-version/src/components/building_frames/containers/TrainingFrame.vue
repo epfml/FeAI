@@ -124,7 +124,7 @@ export default {
       // manager that returns feedbacks when training
       trainingInformant: new TrainingInformant(
         10,
-        this.Task.trainingInformation.modelId
+        this.Task.trainingInformation.modelID
       ),
 
       // manager for the file uploading process
@@ -132,7 +132,7 @@ export default {
 
       // take care of communication processes
       communicationManager: new CommunicationManager(
-        this.Task.taskId,
+        this.Task.taskID,
         this.$store.getters.password(this.Id)
       ), // TO DO: to modularize
     };
@@ -154,8 +154,8 @@ export default {
     async saveModelButton() {
       if (this.useIndexedDB) {
         await saveWorkingModel(
-          this.Task.taskId,
-          this.Task.trainingInformation.modelId
+          this.Task.taskID,
+          this.Task.trainingInformation.modelID
         );
         this.$toast.success(
           `The current ${this.Task.displayInformation.taskTitle} model has been saved.`

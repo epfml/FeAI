@@ -282,7 +282,7 @@
 import baseLayout from './containers/BaseLayout';
 import card from './containers/Card';
 export default {
-  name: 'Information',
+  name: 'information',
   components: { baseLayout, card },
   methods: {
     goToLabPage() {},

@@ -8,7 +8,7 @@
           v-bind:OverviewText="OverviewText"
           v-bind:ModelText="ModelText"
           v-bind:TradeOffsText="TradeOffsText"
-          v-bind:Id="TaskId"
+          v-bind:Id="taskID"
           v-bind:Task="Task"
           v-if="TradeOffsText"
         />
@@ -30,8 +30,8 @@ export default {
       OverviewText: '',
       ModelText: '',
       TradeOffsText: '',
-      TaskId: '',
-      ModelId: '',
+      taskID: '',
+      modelID: '',
     };
   },
   components: {
@@ -41,8 +41,8 @@ export default {
     this.OverviewText = this.Task.displayInformation.overview;
     this.ModelText = this.Task.displayInformation.model;
     this.TradeOffsText = this.Task.displayInformation.tradeoffs;
-    this.TaskId = this.Task.taskId;
-    this.ModelId = this.Task.trainingInformation.modelId;
+    this.taskID = this.Task.taskID;
+    this.modelID = this.Task.trainingInformation.modelID;
   },
 };
 </script>

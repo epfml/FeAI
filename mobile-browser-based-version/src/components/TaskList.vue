@@ -49,7 +49,7 @@ import { defineComponent } from 'vue';
 import { mapMutations } from 'vuex';
 
 export default {
-  name: 'TaskList',
+  name: 'task-list',
   components: {
     BaseLayout,
     Card,

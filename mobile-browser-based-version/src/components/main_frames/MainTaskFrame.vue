@@ -327,14 +327,14 @@ export default {
   methods: {
     goToTraining() {
       this.$router.push({
-        name: this.Task.taskId + '.training',
-        params: { Id: this.Task.taskId },
+        name: this.Task.taskID + '.training',
+        params: { Id: this.Task.taskID },
       });
     },
     goToTesting() {
       this.$router.push({
-        name: this.Task.taskId + '.testing',
-        params: { Id: this.Task.taskId },
+        name: this.Task.taskID + '.testing',
+        params: { Id: this.Task.taskID },
       });
     },
     goToModelDescription() {
@@ -377,7 +377,7 @@ export default {
   activated() {
     this.TaskTitle = this.Task.displayInformation.taskTitle;
     let prevState = this.$store.getters.globalTaskFrameState(
-      this.Task.trainingInformation.modelId
+      this.Task.trainingInformation.modelID
     );
 
     if (prevState) {
@@ -406,7 +406,7 @@ export default {
   },
   async deactivated() {
     let currentState = {
-      modelId: this.Task.trainingInformation.modelId,
+      modelID: this.Task.trainingInformation.modelID,
       isActiveModelDesc: this.isActiveModelDesc,
       openModelDesc: this.openModelDesc,
       isActiveUploadData: this.isActiveUploadData,

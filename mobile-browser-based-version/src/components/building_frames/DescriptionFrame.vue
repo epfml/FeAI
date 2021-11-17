@@ -175,8 +175,8 @@ export default {
     async deleteModel() {
       this.workingModelExists = false;
       await memory.deleteWorkingModel(
-        this.Task.taskId,
-        this.Task.trainingInformation.modelId
+        this.Task.taskID,
+        this.Task.trainingInformation.modelID
       );
       this.$toast.success(
         `Deleted the cached ${this.Task.displayInformation.taskTitle} model.`
@@ -185,8 +185,8 @@ export default {
     },
     async saveModel() {
       await memory.saveWorkingModel(
-        this.Task.taskId,
-        this.Task.trainingInformation.modelId
+        this.Task.taskID,
+        this.Task.trainingInformation.modelID
       );
       this.$toast.success(
         `Saved the cached ${this.Task.displayInformation.taskTitle} model to the model library`
@@ -199,8 +199,8 @@ export default {
     async loadFreshModel() {
       await this.Task.createModel().then(freshModel => {
         memory.updateWorkingModel(
-          this.Task.taskId,
-          this.Task.trainingInformation.modelId,
+          this.Task.taskID,
+          this.Task.trainingInformation.modelID,
           freshModel
         );
       });
@@ -225,8 +225,8 @@ export default {
        */
       if (this.useIndexedDB) {
         let workingModelMetadata = await memory.getWorkingModelMetadata(
-          this.Task.taskId,
-          this.Task.trainingInformation.modelId
+          this.Task.taskID,
+          this.Task.trainingInformation.modelID
         );
         if (workingModelMetadata) {
           this.workingModelExistsOnMount = true;
