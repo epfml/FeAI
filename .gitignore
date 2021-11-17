@@ -136,10 +136,5 @@ UI/.DS_Store
 
 node_modules/
 
-# model files on server
-weights.bin
-model.json
-milestones/
-
 # IDE config files
 .vscode

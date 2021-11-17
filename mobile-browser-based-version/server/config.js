@@ -29,6 +29,6 @@ export const TASKS_FILE = path.join(TASKS_DIR, 'tasks.json');
  */
 export const MODELS_DIR = path.join(ROOT_DIR, 'models');
 /**
- * Directory containing all the milestones files.
+ * Directory containing all the generated milestones files.
  */
 export const MILESTONES_DIR = path.join(ROOT_DIR, 'milestones');

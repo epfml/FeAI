@@ -164,7 +164,9 @@ export class CommunicationManager {
      * If successful, update the local weights with the aggregated
      * weights.
      */
-    trainingInformant.addMessage('Waiting to receive weights from server');
+    trainingInformant.addMessage(
+      'Waiting to receive aggregated weights from server.'
+    );
     var startTime = new Date();
     await this.receiveAggregatedWeights(epoch).then((receivedWeights) => {
       var endTime = new Date();
@@ -172,7 +174,9 @@ export class CommunicationManager {
       timeDiff /= 1000;
       trainingInformant.updateWaitingTime(Math.round(timeDiff));
       trainingInformant.updateNbrUpdatesWithOthers(1);
-      trainingInformant.addMessage('Updating local weights');
+      trainingInformant.addMessage(
+        'Received aggregated weights from server. Updating local weights.'
+      );
 
       if (receivedWeights.length > 0) {
         assignWeightsToModel(model, receivedWeights);
@@ -182,7 +186,7 @@ export class CommunicationManager {
      * Request the epoch's data shares from the server.
      */
     trainingInformant.addMessage(
-      'Waiting to receive metadata & statistics from server'
+      'Waiting to receive metadata & statistics from server.'
     );
     await this.receiveDataShares(epoch).then((dataShares) => {
       if (dataShares.length > 0) {

@@ -4,7 +4,7 @@
     <template v-slot:action>
       <!-- Upload Training Data -->
       <div class="relative">
-        <UploadingFrame
+        <uploading-frame
           v-bind:Id="Id"
           v-bind:Task="Task"
           v-bind:fileUploadManager="fileUploadManager"
@@ -25,7 +25,7 @@
       </div>
       <!-- Training Board -->
       <div>
-        <TrainingInformationFrame
+        <training-information-frame
           v-bind:trainingInformant="trainingInformant"
           v-if="trainingInformant"
         />

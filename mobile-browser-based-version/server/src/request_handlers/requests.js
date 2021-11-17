@@ -398,10 +398,10 @@ export function getAllTasksData(request, response) {
 export function getInitialTaskModel(request, response) {
   const task = request.params.task;
   const file = request.params.file;
-  const modelFiles = ['model.json', 'weights.bin'];
+  const validModelFiles = ['model.json', 'weights.bin'];
   const modelFile = path.join(config.MODELS_DIR, task, file);
   console.log(`File path: ${modelFile}`);
-  if (modelFiles.includes(file) && fs.existsSync(modelFile)) {
+  if (validModelFiles.includes(file) && fs.existsSync(modelFile)) {
     console.log(`${file} download for task ${task} succeeded`);
     response.status(200).sendFile(modelFile);
   } else {

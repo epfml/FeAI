@@ -2,6 +2,15 @@ import path from 'path';
 import * as tf from '@tensorflow/tfjs';
 import '@tensorflow/tfjs-node';
 import * as config from '../../config.js';
+import fs from 'fs';
+
+/**
+ * Create the models directory for the TFJS model files of
+ * the tasks defined below.
+ */
+if (!fs.existsSync(config.MODELS_DIR)) {
+  fs.mkdirSync(config.MODELS_DIR);
+}
 
 async function createTitanicModel() {
   const model = tf.sequential();
@@ -113,7 +122,7 @@ async function createCifar10Model() {
   await model.save(config.SAVING_SCHEME.concat(savePath));
 }
 
-export const models = [
+export default [
   createTitanicModel,
   createMnistModel,
   createLUSCovidModel,
