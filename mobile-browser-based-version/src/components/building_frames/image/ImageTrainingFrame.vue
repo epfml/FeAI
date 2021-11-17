@@ -3,7 +3,6 @@
     :Id="Id"
     :Task="Task"
     :dataPreprocessing="dataPreprocessing"
-    :num_peers="num_peers"
     :nbrClasses="Task.trainingInformation.LABEL_LIST.length"
     :precheckData="precheckData"
   >

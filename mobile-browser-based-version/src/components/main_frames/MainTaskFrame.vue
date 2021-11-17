@@ -434,7 +434,7 @@ export default {
       openTestModel: false,
       isActiveModelStatistic: false,
       openModelStatistic: false,
-      isSidebarOpen: window.innerWidth <= 1024,
+      isSidebarOpen: window.innerWidth > 1024,
       window: {
         width: window.innerWidth,
         height: window.innerHeight,
@@ -465,7 +465,7 @@ export default {
     async handleResize() {
       this.window.width = window.innerWidth;
       this.window.height = window.innerHeight;
-      this.isSidebarOpen = this.window.width <= 1024;
+      this.isSidebarOpen = this.window.width > 1024;
     },
     login() {
       var SHA256 = new Hashes.SHA256();
@@ -521,7 +521,7 @@ export default {
       this.openTestModel = false;
       this.isActiveModelStatistic = false;
       this.openModelStatistic = false;
-      this.isSidebarOpen = window.innerWidth <= 1024;
+      this.isSidebarOpen = window.innerWidth > 1024;
     }
   },
   async deactivated() {
