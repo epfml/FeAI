@@ -73,10 +73,14 @@ export class TrainingInformant {
    */
   addMessage(msg) {
     const now = new Date();
+    const time = [now.getHours(), now.getMinutes(), now.getSeconds()];
+    const formattedTime = time
+      .map((number) => String(number).padStart(2, '0'))
+      .join(':');
     if (this.messages.length >= this.nbrMessageToShow) {
       this.messages.shift();
     }
-    const message = `${now}: ${msg}`;
+    const message = `${formattedTime} ${msg}`;
     this.messages.push(message);
     if (this.verbose) {
       console.log(message);

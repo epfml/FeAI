@@ -107,12 +107,15 @@ export class CommunicationManager {
         timestamp: new Date(),
       }),
     };
-    return await _tryRequest(requestURL, requestOptions, MAX_TRIES).then(
+    return await tryRequest(requestURL, requestOptions, MAX_TRIES).then(
       (response) =>
         response
           .json()
           .then((body) => msgpack.decode(Uint8Array.from(body.weights.data))),
-      () => Uint8Array.from([])
+      (error) => {
+        console.log(error);
+        return Uint8Array.from([]);
+      }
     );
   }
 
@@ -145,11 +148,13 @@ export class CommunicationManager {
         timestamp: new Date(),
       }),
     };
-    return await _tryRequest(requestURL, requestOptions, MAX_TRIES).then(
-      (response) =>
-        response.json().then((body) => new Map(msgpack.decode(body.samples))),
-      () => new Map()
-    );
+    const response = await fetch(requestURL, requestOptions);
+    if (response.ok) {
+      const body = await response.json();
+      return new Map(msgpack.decode(body.samples));
+    } else {
+      return new Map();
+    }
   }
 
   async onEpochEndCommunication(model, epoch, trainingInformant) {
@@ -200,21 +205,27 @@ export class CommunicationManager {
  * Limited to a number of tries.
  * @param {String} requestURL The request's URL.
  * @param {Object} requestOptions The request's options.
- * @param {Number} triesLeft The number of tries left.
+ * @param {Number} tries The number of tries.
  * @returns The successful response.
  * @throws An error if a successful response could not be obtained
  * after the specified number of tries.
  */
-async function _tryRequest(requestURL, requestOptions, triesLeft) {
-  const response = await fetch(requestURL, requestOptions);
-  if (response.ok) {
-    return response;
-  }
-  if (triesLeft <= 0) {
-    throw new Error('Failed to get response from server.');
-  }
-  /**
-   * Wait before performing the request again.
-   */
-  setTimeout(() => _tryRequest(triesLeft - 1), TIME_PER_TRIES);
+function tryRequest(requestURL, requestOptions, tries) {
+  return new Promise((resolve, reject) => {
+    async function _tryRequest(triesLeft) {
+      console.log('tries left: ', triesLeft);
+      const response = await fetch(requestURL, requestOptions);
+      if (response.ok) {
+        return resolve(response);
+      }
+      if (triesLeft <= 0) {
+        return reject('Failed to get response from server.');
+      }
+      /**
+       * Wait before performing the request again.
+       */
+      setTimeout(() => _tryRequest(triesLeft - 1), TIME_PER_TRIES);
+    }
+    _tryRequest(tries);
+  });
 }

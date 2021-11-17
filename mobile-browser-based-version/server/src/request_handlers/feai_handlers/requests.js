@@ -57,6 +57,10 @@ if (fs.existsSync(config.TASKS_FILE)) {
   });
 }
 
+if (!fs.existsSync(config.MILESTONES_DIR)) {
+  fs.mkdirSync(config.MILESTONES_DIR);
+}
+
 /**
  * Verifies that the given POST request is correctly formatted. Its body must
  * contain:
@@ -264,7 +268,7 @@ export async function receiveAveragedWeights(request, response) {
 
   if ((round - 1) % MODEL_SAVE_TIMESTEP == 0) {
     const milestoneFile = `weights_round${round}.json`;
-    const milestoneDir = path.join(config.MILESTONES, task);
+    const milestoneDir = path.join(config.MILESTONES_DIR, task);
     if (!fs.existsSync(milestoneDir)) {
       fs.mkdirSync(milestoneDir);
     }
