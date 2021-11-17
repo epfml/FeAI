@@ -203,11 +203,42 @@
         Train Alone
       </button>
       <button
-        v-on:click="joinTraining(true)"
+        v-on:click="distributedOptions = !distributedOptions"
         type="button"
         class="text-lg border-2 border-transparent bg-green-500 ml-3 py-2 px-4 font-bold uppercase text-white rounded transform transition motion-reduce:transform-none hover:scale-110 duration-500 focus:outline-none"
       >
         Train Distributed
+      </button>
+    </div>
+    <div
+      v-if="distributedOptions"
+      class="grid items-center justify-center p-4 border-2 rounded-lg mx-auto"
+    >
+      <label class="text-lg inline-flex items-center m-auto pb-md">
+        <button
+          class="relative focus:outline-none pr-md"
+          v-on:click="useInteroperability = !useInteroperability"
+        >
+          <div
+            class="w-12 h-6 transition rounded-full outline-none bg-primary-100 dark:bg-primary-darker"
+          ></div>
+          <div
+            class="absolute top-0 left-0 inline-flex items-center justify-center w-6 h-6 transition-all duration-200 ease-in-out transform scale-110 rounded-full shadow-sm"
+            :class="{
+              'translate-x-0  bg-white dark:bg-primary-100': !useInteroperability,
+              'translate-x-6 bg-primary-light dark:bg-primary': useInteroperability,
+            }"
+          ></div>
+        </button>
+        <span for="personalization"> Adjust for interoperability</span>
+      </label>
+
+      <button
+        v-on:click="joinTraining(true, useInteroperability)"
+        type="button"
+        class="text-lg border-2 border-transparent bg-green-500 ml-3 py-2 px-4 font-bold uppercase text-white rounded transform transition motion-reduce:transform-none hover:scale-110 duration-500 focus:outline-none"
+      >
+        Start Distributed Training
       </button>
     </div>
 
@@ -287,6 +318,7 @@ import TrainingInformationFrame from './TrainingInformationFrame';
 
 import * as tf from '@tensorflow/tfjs';
 import { mapState } from 'vuex';
+import { personalizationType } from '../../helpers/model_definition/model';
 
 export default {
   name: 'CsvTrainingFrame',
@@ -300,6 +332,9 @@ export default {
   },
   data() {
     return {
+      // controls distributed options display
+      distributedOptions: false,
+      useInteroperability: false,
       // variables for general informations
       dataFormatInfoText: '',
       dataExampleText: '',
@@ -354,8 +389,10 @@ export default {
       setTimeout(this.$toast.clear, 30000);
     },
 
-    async joinTraining(distributed) {
+    async joinTraining(distributed, useInteroperability = false) {
       const nbrFiles = this.fileUploadManager.numberOfFiles();
+
+      // Ok here we do have a problem with the filecheck ...
 
       // Check that the user indeed gave a file
       if (nbrFiles == 0) {
@@ -376,8 +413,20 @@ export default {
 
           this.$toast.success('Training has started!');
           setTimeout(this.$toast.clear, 30000);
-
-          await this.trainingManager.trainModel(processedDataset, distributed);
+          if (!useInteroperability) {
+            await this.trainingManager.trainModel(
+              processedDataset,
+              distributed
+            );
+          } else {
+            this.$toast.success('Adjusting for Interoperability');
+            setTimeout(this.$toast.clear, 30000);
+            await this.trainingManager.trainModel(
+              processedDataset,
+              distributed,
+              personalizationType.INTEROPERABILITY
+            );
+          }
 
           this.$toast.success('Training has finished.');
           setTimeout(this.$toast.clear, 30000);

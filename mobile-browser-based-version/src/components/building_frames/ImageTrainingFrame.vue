@@ -300,7 +300,7 @@ export default {
       setTimeout(this.$toast.clear, 30000);
     },
 
-    async joinTraining(distributed) {
+    async joinTraining(distributed, trainInteroperability = false) {
       const filesElement = this.fileUploadManager.getFilesList();
 
       // Check that the user indeed gave a file
@@ -332,6 +332,10 @@ export default {
           console.log(
             `Number of images with valid format: ${status_validation.nr_accepted} out of ${filesElement.length}`
           );
+          this.$toast.error(
+            `Image preprocessing has failed due to invalid image input`
+          );
+          setTimeout(this.$toast.clear, 30000);
         }
       }
     },

@@ -8,18 +8,14 @@
  */
 import * as tf from '@tensorflow/tfjs';
 
-
 const INDEXEDDB_SCHEME = 'indexeddb://';
 const DOWNLOADS_SCHEME = 'downloads://';
 const WORKING_MODEL = 'working';
 const SAVED_MODEL = 'saved';
 
-
 async function _getModelMetadata(taskId, modelName, modelType) {
   let key = INDEXEDDB_SCHEME.concat(`${modelType}/${taskId}/${modelName}`);
-  return await tf.io.listModels().then((models) =>
-    key in models ? models[key] : false
-  );
+  return await tf.io.listModels().then(models => models[key] ?? false);
 }
 
 async function _getModel(taskId, modelName, modelType) {
