@@ -1,5 +1,5 @@
 <template>
-  <TrainingFrame
+  <training-frame
     :Id="Id"
     :Task="Task"
     :dataPreprocessing="dataPreprocessing"
@@ -84,7 +84,7 @@
         </template>
       </icon-card>
     </template>
-  </TrainingFrame>
+  </training-frame>
 </template>
 
 <script>
@@ -93,7 +93,7 @@ import IconCard from '../../containers/IconCard';
 import Bezier2 from '../../../assets/svg/Bezier2';
 
 export default {
-  name: 'CsvTrainingFrame',
+  name: 'csv-training-frame',
   props: {
     Id: String,
     Task: Object,

@@ -16,12 +16,12 @@
 
 <script>
 export default {
-  name: "customButton",
+  name: 'custom-button',
   props: {
     click: { default: () => {}, type: Function },
     center: { default: false, type: Boolean },
-    id: { default: "button", type: String },
-    color: { default: "bg-green-500", type: String },
+    id: { default: 'button', type: String },
+    color: { default: 'bg-green-500', type: String },
   },
 };
 </script>

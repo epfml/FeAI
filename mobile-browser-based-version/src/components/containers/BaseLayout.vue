@@ -15,18 +15,18 @@
       </div>
 
       <!-- Main Page Footer-->
-      <customFooter></customFooter>
+      <custom-footer></custom-footer>
     </main>
   </div>
 </template>
 
 <script>
-import customFooter from "../simple/CustomFooter";
+import CustomFooter from '../simple/CustomFooter';
 export default {
-  name: "baseLayout",
-  components: { customFooter },
+  name: 'base-layout',
+  components: { CustomFooter },
   props: {
-    customClass: { default: "", type: String },
+    customClass: { default: '', type: String },
     override: { default: false, type: Boolean },
     withSection: { default: false, type: Boolean },
   },

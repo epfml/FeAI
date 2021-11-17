@@ -1,6 +1,5 @@
-
 <template>
-  <TestingFrame
+  <testing-frame
     :Id="Id"
     :Task="Task"
     :nbrClasses="1"
@@ -82,16 +81,16 @@
         </template>
       </icon-card>
     </template>
-  </TestingFrame>
+  </testing-frame>
 </template>
 
 <script>
-import TestingFrame from "../containers/TestingFrame";
-import IconCard from "../../containers/IconCard";
-import Bezier2 from "../../../assets/svg/Bezier2";
+import TestingFrame from '../containers/TestingFrame';
+import IconCard from '../../containers/IconCard';
+import Bezier2 from '../../../assets/svg/Bezier2';
 
 export default {
-  name: "CsvTestingFrame",
+  name: 'csv-testing-frame',
   props: {
     Id: String,
     Task: Object,
@@ -111,19 +110,19 @@ export default {
 
   methods: {
     async predictionsToCsv(predictions) {
-      let pred = predictions.join("\n");
-      const csvContent = this.classColumn + "\n" + pred;
+      let pred = predictions.join('\n');
+      const csvContent = this.classColumn + '\n' + pred;
       return csvContent;
     },
     async makePredictions(filesElement) {
       return new Promise((resolve, reject) => {
-      let reader = new FileReader();
-      reader.onload = async (e) => {
-        // Preprocess the data and get object of the form {accepted: True/False, Xtrain: training data, ytrain: lavels}
-        var predictions = await this.Task.predict(e, this.headers);
-        resolve(predictions);
-      };
-      reader.readAsText(filesElement);
+        let reader = new FileReader();
+        reader.onload = async e => {
+          // Preprocess the data and get object of the form {accepted: True/False, Xtrain: training data, ytrain: lavels}
+          var predictions = await this.Task.predict(e, this.headers);
+          resolve(predictions);
+        };
+        reader.readAsText(filesElement);
       });
     },
   },
@@ -132,13 +131,13 @@ export default {
     this.$nextTick(async function() {
       // initialize information variables
       this.classColumn = this.Task.trainingInformation.outputColumn;
-      this.Task.displayInformation.headers.forEach((item) => {
+      this.Task.displayInformation.headers.forEach(item => {
         if (item !== this.classColumn) {
           this.headers.push({ id: item, userHeader: item });
         }
       });
       this.dataExample = this.Task.displayInformation.dataExample.filter(
-        (item) => item.columnName !== this.classColumn
+        item => item.columnName !== this.classColumn
       );
     });
   },

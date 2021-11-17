@@ -1,5 +1,5 @@
 <template>
-  <TrainingFrame
+  <training-frame
     :Id="Id"
     :Task="Task"
     :dataPreprocessing="dataPreprocessing"
@@ -18,15 +18,15 @@
       </div>
     </template>
     <template v-slot:extra></template>
-  </TrainingFrame>
+  </training-frame>
 </template>
 
 <script>
-import { checkData } from "../../../helpers/data_validation_script/helpers-image-tasks";
-import TrainingFrame from "../containers/TrainingFrame";
+import { checkData } from '../../../helpers/data_validation/helpers_image_tasks';
+import TrainingFrame from '../containers/TrainingFrame';
 
 export default {
-  name: "ImageTrainingFrame",
+  name: 'ImageTrainingFrame',
   props: {
     Id: String,
     Task: Object,
@@ -34,7 +34,7 @@ export default {
   data() {
     return {
       // variables for general informations
-      dataExampleImage: "",
+      dataExampleImage: '',
       dataExample: null,
       // different task labels
       taskLabels: [],
@@ -42,10 +42,10 @@ export default {
   },
   methods: {
     getImage(url) {
-      if (url == "") {
+      if (url == '') {
         return null;
       }
-      var images = require.context("../../../../example_training_data/", false);
+      var images = require.context('../../../../example_training_data/', false);
       return images(url);
     },
     async dataPreprocessing(filesElement) {

@@ -4,7 +4,7 @@
   >
     <div>
       <keep-alive>
-        <DescriptionFrame
+        <description-frame
           v-bind:OverviewText="OverviewText"
           v-bind:ModelText="ModelText"
           v-bind:TradeOffsText="TradeOffsText"
@@ -20,7 +20,7 @@
 import DescriptionFrame from '../building_frames/DescriptionFrame';
 
 export default {
-  name: 'MainDescriptionFrame',
+  name: 'main-description-frame',
   props: {
     Id: String,
     Task: Object,

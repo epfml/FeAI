@@ -159,7 +159,7 @@ import * as tf from '@tensorflow/tfjs';
 import { mapState } from 'vuex';
 
 export default {
-  name: 'ModelLibrary',
+  name: 'model-library',
   emits: ['switch-panel'],
   data() {
     return {

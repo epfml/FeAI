@@ -9,7 +9,7 @@
         class="fixed inset-y-0 z-10 flex flex-shrink-0 bg-white border-r md:static dark:border-primary-darker dark:bg-darker focus:outline-none"
         style="position: sticky"
       >
-        <Sidebar />
+        <sidebar />
       </aside>
 
       <!-- Main Page -->
@@ -48,11 +48,7 @@ export default {
       );
     },
     getBrowserColors() {
-      if (window.localStorage.getItem('color')) {
-        return window.localStorage.getItem('color');
-      } else {
-        return 'cyan';
-      }
+      return window.localStorage.getItem('color') ?? 'cyan';
     },
     setAppColors(color) {
       const root = document.documentElement;

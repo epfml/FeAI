@@ -295,9 +295,10 @@
 </template>
 
 <script>
-var Hashes = require('jshashes');
+import Hashes from 'jshashes';
+
 export default {
-  name: 'MainTaskFrame',
+  name: 'main-task-frame',
   props: {
     Id: String,
     Task: Object,

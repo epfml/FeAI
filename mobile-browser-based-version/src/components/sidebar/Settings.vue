@@ -186,7 +186,7 @@
 import { mapState, mapMutations } from 'vuex';
 
 export default {
-  name: 'Settings',
+  name: 'settings',
   computed: {
     ...mapState(['useIndexedDB', 'isDark']),
   },

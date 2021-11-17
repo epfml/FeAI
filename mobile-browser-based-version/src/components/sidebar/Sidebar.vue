@@ -223,8 +223,8 @@
           </button>
         </div>
         <!-- Panel content -->
-        <Settings v-if="isSettingsPanelOpen" />
-        <ModelLibrary
+        <settings v-if="isSettingsPanelOpen" />
+        <model-library
           v-else-if="isModelLibraryOpen"
           v-on:switch-panel="switchFromModelLibraryToSettings()"
         />

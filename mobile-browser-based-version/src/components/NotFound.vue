@@ -75,7 +75,7 @@
 
 <script>
 export default {
-  name: 'NotFound',
+  name: 'not-found',
   methods: {
     goToPreviousPage() {
       this.$router.go(-1);

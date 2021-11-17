@@ -1,11 +1,12 @@
 import { createApp } from 'vue';
-import App from './App.vue';
+import App from './components/App.vue';
 import router from './router';
 import '@/assets/css/tailwind.css';
 import '@/assets/css/styles.css';
 import Toaster from '@meforma/vue-toaster';
 import { store } from './store/store';
 import { createI18n } from 'vue-i18n';
+
 // Load plaform strings
 const decentralized = require('./platform/decentralised.json');
 const federated = require('./platform/federated.json');

@@ -1,19 +1,19 @@
 <template>
   <a id="overview-target">
-    <IconCard header="The task" :description="OverviewText">
+    <icon-card header="The task" :description="OverviewText">
       <template v-slot:icon><tasks /></template>
-    </IconCard>
+    </icon-card>
   </a>
 
   <a id="limitations-target">
-    <IconCard header="The model" :description="ModelText">
+    <icon-card header="The model" :description="ModelText">
       <template v-slot:icon><model /></template>
-    </IconCard>
+    </icon-card>
   </a>
-    
-<!-- Card to load a model-->
+
+  <!-- Card to load a model-->
   <a id="load-model" v-if="workingModelExistsOnMount">
-    <IconCard header="Join training with a previous model">
+    <icon-card header="Join training with a previous model">
       <template v-slot:icon><clock /></template>
       <template v-slot:extra>
         <!-- Restore Model -->
@@ -85,31 +85,32 @@
             </p>
           </div>
         </div>
-    </template>
+      </template>
+    </icon-card>
   </a>
 
   <div class="flex items-center justify-center p-4">
-    <customButton
+    <custom-button
       id="train-model-button"
       v-on:click="goToTraining()"
       :center="true"
     >
       Join Training
-    </customButton>
+    </custom-button>
   </div>
 </template>
 
 <script>
-import * as tf from "@tensorflow/tfjs";
-import { getModelInfo } from "../../helpers/my_memory_script/indexedDB_script";
-import customButton from "../simple/CustomButton";
-import Tasks from "../../assets/svg/Tasks.vue";
-import Model from "../../assets/svg/Model.vue";
-import Clock from "../../assets/svg/Clock.vue";
+import * as memory from '../../helpers/memory/helpers.js';
+import CustomButton from '../simple/CustomButton';
+import Tasks from '../../assets/svg/Tasks.vue';
+import Model from '../../assets/svg/Model.vue';
+import Clock from '../../assets/svg/Clock.vue';
 import IconCard from '../containers/IconCard.vue';
+import { mapState } from 'vuex';
 
 export default {
-  name: "DescriptionFrame",
+  name: 'description-frame',
   props: {
     OverviewText: String,
     ModelText: String,
@@ -118,7 +119,7 @@ export default {
     Task: Object,
   },
   components: {
-    customButton,
+    CustomButton,
     Tasks,
     Model,
     IconCard,
@@ -127,98 +128,122 @@ export default {
   data() {
     return {
       isModelCreated: false,
-      savedModelExists: false,
-      readyToTrain: false,
-      choicePreModel: false,
-      dateSaved: "",
-      hourSaved: "",
+      workingModelExists: false,
+      workingModelExistsOnMount: false,
+      useWorkingModel: false,
+      dateSaved: '',
+      hourSaved: '',
       isDark: this.getTheme(),
     };
   },
+  watch: {
+    useWorkingModel() {
+      let modelInUseMessage;
+      if (this.useWorkingModel) {
+        modelInUseMessage = `The previous ${this.Task.displayInformation.taskTitle} model has been selected. You can start training!`;
+      } else {
+        modelInUseMessage = `A new ${this.Task.displayInformation.taskTitle} model will be created. You can start training!`;
+      }
+      this.$toast.success(modelInUseMessage);
+      setTimeout(this.$toast.clear, 30000);
+    },
+  },
+  computed: {
+    ...mapState(['useIndexedDB']),
+    createFreshModel() {
+      return (
+        !this.isModelCreated &&
+        !(this.workingModelExists && this.useWorkingModel)
+      );
+    },
+  },
   methods: {
     async goToTraining() {
-      if (!this.choicePreModel && !this.isModelCreated) {
-        await this.createNewModel();
+      if (this.useIndexedDB && this.createFreshModel) {
+        await this.loadFreshModel();
         this.isModelCreated = true;
-
-        this.readyToTrain = true;
-
         this.$toast.success(
-          "A new "
-            .concat(this.Task.trainingInformation.modelId)
-            .concat(` has been created. You can start training!`)
+          `A new ${this.Task.displayInformation.taskTitle} model has been created. You can start training!`
         );
         setTimeout(this.$toast.clear, 30000);
       }
       this.$router.push({
-        name: this.Id + ".training",
+        name: this.Id + '.training',
         params: { Id: this.Id },
       });
     },
     async deleteModel() {
-      console.log("Delete Model");
-      this.savedModelExists = false;
-      await tf.io.removeModel(
-        "indexeddb://saved_".concat(this.Task.trainingInformation.modelId)
-      );
-    },
-
-    async optionPrevModel() {
-      this.choicePreModel = !this.choicePreModel;
-      if (this.choicePreModel) {
-        await this.loadSavedModel();
-        this.readyToTrain = true;
-
-        this.$toast.success(
-          "The "
-            .concat(this.Task.trainingInformation.modelId)
-            .concat(` has been loaded. You can start training!`)
-        );
-        setTimeout(this.$toast.clear, 30000);
-      }
-    },
-
-    async loadSavedModel() {
-      const savedModelPath = "indexeddb://".concat(
-        "saved_".concat(this.Task.trainingInformation.modelId)
-      );
-      var savedModel = await tf.loadLayersModel(savedModelPath);
-
-      const savePathDb = "indexeddb://working_".concat(
+      this.workingModelExists = false;
+      await memory.deleteWorkingModel(
+        this.Task.taskId,
         this.Task.trainingInformation.modelId
       );
-      await savedModel.save(savePathDb);
+      this.$toast.success(
+        `Deleted the cached ${this.Task.displayInformation.taskTitle} model.`
+      );
+      setTimeout(this.$toast.clear, 30000);
     },
-
-    async createNewModel() {
-      await this.Task.createModel();
+    async saveModel() {
+      await memory.saveWorkingModel(
+        this.Task.taskId,
+        this.Task.trainingInformation.modelId
+      );
+      this.$toast.success(
+        `Saved the cached ${this.Task.displayInformation.taskTitle} model to the model library`
+      );
+      setTimeout(this.$toast.clear, 30000);
     },
-    getTheme: function() {
-      if (window.localStorage.getItem("dark")) {
-        return JSON.parse(window.localStorage.getItem("dark"));
+    async toggleUseWorkingModel() {
+      this.useWorkingModel = !this.useWorkingModel;
+    },
+    async loadFreshModel() {
+      await this.Task.createModel().then(freshModel => {
+        memory.updateWorkingModel(
+          this.Task.taskId,
+          this.Task.trainingInformation.modelId,
+          freshModel
+        );
+      });
+    },
+    getTheme() {
+      if (window.localStorage.getItem('dark')) {
+        return JSON.parse(window.localStorage.getItem('dark'));
       }
       return (
         !!window.matchMedia &&
-        window.matchMedia("(prefers-color-scheme: dark)").matches
+        window.matchMedia('(prefers-color-scheme: dark)').matches
       );
     },
   },
   async mounted() {
     // This method is called when the component is created
     this.$nextTick(async function() {
-      let saveName = "saved_".concat(this.Task.trainingInformation.modelId);
-      let modelInfo = await getModelInfo(saveName);
-
-      if (modelInfo != undefined) {
-        let date = modelInfo.modelArtifactsInfo.dateSaved;
-        this.dateSaved =
-          date.getDate() +
-          "/" +
-          (date.getMonth() + 1) +
-          "/" +
-          date.getFullYear();
-        this.hourSaved = date.getHours() + "h" + date.getMinutes();
-        this.savedModelExists = true;
+      /**
+       * If the IndexedDB is turned on and a working model exists in IndexedDB
+       * on loading the description frame, then display the model restoration
+       * feature.
+       */
+      if (this.useIndexedDB) {
+        let workingModelMetadata = await memory.getWorkingModelMetadata(
+          this.Task.taskId,
+          this.Task.trainingInformation.modelId
+        );
+        if (workingModelMetadata) {
+          this.workingModelExistsOnMount = true;
+          this.workingModelExists = true;
+          let date = workingModelMetadata.dateSaved;
+          let zeroPad = number => String(number).padStart(2, '0');
+          this.dateSaved = [
+            date.getDate(),
+            date.getMonth() + 1,
+            date.getFullYear(),
+          ]
+            .map(zeroPad)
+            .join('/');
+          this.hourSaved = [date.getHours(), date.getMinutes()]
+            .map(zeroPad)
+            .join('h');
+        }
       }
     });
   },

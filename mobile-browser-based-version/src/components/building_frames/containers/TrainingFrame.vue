@@ -1,5 +1,5 @@
 <template>
-  <ActionFrame :Task="Task">
+  <action-frame :Task="Task">
     <template v-slot:dataExample><slot name="dataExample"></slot></template>
     <template v-slot:action>
       <!-- Upload Training Data -->
@@ -16,12 +16,12 @@
 
       <!-- Train Button -->
       <div class="flex items-center justify-center p-4">
-        <customButton v-on:click="joinTraining(false)" :center="true">
+        <custom-button v-on:click="joinTraining(false)" :center="true">
           Train Alone
-        </customButton>
-        <customButton v-on:click="joinTraining(true)" :center="true">
+        </custom-button>
+        <custom-button v-on:click="joinTraining(true)" :center="true">
           Train Distributed
-        </customButton>
+        </custom-button>
       </div>
       <!-- Training Board -->
       <div>
@@ -43,13 +43,13 @@
         <template v-slot:extra
           ><div class="flex items-center justify-center p-4">
             <!-- make it gray & unclickable if indexeddb is turned off -->
-            <customButton
+            <custom-button
               id="train-model-button"
               v-on:click="saveModelButton()"
               :center="true"
             >
               Save My model
-            </customButton>
+            </custom-button>
           </div></template
         >
       </icon-card>
@@ -70,18 +70,18 @@
             </span>
           </div>
           <div class="flex items-center justify-center p-4">
-            <customButton
+            <custom-button
               id="train-model-button"
               v-on:click="goToTesting()"
               :center="true"
             >
               Test the model
-            </customButton>
+            </custom-button>
           </div>
         </template>
       </icon-card>
     </template>
-  </ActionFrame>
+  </action-frame>
 </template>
 
 <script>

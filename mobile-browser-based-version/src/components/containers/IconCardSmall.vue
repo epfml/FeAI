@@ -12,20 +12,20 @@
       <span class="text-xl font-semibold">{{ description }}</span>
     </div>
     <div>
-        <span>
-            <slot></slot>
-        </span>
+      <span>
+        <slot></slot>
+      </span>
     </div>
   </div>
 </template>
 
 <script>
 export default {
-  name: "icon-card-small",
+  name: 'icon-card-small',
   props: {
     header: { type: String },
     description: { type: String },
-    customClass: { default: "", type: String },
-  }
+    customClass: { default: '', type: String },
+  },
 };
 </script>
