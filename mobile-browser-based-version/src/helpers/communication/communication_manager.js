@@ -70,7 +70,7 @@ export class CommunicationManager {
     return response.ok;
   }
 
-  async sendWeights(weights, epoch) {
+  async sendIndividualWeights(weights, epoch) {
     const encodedWeights = msgpack.encode(
       Array.from(serializeWeights(weights))
     );
@@ -96,7 +96,7 @@ export class CommunicationManager {
    * @param {Number} epoch The epoch.
    * @returns The aggregated weights for the given epoch.
    */
-  async receiveWeights(epoch) {
+  async receiveAggregatedWeights(epoch) {
     const requestURL = this.serverURL.concat(
       `receive_weights/${this.taskID}/${epoch}`
     );
@@ -117,25 +117,6 @@ export class CommunicationManager {
     );
   }
 
-  async receiveDataShares(epoch) {
-    const requestURL = this.serverURL.concat(
-      `receive_nbsamples/${this.taskID}/${epoch}`
-    );
-    const requestOptions = {
-      method: 'POST',
-      headers: HEADERS,
-      body: JSON.stringify({
-        id: this.clientID,
-        timestamp: new Date(),
-      }),
-    };
-    return await _tryRequest(requestURL, requestOptions, MAX_TRIES).then(
-      response =>
-        response.json().then(body => msgpack.decode(new Map(body.samples))),
-      () => new Map()
-    );
-  }
-
   async sendNbrDataSamples(nbrSamples, epoch) {
     const requestURL = this.serverURL.concat(
       `send_nbsamples/${this.taskID}/${epoch}`
@@ -153,12 +134,31 @@ export class CommunicationManager {
     return response.ok;
   }
 
+  async receiveDataShares(epoch) {
+    const requestURL = this.serverURL.concat(
+      `receive_nbsamples/${this.taskID}/${epoch}`
+    );
+    const requestOptions = {
+      method: 'POST',
+      headers: HEADERS,
+      body: JSON.stringify({
+        id: this.clientID,
+        timestamp: new Date(),
+      }),
+    };
+    return await _tryRequest(requestURL, requestOptions, MAX_TRIES).then(
+      response =>
+        response.json().then(body => new Map(msgpack.decode(body.samples))),
+      () => new Map()
+    );
+  }
+
   async onEpochEndCommunication(model, epoch, trainingInformant) {
     /**
      * Send the epoch's local weights to the server.
      */
     trainingInformant.addMessage('Sending weights to server');
-    await this.sendWeights(model.weights, epoch);
+    await this.sendIndividualWeights(model.weights, epoch);
     /**
      * Request the epoch's aggregated weights from the server.
      * If successful, update the local weights with the aggregated
@@ -166,7 +166,7 @@ export class CommunicationManager {
      */
     trainingInformant.addMessage('Waiting to receive weights from server');
     var startTime = new Date();
-    await this.receiveWeights(epoch).then(receivedWeights => {
+    await this.receiveAggregatedWeights(epoch).then(receivedWeights => {
       var endTime = new Date();
       var timeDiff = endTime - startTime; // in ms
       timeDiff /= 1000;

@@ -1,17 +1,7 @@
 import path from 'path';
 import * as tf from '@tensorflow/tfjs';
 import '@tensorflow/tfjs-node';
-
-// Saving scheme (URL-like)
-const SCHEME = 'file://';
-/*
- * Define a __dirname similar to CommonJS. We unpack the pathname
- * from the URL and use it in the path library. We do this instead
- * of directly working with URLs because the path library is just
- * easier to read, especially when functions don't support URL
- * objects.
- */
-const __dirname = path.dirname(new URL(import.meta.url).pathname);
+import * as config from '../../config.js';
 
 async function createTitanicModel() {
   const model = tf.sequential();
@@ -26,7 +16,8 @@ async function createTitanicModel() {
   model.add(tf.layers.dense({ units: 64, activation: 'relu' }));
   model.add(tf.layers.dense({ units: 32, activation: 'relu' }));
   model.add(tf.layers.dense({ units: 1, activation: 'sigmoid' }));
-  await model.save(SCHEME.concat(path.join(__dirname, 'titanic')));
+  const savePath = path.join(config.MODELS_DIR, 'titanic');
+  await model.save(config.SAVING_SCHEME.concat(savePath));
 }
 
 async function createMnistModel() {
@@ -50,7 +41,8 @@ async function createMnistModel() {
   model.add(tf.layers.flatten({}));
   model.add(tf.layers.dense({ units: 64, activation: 'relu' }));
   model.add(tf.layers.dense({ units: 10, activation: 'softmax' }));
-  await model.save(SCHEME.concat(path.join(__dirname, 'mnist')));
+  const savePath = path.join(config.MODELS_DIR, 'mnist');
+  await model.save(config.SAVING_SCHEME.concat(savePath));
 }
 
 async function createLUSCovidModel() {
@@ -60,7 +52,8 @@ async function createLUSCovidModel() {
   );
   model.add(tf.layers.dense({ units: 64, activation: 'relu' }));
   model.add(tf.layers.dense({ units: 2, activation: 'softmax' }));
-  await model.save(SCHEME.concat(path.join(__dirname, 'lus_covid')));
+  const savePath = path.join(config.MODELS_DIR, 'lus_covid');
+  await model.save(config.SAVING_SCHEME.concat(savePath));
 }
 
 async function createCifar10Model() {
@@ -116,7 +109,8 @@ async function createCifar10Model() {
       activation: 'softmax',
     })
   );
-  await model.save(SCHEME.concat(path.join(__dirname, 'cifar10')));
+  const savePath = path.join(config.MODELS_DIR, 'cifar10');
+  await model.save(config.SAVING_SCHEME.concat(savePath));
 }
 
 export const models = [
