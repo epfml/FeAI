@@ -62,7 +62,7 @@ function sleep(ms) {
 }
 
 // Generates a random string
-export async function makeid(length) {
+export async function makeID(length) {
   var result = '';
   var characters =
     'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';

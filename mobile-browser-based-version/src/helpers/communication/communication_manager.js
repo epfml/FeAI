@@ -1,7 +1,5 @@
 import * as msgpack from 'msgpack-lite';
-import * as tf from '@tensorflow/tfjs';
-import { makeid, serializeWeights, assignWeightsToModel } from './helpers';
-import { store } from '../../store/store';
+import { makeID, serializeWeights, assignWeightsToModel } from './helpers';
 
 /**
  * The waiting time between performing requests to the centralized server.
@@ -38,7 +36,8 @@ export class CommunicationManager {
   }
 
   /**
-   * Initialize the connection to the server.
+   * Initialize the connection to the server. TODO: In the case of FeAI,
+   * should return the current server-side round for the task.
    */
   async connect() {
     /**
@@ -46,7 +45,7 @@ export class CommunicationManager {
      * The client is now considered as connected and further
      * API requests may be made.
      */
-    this.clientID = await makeid(10);
+    this.clientID = await makeID(10);
     const requestURL = this.serverURL.concat(
       `connect/${this.taskID}/${this.clientID}`
     );
