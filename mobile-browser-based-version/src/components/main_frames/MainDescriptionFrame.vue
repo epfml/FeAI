@@ -8,7 +8,7 @@
           v-bind:OverviewText="OverviewText"
           v-bind:ModelText="ModelText"
           v-bind:TradeOffsText="TradeOffsText"
-          v-bind:Id="ModelId"
+          v-bind:Id="TaskId"
           v-bind:Task="Task"
           v-if="TradeOffsText"
         />
@@ -18,7 +18,6 @@
 </template>
 <script>
 import DescriptionFrame from '../building_frames/DescriptionFrame';
-import { defineComponent } from 'vue';
 
 export default {
   name: 'MainDescriptionFrame',
@@ -31,6 +30,7 @@ export default {
       OverviewText: '',
       ModelText: '',
       TradeOffsText: '',
+      TaskId: '',
       ModelId: '',
     };
   },
@@ -41,6 +41,7 @@ export default {
     this.OverviewText = this.Task.displayInformation.overview;
     this.ModelText = this.Task.displayInformation.model;
     this.TradeOffsText = this.Task.displayInformation.tradeoffs;
+    this.TaskId = this.Task.taskId;
     this.ModelId = this.Task.trainingInformation.modelId;
   },
 };

@@ -2,12 +2,16 @@
   <!-- CSV tasks -->
   <!--TODO-->
   <!-- image tasks -->
-  <div v-if="Task.trainingInformation.dataType == 'image'">
-    <ImageTestingFrame v-bind:Id="Id" v-bind:Task="Task" />
-  </div>
-  <div v-if="Task.trainingInformation.dataType == 'csv'">
-    <CsvTestingFrame v-bind:Id="Id" v-bind:Task="Task" />
-  </div>
+  <ImageTestingFrame
+    v-if="Task.trainingInformation.dataType == 'image'"
+    v-bind:Id="Id"
+    v-bind:Task="Task"
+  />
+  <CsvTestingFrame
+    v-else-if="Task.trainingInformation.dataType == 'csv'"
+    v-bind:Id="Id"
+    v-bind:Task="Task"
+  />
 </template>
 
 <script>
@@ -25,7 +29,7 @@ export default {
     CsvTestingFrame,
   },
   async activated() {
-    this.$emit("opened-testing");
+    this.$emit('opened-testing');
   },
 };
 </script>

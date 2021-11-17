@@ -313,7 +313,7 @@ export default {
       openTestModel: false,
       isActiveModelStatistic: false,
       openModelStatistic: false,
-      isSidebarOpen: window.innerWidth <= 1024 ? false : true,
+      isSidebarOpen: window.innerWidth <= 1024,
       window: {
         width: window.innerWidth,
         height: window.innerHeight,
@@ -326,14 +326,14 @@ export default {
   methods: {
     goToTraining() {
       this.$router.push({
-        name: this.Task.trainingInformation.modelId + '.training',
-        params: { Id: this.Task.trainingInformation.modelId },
+        name: this.Task.taskId + '.training',
+        params: { Id: this.Task.taskId },
       });
     },
     goToTesting() {
       this.$router.push({
-        name: this.Task.trainingInformation.modelId + '.testing',
-        params: { Id: this.Task.trainingInformation.modelId },
+        name: this.Task.taskId + '.testing',
+        params: { Id: this.Task.taskId },
       });
     },
     goToModelDescription() {
@@ -344,11 +344,7 @@ export default {
     async handleResize() {
       this.window.width = window.innerWidth;
       this.window.height = window.innerHeight;
-      if (this.window.width <= 1024) {
-        this.isSidebarOpen = false;
-      } else {
-        this.isSidebarOpen = true;
-      }
+      this.isSidebarOpen = this.window.width <= 1024;
     },
     login() {
       var SHA256 = new Hashes.SHA256();
@@ -366,10 +362,10 @@ export default {
       }
     },
     openSidebarMenu(menu) {
-      this.openModelDesc = menu === 'model_desc' ? true : false;
-      this.openUploadData = menu === 'upload_data' ? true : false;
-      this.openModelStatistic = menu === 'model_statistic' ? true : false;
-      this.openTestModel = menu === 'test_model' ? true : false;
+      this.openModelDesc = menu === 'model_desc';
+      this.openUploadData = menu === 'upload_data';
+      this.openModelStatistic = menu === 'model_statistic';
+      this.openTestModel = menu === 'test_model';
     },
   },
   async mounted() {

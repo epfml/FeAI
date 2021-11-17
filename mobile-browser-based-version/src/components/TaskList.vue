@@ -3,7 +3,7 @@
     <!-- Main Page Content -->
         <div
           v-for="task in tasks"
-          :key="task.trainingInformation.modelId"
+          :key="task.taskId"
           class="grid grid-cols-1 gap-8 p-4 lg:grid-cols-1 xl:grid-cols-1"
         >
           <card>
@@ -22,7 +22,7 @@
             <div class="py-2">
               <span>
                 <customButton
-                  v-on:click="goToSelection(task.trainingInformation.modelId)"
+                  v-on:click="goToSelection(task.taskId)"
                 >
                   Join
                 </customButton>
@@ -50,14 +50,12 @@ import customButton from "./simple/CustomButton";
 import { defineComponent } from "vue";
 
 export default {
-  name: "taskList",
+  name: "TaskList",
   components: { baseLayout, card, customButton },
   data() {
     return {
-      taskSelected: "",
-      mnist: "/mnist-model/description",
       tasks: [],
-      tasksUrl: "https://deai-313515.ew.r.appspot.com/tasks",
+      tasksUrl: process.env.VUE_APP_SERVER_URI.concat('tasks'),
     };
   },
   methods: {
@@ -66,11 +64,6 @@ export default {
         name: id.concat(".description"),
         params: { Id: id },
       });
-      /*
-      this.$router.push({
-        path: "/".concat(id).concat("/description"),
-        query: {Id:id}
-      });*/
     },
   },
   async mounted() {
@@ -104,52 +97,52 @@ export default {
           // Definition of an extension of the task-related component
           var MainDescriptionFrameSp = defineComponent({
             extends: MainDescriptionFrame,
-            name: newTask.trainingInformation.modelId.concat(".description"),
-            key: newTask.trainingInformation.modelId.concat(".description"),
+            name: newTask.taskId.concat(".description"),
+            key: newTask.taskId.concat(".description"),
           });
           var MainTrainingFrameSp = defineComponent({
             extends: MainTrainingFrame,
-            name: newTask.trainingInformation.modelId.concat(".training"),
-            key: newTask.trainingInformation.modelId.concat(".training"),
+            name: newTask.taskId.concat(".training"),
+            key: newTask.taskId.concat(".training"),
           });
           var MainTestingFrameSp = defineComponent({
             extends: MainTestingFrame,
-            name: newTask.trainingInformation.modelId.concat(".testing"),
-            key: newTask.trainingInformation.modelId.concat(".testing"),
+            name: newTask.taskId.concat(".testing"),
+            key: newTask.taskId.concat(".testing"),
           });
           // Add task subroutes on the go
           let newTaskRoute = {
-            path: "/".concat(newTask.trainingInformation.modelId),
-            name: newTask.trainingInformation.modelId,
+            path: "/".concat(newTask.taskId),
+            name: newTask.taskId,
             component: MainTaskFrame,
-            props: { Id: newTask.trainingInformation.modelId, Task: newTask },
+            props: { Id: newTask.taskId, Task: newTask },
             children: [
               {
                 path: "description",
-                name: newTask.trainingInformation.modelId.concat(
+                name: newTask.taskId.concat(
                   ".description"
                 ),
                 component: MainDescriptionFrameSp,
                 props: {
-                  Id: newTask.trainingInformation.modelId,
+                  Id: newTask.taskId,
                   Task: newTask,
                 },
               },
               {
                 path: "training",
-                name: newTask.trainingInformation.modelId.concat(".training"),
+                name: newTask.taskId.concat(".training"),
                 component: MainTrainingFrameSp,
                 props: {
-                  Id: newTask.trainingInformation.modelId,
+                  Id: newTask.taskId,
                   Task: newTask,
                 },
               },
               {
                 path: "testing",
-                name: newTask.trainingInformation.modelId.concat(".testing"),
+                name: newTask.taskId.concat(".testing"),
                 component: MainTestingFrameSp,
                 props: {
-                  Id: newTask.trainingInformation.modelId,
+                  Id: newTask.taskId,
                   Task: newTask,
                 },
               },

@@ -1,0 +1,13 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "npm",
+			"script": "lint",
+			"path": "mobile-browser-based-version/",
+			"problemMatcher": [],
+			"label": "npm: lint - mobile-browser-based-version",
+			"detail": "vue-cli-service lint"
+		}
+	]
+}

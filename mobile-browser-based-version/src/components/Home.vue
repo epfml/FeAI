@@ -41,28 +41,31 @@
 </template>
 
 <script>
-import { initializeIndexedDB } from "../helpers/my_memory_script/indexedDB_script";
 import baseLayout from "./containers/BaseLayout";
 import customButton from "./simple/CustomButton";
 import card from "./containers/Card"
 import { useI18n } from "vue-i18n";
+import { mapMutations } from 'vuex';
+
 export default {
-  name: "taskList",
+  name: "Home",
   setup() {
     const {t, locale} = useI18n();
     return  {t, locale};
   },
-  components: {baseLayout,card,customButton},
+  components: {
+    baseLayout,
+    card,
+    customButton
+  },
   methods: {
+    ...mapMutations(['setActivePage']),
     goToTaskList() {
-      this.$emit("gototasks");
+      this.setActivePage('tasks');
       this.$router.push({
         path: "/tasks",
       });
     },
-  },
-  mounted() {
-    initializeIndexedDB();
   },
 };
 </script>
