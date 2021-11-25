@@ -456,9 +456,6 @@ export default {
         this.useIndexedDB
       );
 
-      // Initialize the training informant's charts
-      this.trainingInformant.initializeCharts();
-
       window.addEventListener('beforeunload', event => {
         this.communicationManager.disconnect();
       });

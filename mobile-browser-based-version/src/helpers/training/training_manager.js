@@ -75,7 +75,7 @@ export class TrainingManager {
    * @param {Number} validationAccuracy the validation accuracy achieved by the model in the given epoch
    */
   async _onEpochEnd(model, epoch, accuracy, validationAccuracy) {
-    this.trainingInformant.updateCharts(epoch, validationAccuracy, accuracy);
+    this.trainingInformant.updateGraph(epoch, accuracy, validationAccuracy);
     if (
       model.getPersonalizationType() ==
       modelWrapper.personalizationType.INTEROPERABILITY
@@ -111,7 +111,7 @@ export class TrainingManager {
         shuffle: true,
         callbacks: {
           onEpochEnd: async (epoch, logs) => {
-            this.trainingInformant.updateCharts(
+            this.trainingInformant.updateGraph(
               epoch + 1,
               (logs['val_acc'] * 100).toFixed(2),
               (logs['acc'] * 100).toFixed(2)

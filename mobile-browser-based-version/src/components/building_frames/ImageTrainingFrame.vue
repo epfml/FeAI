@@ -127,10 +127,7 @@
     </div>
 
     <!-- Save the model button -->
-    <div
-      v-show="useIndexedDB"
-      class="grid grid-cols-1 p-4 space-y-8 lg:gap-8"
-    >
+    <div v-show="useIndexedDB" class="grid grid-cols-1 p-4 space-y-8 lg:gap-8">
       <div class="col-span-1 bg-white rounded-lg dark:bg-darker">
         <div
           class="flex items-center justify-between p-4 border-b dark:border-primary"
@@ -293,7 +290,10 @@ export default {
 
   methods: {
     async saveModelButton() {
-      await saveWorkingModel(this.Task.taskId, this.Task.trainingInformation.modelId);
+      await saveWorkingModel(
+        this.Task.taskId,
+        this.Task.trainingInformation.modelId
+      );
       this.$toast.success(
         `The current ${this.Task.displayInformation.taskTitle} model has been saved.`
       );
@@ -305,7 +305,7 @@ export default {
 
       // Check that the user indeed gave a file
       if (this.fileUploadManager.numberOfFiles() == 0) {
-        this.$toast.error( "Error : No files were uploaded" );
+        this.$toast.error('Error : No files were uploaded');
         setTimeout(this.$toast.clear, 30000);
       } else {
         this.$toast.success(
@@ -382,11 +382,10 @@ export default {
 
       // Create the training manager
       this.trainingManager = new TrainingManager(
-        this.Task, this.communicationManager, this.trainingInformant
+        this.Task,
+        this.communicationManager,
+        this.trainingInformant
       );
-
-      // Initialize training informant
-      this.trainingInformant.initializeCharts();
 
       // Connect to centralized server
       if (this.communicationManager.connect()) {

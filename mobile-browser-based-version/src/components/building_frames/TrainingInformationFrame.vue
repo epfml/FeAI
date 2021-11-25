@@ -19,18 +19,21 @@
           <p class="p-4">
             <span
               class="text-2xl font-medium text-gray-500 dark:text-light"
-              v-bind:id="trainingInformant.getValValidationAccuracyID()"
-              >0</span
+              >{{currentValidationAccuracy}}</span
             >
             <span class="text-sm font-medium text-gray-500 dark:text-primary"
               >% of validation accuracy</span
             >
           </p>
           <!-- Chart -->
-          <div class="relative p-4">
-            <canvas
-              v-bind:id="trainingInformant.getChartValidationAccuracyID()"
-            ></canvas>
+          <div class="relative p-4 w-100% h-100%">
+           <apexchart
+            width="100%"
+            height="200"
+            type="area"
+            :options="areaChartOptions"
+            :series="validationAccuracyData"
+          ></apexchart>
           </div>
         </div>
 
@@ -44,18 +47,21 @@
           <p class="p-4">
             <span
               class="text-2xl font-medium text-gray-500 dark:text-light"
-              v-bind:id="trainingInformant.getValTrainingAccuracyID()"
-              >0</span
+              >{{currentTrainingAccuracy}}</span
             >
             <span class="text-sm font-medium text-gray-500 dark:text-primary"
               >% of training accuracy</span
             >
           </p>
           <!-- Chart -->
-          <div class="relative p-4">
-            <canvas
-              v-bind:id="trainingInformant.getChartTrainingAccuracyID()"
-            ></canvas>
+          <div class="relative p-4 w-100% h-100%">
+           <apexchart
+            width="100%"
+            height="200"
+            type="area"
+            :options="areaChartOptions"
+            :series="trainingAccuracyData"
+          ></apexchart>
           </div>
         </div>
       </div>
@@ -297,8 +303,8 @@
           <apexchart
             width="500"
             type="heatmap"
-            :options="chartOptions"
-            :series="series"
+            :options="interoperabilityHeatmpaOptions"
+            :series="interoperabilityHeatmapData"
           ></apexchart>
         </div>
       </div>
@@ -315,56 +321,27 @@ export default {
   data() {
     return {
       // Test Apexcharts
-      chartOptions: {
-        colors: ['#3AB'],
-        dataLabels: {
-          enabled: true,
-          style: {
-            colors: ['#FFF'],
-          },
-          offsetX: 30,
-        },
-        chart: {
-          id: 'vuechart-example',
-        },
-        plotOptions:{
-          heatmap:{
-            colorScale:{
-              min: 0.8,
-              max: 1.2,
-            },
-          },
-        },
-        xaxis: {
-          categories: ['Id', 'Age', 'SibSp', 'Parch', 'Fare', 'Pclass'],
-          labels: {
-            style: {
-              colors: '#FFF',
-            }
-          }
-        },
-        yaxis: {
-          labels: {
-            style: {
-              colors: '#FFF',
-            }
-          }
-        },
-      },
+      areaChartOptions: this.trainingInformant.getAreaChartOptions(),
+      trainingAccuracyData: this.trainingInformant.getTrainingAccuracyData(),
+      validationAccuracyData: this.trainingInformant.getValidationAccuracyData(),
+      interoperabilityHeatmpaOptions: this.trainingInformant.getHeatmapOptions(),
     };
   },
+
   computed: {
     displayHeatmap() {
       return this.trainingInformant.displayHeatmap;
     },
-    series() {
+    interoperabilityHeatmapData() {
       return [
         {
           name: 'You',
           data: this.trainingInformant.weights,
         },
       ];
-    }
+    },
+    currentTrainingAccuracy() {return this.trainingInformant.currentTrainingAccuracy},
+    currentValidationAccuracy(){return this.trainingInformant.currentValidationAccuracy},
   },
 };
 </script>
