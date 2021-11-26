@@ -1,10 +1,5 @@
-# FeAI
-Federated Learning in the browser
+# FeAI 
+### !!! WARNING !!!
+### !!! REPO WILL BE DELETED !!!
 
-this repository hosts the code for the public deployment here: 
-
-  :rocket: https://epfml.github.io/FeAI/ :rocket:
-  
-try it out in the browser!
-
-(the federated learning library here is a specialized version of the more general decentralized https://github.com/epfml/DeAI one also developped by our lab
+This project has been merged into [DeAI](https://github.com/epfml/DeAI), it will be deleted at the end of the semester (January 2022).
