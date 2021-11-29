@@ -32,10 +32,31 @@ export class TrainingInformant {
 
     // default values for the validation and training charts
     this.currentValidationAccuracy = 0;
-    this.validationAccuracyDataSerie = [0,0,0,0,0,0,0,0,0,0];
+    this.validationAccuracyDataSerie = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
     this.currentTrainingAccuracy = 0;
-    this.trainingAccuracyDataSerie = [0,0,0,0,0,0,0,0,0,0];
+    this.trainingAccuracyDataSerie = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
   }
+
+  cssColors = color => {
+    return getComputedStyle(document.documentElement)
+      .getPropertyValue(color)
+      .trim();
+  };
+
+  /**
+   * Returns the colors depending on user's choice graphs should be rendered in
+   */
+  getColor = () => {
+    return window.localStorage.getItem('color') ?? 'cyan';
+  };
+
+  colors = {
+    primary: this.cssColors(`--color-${this.getColor()}`),
+    primaryLight: this.cssColors(`--color-${this.getColor()}-light`),
+    primaryLighter: this.cssColors(`--color-${this.getColor()}-lighter`),
+    primaryDark: this.cssColors(`--color-${this.getColor()}-dark`),
+    primaryDarker: this.cssColors(`--color-${this.getColor()}-darker`),
+  };
 
   /**
    * Updates the set of peers who received my model.
@@ -83,19 +104,22 @@ export class TrainingInformant {
   /**
    * Update the Heatmap for Interoperability.
    */
-  updateHeatmapData(weights, biases) {
+  updateHeatmapData(weightsIn, biasesIn, weightsOut, biasesOut) {
     this.displayHeatmap = true;
-    this.weights = weights;
-    this.biases = biases;
+    this.weightsIn = weightsIn;
+    this.biasesIn = biasesIn;
+    this.weightsOut = weightsOut;
+    this.biasesOut = biasesOut;
   }
 
   /**
    * Give the defined options for the Interoperability Heatmap.
+   * TODO: Make the fetching of categories dynamic.
    * @returns An object containing the options to style the heatmap.
    */
-  getHeatmapOptions(){
+  getHeatmapOptions() {
     return {
-      colors: ['#3AB'],
+      colors: [this.colors.primaryLight],
       dataLabels: {
         enabled: true,
         style: {
@@ -106,9 +130,9 @@ export class TrainingInformant {
       chart: {
         id: 'vuechart-example',
       },
-      plotOptions:{
-        heatmap:{
-          colorScale:{
+      plotOptions: {
+        heatmap: {
+          colorScale: {
             min: 0.8,
             max: 1.2,
           },
@@ -119,43 +143,24 @@ export class TrainingInformant {
         labels: {
           style: {
             colors: '#FFF',
-          }
-        }
+          },
+        },
       },
       yaxis: {
         labels: {
           style: {
             colors: '#FFF',
-          }
-        }
+          },
+        },
       },
-    }
+    };
   }
 
-  cssColors = color => {
-    return getComputedStyle(document.documentElement).getPropertyValue(color).trim();
-  };
-
-  /**
-   * Returns the colors depending on user's choice graphs should be rendered in
-   */
-  getColor = () => {
-    return window.localStorage.getItem('color') ?? 'cyan';
-  };
-
-  colors = {
-    primary: this.cssColors(`--color-${this.getColor()}`),
-    primaryLight: this.cssColors(`--color-${this.getColor()}-light`),
-    primaryLighter: this.cssColors(`--color-${this.getColor()}-lighter`),
-    primaryDark: this.cssColors(`--color-${this.getColor()}-dark`),
-    primaryDarker: this.cssColors(`--color-${this.getColor()}-darker`),
-  };
-  
   /**
    * Give the defined options for the accuracy charts.
    * @returns An object containing the options to style the graphs.
    */
-  getAreaChartOptions(){
+  getAreaChartOptions() {
     return {
       chart: {
         id: 'realtime',
@@ -166,48 +171,46 @@ export class TrainingInformant {
           enabled: true,
           easing: 'linear',
           dynamicAnimation: {
-            speed: 1000
-          }
+            speed: 1000,
+          },
         },
         toolbar: {
-          show: false
+          show: false,
         },
         zoom: {
-          enabled: false
-        }
+          enabled: false,
+        },
       },
       dataLabels: {
-        enabled: false
+        enabled: false,
       },
       colors: [
         //TODO: Make it so it immediately changes when updated
         this.colors.primary,
       ],
       fill: {
-        colors: [
-          this.colors.primaryLighter,
-        ],
+        colors: [this.colors.primaryLighter],
         type: 'solid',
-        opacity : 0.6
+        opacity: 0.6,
       },
       stroke: {
-        curve: 'smooth'
+        curve: 'smooth',
       },
       markers: {
-        size: 0.5
+        size: 0.5,
       },
       grid: {
-      xaxis: {
-        lines: {
-          show: false,
-        }
-      },
-      yaxis: {
-        lines: {
-          show: false,
+        xaxis: {
+          lines: {
+            show: false,
+          },
+        },
+        yaxis: {
+          lines: {
+            show: false,
+          },
         },
       },
-    },
       yaxis: {
         max: 100,
         min: 0,
@@ -221,43 +224,45 @@ export class TrainingInformant {
         },
       },
       legend: {
-        show: false
+        show: false,
       },
       tooltip: {
         enabled: false,
       },
-    }
+    };
   }
 
   /**
    * Returns the Validation Accuracy over the last 10 epochs.
    * @returns the validation accuracy data
    */
-  getValidationAccuracyData(){
-    return [{
-        
-            data: this.validationAccuracyDataSerie}
-            
-        ]}
-      
+  getValidationAccuracyData() {
+    return [
+      {
+        data: this.validationAccuracyDataSerie,
+      },
+    ];
+  }
+
   /**
    * Returns the Training Accuracy over the last 10 epochs.
    * @returns the training accuracy data
    */
-  getTrainingAccuracyData(){
-    return [{
-    
-        data: this.trainingAccuracyDataSerie}
-        
-    ]}
-  
-    /**
-     * Update the accuracy graphs data
-     * @param {Number} epoch current epoch
-     * @param {Number} validationAccuracy the current validation accuracy of the model
-     * @param {Number} trainingAccuracy the current training accuracy of the model
-     */
-  updateGraph(epoch, validationAccuracy, trainingAccuracy){
+  getTrainingAccuracyData() {
+    return [
+      {
+        data: this.trainingAccuracyDataSerie,
+      },
+    ];
+  }
+
+  /**
+   * Update the accuracy graphs data
+   * @param {Number} epoch current epoch
+   * @param {Number} validationAccuracy the current validation accuracy of the model
+   * @param {Number} trainingAccuracy the current training accuracy of the model
+   */
+  updateGraph(epoch, validationAccuracy, trainingAccuracy) {
     this._updateValidationAccuracyGraph(validationAccuracy);
     this._updateTrainingAccuracygraph(trainingAccuracy);
   }
@@ -266,9 +271,9 @@ export class TrainingInformant {
    *  Updates the data to be displayed on the validation accuracy graph.
    * @param {Number} validationAccuracy the current validation accuracy of the model
    */
-  _updateValidationAccuracyGraph(validationAccuracy){
+  _updateValidationAccuracyGraph(validationAccuracy) {
     this.validationAccuracyDataSerie.push(validationAccuracy);
-    this.validationAccuracyDataSerie.splice(0,1);
+    this.validationAccuracyDataSerie.splice(0, 1);
     this.currentValidationAccuracy = validationAccuracy;
   }
 
@@ -276,9 +281,9 @@ export class TrainingInformant {
    *  Updates the data to be displayed on the training accuracy graph.
    * @param {Number} trainingAccuracy the current training accuracy of the model
    */
-  _updateTrainingAccuracygraph(trainingAccuracy){
+  _updateTrainingAccuracygraph(trainingAccuracy) {
     this.trainingAccuracyDataSerie.push(trainingAccuracy);
-    this.trainingAccuracyDataSerie.splice(0,1);
+    this.trainingAccuracyDataSerie.splice(0, 1);
     this.currentTrainingAccuracy = trainingAccuracy;
   }
 }

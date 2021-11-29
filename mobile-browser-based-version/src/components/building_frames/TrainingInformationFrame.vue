@@ -17,23 +17,22 @@
             </h4>
           </div>
           <p class="p-4">
-            <span
-              class="text-2xl font-medium text-gray-500 dark:text-light"
-              >{{currentValidationAccuracy}}</span
-            >
+            <span class="text-2xl font-medium text-gray-500 dark:text-light">{{
+              currentValidationAccuracy
+            }}</span>
             <span class="text-sm font-medium text-gray-500 dark:text-primary"
               >% of validation accuracy</span
             >
           </p>
           <!-- Chart -->
           <div class="relative p-4 w-100% h-100%">
-           <apexchart
-            width="100%"
-            height="200"
-            type="area"
-            :options="areaChartOptions"
-            :series="validationAccuracyData"
-          ></apexchart>
+            <apexchart
+              width="100%"
+              height="200"
+              type="area"
+              :options="areaChartOptions"
+              :series="validationAccuracyData"
+            ></apexchart>
           </div>
         </div>
 
@@ -45,23 +44,22 @@
             </h4>
           </div>
           <p class="p-4">
-            <span
-              class="text-2xl font-medium text-gray-500 dark:text-light"
-              >{{currentTrainingAccuracy}}</span
-            >
+            <span class="text-2xl font-medium text-gray-500 dark:text-light">{{
+              currentTrainingAccuracy
+            }}</span>
             <span class="text-sm font-medium text-gray-500 dark:text-primary"
               >% of training accuracy</span
             >
           </p>
           <!-- Chart -->
           <div class="relative p-4 w-100% h-100%">
-           <apexchart
-            width="100%"
-            height="200"
-            type="area"
-            :options="areaChartOptions"
-            :series="trainingAccuracyData"
-          ></apexchart>
+            <apexchart
+              width="100%"
+              height="200"
+              type="area"
+              :options="areaChartOptions"
+              :series="trainingAccuracyData"
+            ></apexchart>
           </div>
         </div>
       </div>
@@ -333,15 +331,20 @@ export default {
       return this.trainingInformant.displayHeatmap;
     },
     interoperabilityHeatmapData() {
+      // TODO: cahnge once the peers exchange actual data of their weights and biases.
       return [
         {
           name: 'You',
-          data: this.trainingInformant.weights,
+          data: this.trainingInformant.weightsIn,
         },
       ];
     },
-    currentTrainingAccuracy() {return this.trainingInformant.currentTrainingAccuracy},
-    currentValidationAccuracy(){return this.trainingInformant.currentValidationAccuracy},
+    currentTrainingAccuracy() {
+      return this.trainingInformant.currentTrainingAccuracy;
+    },
+    currentValidationAccuracy() {
+      return this.trainingInformant.currentValidationAccuracy;
+    },
   },
 };
 </script>

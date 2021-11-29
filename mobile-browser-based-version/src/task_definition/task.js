@@ -12,6 +12,8 @@ export class Task {
     let newModel = await tf.loadLayersModel(
       serverUrl.concat('tasks/', this.taskId, '/model.json')
     );
+
+    // By default we set the personalization type of a model to None.
     newModel.setUserDefinedMetadata({
       personalizationType: personalizationType.NONE,
     });

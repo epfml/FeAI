@@ -4,7 +4,7 @@ import {
   getWorkingModelMetadata,
 } from '../memory/helpers';
 import * as tf from '@tensorflow/tfjs';
-import * as modelWrapper from '../model_definition/model';
+import * as modelDefinition from '../model_definition/model';
 /**
  * Class that deals with the model of a task.
  * Takes care of memory management of the model and the training of the model.
@@ -45,15 +45,26 @@ export class TrainingManager {
     const data = dataset.Xtrain;
     const labels = dataset.ytrain;
 
-    let model = new modelWrapper.Model(this.task, this.useIndexedDB);
+    let model;
+
+    switch (personalizationTypeChosen) {
+      case modelDefinition.personalizationType.NONE:
+        model = new modelDefinition.Model(this.task, this.useIndexedDB);
+        break;
+
+      case modelDefinition.personalizationType.INTEROPERABILITY:
+        model = new modelDefinition.InteroperabilityModel(
+          this.task,
+          this.useIndexedDB
+        );
+        break;
+    }
+
     await model.init();
 
     if (!distributedTraining) {
       await this._training(model, data, labels);
     } else {
-      if (personalizationTypeChosen) {
-        model.updatePersonalizationType(personalizationTypeChosen);
-      }
       await this._trainingDistributed(model, data, labels);
     }
   }
@@ -78,7 +89,7 @@ export class TrainingManager {
     this.trainingInformant.updateGraph(epoch, accuracy, validationAccuracy);
     if (
       model.getPersonalizationType() ==
-      modelWrapper.personalizationType.INTEROPERABILITY
+      modelDefinition.personalizationType.INTEROPERABILITY
     ) {
       this.trainingInformant.updateHeatmapData(
         ...model.getInteroperabilityParameters()

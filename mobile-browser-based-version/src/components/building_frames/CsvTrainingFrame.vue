@@ -416,7 +416,8 @@ export default {
           if (!useInteroperability) {
             await this.trainingManager.trainModel(
               processedDataset,
-              distributed
+              distributed,
+              personalizationType.NONE
             );
           } else {
             this.$toast.success('Adjusting for Interoperability');

@@ -4,7 +4,7 @@ import { getWorkingModel, getWorkingModelMetadata } from '../memory/helpers';
 import { CsvTask } from '../../task_definition/csv_task';
 
 /**
- * Enumeration for the types of personalization.
+ * Enumeration of the different types of personalization.
  */
 export const personalizationType = {
   NONE: 'NONE',
@@ -12,22 +12,31 @@ export const personalizationType = {
 };
 
 /**
- * TFJS Model wrapper to implement personalization locally. TODO: Add more description.
+ * This class represents a default model and will simply
+ * encapsulate the default model for a given task.
  */
 export class Model {
   constructor(task, useIndexedDB) {
     this.task = task;
     this.dataType = task.trainingInformation.dataType;
     this.useIndexedDB = useIndexedDB;
+    this.type = personalizationType.NONE;
   }
 
   /**
-   * Creates the model.
-   * If IndexedDB is turned on and the working model exists, then load the
-   * existing model from IndexedDB. Otherwise, create a fresh new one.
+   * Initializes the model for a given task.
+   *
+   * It will check the metadatas we stored to see if there is already asuch model in memory and if so returns it.
+   *
+   * Otherwise (no such model or we are not using index DB) it will create a new model.
+   *
+   * Finally if the type of the previously stored model doesn't correspond to the one we are creating, in will also create a new one.
+   *
+   * This method should not need to be overriden by subclasses.
    */
   async init() {
     let model;
+    // Check if we use IndexedDB
     if (this.useIndexedDB) {
       let modelParams = [
         this.task.taskId,
@@ -35,22 +44,38 @@ export class Model {
       ];
       let metadata = await getWorkingModelMetadata(...modelParams);
 
+      // Check if a working model already exists in storage.
       if (metadata) {
-        console.log('Loading from memory ');
+        console.log('Loading model from memory');
         model = await getWorkingModel(...modelParams);
       } else {
-        console.log('Creating New');
-        model = await this.task.createModel();
+        console.log(`Creating new ${this.type} model`);
+        model = await this._createModel();
       }
     } else {
-      console.log('No indexDB');
-      model = await this.task.createModel();
+      console.log(`No IndexedDB : Creating new ${this.type} model`);
+      model = await this._createModel();
     }
 
-    this.model = model;
-    this.type =
-      model.getUserDefinedMetadata()['personalizationType'] ??
-      personalizationType.NONE;
+    // Make sure that the current working model is indeed the type we expect.
+    if (model.getUserDefinedMetadata()['personalizationType'] == this.type) {
+      this.model = model;
+    } else {
+      console.log(
+        `Previous working model was not of type ${this.type} : creating a new one`
+      );
+      this.model = await this._createModel();
+    }
+  }
+
+  /**
+   * Private method to create the model.
+   *
+   * This should be overriden in sublcasses in order to define the personalized model.
+   * @returns the newly created model.
+   */
+  async _createModel() {
+    return await this.task.createModel();
   }
 
   /**
@@ -68,13 +93,7 @@ export class Model {
    *  @returns the part of the model we want to share.
    */
   getSharedModel() {
-    switch (this.type) {
-      case personalizationType.NONE:
-        return this.model;
-
-      case personalizationType.INTEROPERABILITY:
-        return this.model.layers[1];
-    }
+    return this.model;
   }
 
   /**
@@ -84,33 +103,33 @@ export class Model {
   getPersonalizationType() {
     return this.type;
   }
+}
 
-  /**
-   * This method updates the type of personalization of the model.
-   *
-   * @param {personalizationType} newType the new type
-   * @returns the model with a new personalization type.
-   */
-  updatePersonalizationType(newType) {
-    switch (newType) {
-      case personalizationType.NONE:
-        this.model = this.getSharedModel();
-        this.model.setUserDefinedMetadata({ personalizationType: newType });
-        this.type = newType;
-        console.log('Updating model to type :' + newType);
-        break;
+/**
+ * This class defines a model that uses Interoperabiliy personalization.
+ * as defined in David Roschewit's paper on Interoperability (https://arxiv.org/abs/2107.06580).
+ *
+ * It allows us to learn a feature-shift and a target-shift with respect to the federation.
+ * The values of weight and biases of the interoperability layers
+ * are directly interpretable to understand differences in distributions of features.
+ *
+ */
+export class InteroperabilityModel extends Model {
+  constructor(task, useIndexedDB) {
+    super(task, useIndexedDB);
+    this.type = personalizationType.INTEROPERABILITY;
+    this.dataType = task.trainingInformation.dataType;
+    if (this.dataType != 'csv')
+      throw 'Interoperability framework can only be used on csv data';
+  }
 
-      case personalizationType.INTEROPERABILITY:
-        if (this.type != newType && this.dataType == 'csv') {
-          this.model = this._createInteroperabilityModel(this.getSharedModel());
-          this.model.setUserDefinedMetadata({ personalizationType: newType });
-          this.type = newType;
-          console.log('Updating model to type :' + newType);
-        } else {
-          console.log('Model already of type :' + newType);
-        }
-        break;
-    }
+  async _createModel() {
+    let model = await this.task.createModel();
+    model = this._createInteroperabilityModel(model);
+    model.setUserDefinedMetadata({
+      personalizationType: personalizationType.INTEROPERABILITY,
+    });
+    return model;
   }
 
   /**
@@ -136,8 +155,14 @@ export class Model {
     return personalModel;
   }
 
+  getSharedModel() {
+    return this.model.layers[1];
+  }
+
   /**
-   *
+   * Returns the weights and biases for the interoperability layers.
+   * These weights and can be directly interpreted and give feedback to the user.
+   * @returns {Float32Array} the weights and biases of the interoperability layers as an array [weightsIn, biasesIn, weightsOut, biasesOut].
    */
   getInteroperabilityParameters() {
     /*return {
@@ -147,6 +172,12 @@ export class Model {
     return [
       this.model.layers[0].weights[0].read().dataSync(),
       this.model.layers[0].weights[1].read().dataSync(),
+      this.model.layers[this.model.layers.length - 1].weights[0]
+        .read()
+        .dataSync(),
+      this.model.layers[this.model.layers.length - 1].weights[1]
+        .read()
+        .dataSync(),
     ];
   }
 }
