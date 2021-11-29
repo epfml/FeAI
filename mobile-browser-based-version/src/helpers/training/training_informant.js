@@ -1,4 +1,3 @@
-import { TrainingChart } from './training_chart';
 import { personalizationType } from '../model_definition/model';
 /**
  * Class that collects information about the status of the training-loop of the model.
